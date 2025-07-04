@@ -1,3 +1,13 @@
+
+import os
+NUMPY_SINGLE_THREAD = True
+if NUMPY_SINGLE_THREAD:
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
+    os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+
 import numpy as np
 import quaternion as quat
 import time
@@ -5,6 +15,7 @@ from numba import jit, prange, cuda
 from numba import void, float64
 from numba.core.errors import NumbaPerformanceWarning
 import warnings
+
 
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
 
@@ -351,10 +362,11 @@ def numpy_to_quat(A):
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 2000, 800, 1000
+    m, n, k = 800, 2000, 700
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
+    
     
     print(f"QUATERNIONS MAIN... [m: {m}, n: {n}, k: {k}, seed: {SEED}, range: {RANGE}, mnk: {1.0 * m * n * k:.2e}]")    
             
