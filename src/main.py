@@ -233,15 +233,15 @@ def a_dot_b_full_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     cuda.synchronize()
     t2_a4 = time.time()
     print(f"[time a4: {t2_a4 - t1_a4} s]")
-    input("c4")
+    # input("c4")
     t1_c4 = time.time()    
     dev_C4 = cuda.device_array((M4, k), dtype=np.float64)
-    print(f"A4 size [GB]: {dev_A4.nbytes / 1024**3}")
-    print(f"B4 size [GB]: {dev_B4.nbytes / 1024**3}")
-    print(f"C4 size [GB]: {dev_C4.nbytes / 1024**3}")     
-    bpg = (M4, P)
+    # print(f"A4 size [GB]: {dev_A4.nbytes / 1024**3}")
+    # print(f"B4 size [GB]: {dev_B4.nbytes / 1024**3}")
+    # print(f"C4 size [GB]: {dev_C4.nbytes / 1024**3}")     
+    # bpg = (M4, P)
     # a4_dot_b4_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_B4, dev_C4)
-    tile_size = 16
+    tile_size = 8
     bpg_x = (M4 + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
@@ -310,8 +310,8 @@ def a4_dot_b4_numba_cuda_job_float64(A4, B4, C4):
         
 @cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
 def a4_dot_b4_v2_numba_cuda_job_float64(A4, B4, C4):    
-    # shared_A = cuda.shared.array((16, 16), dtype=float64)
-    # shared_B = cuda.shared.array((16, 16), dtype=float64)
+    shared_A = cuda.shared.array((16, 16), dtype=float64)
+    shared_B = cuda.shared.array((16, 16), dtype=float64)
     tile_size = cuda.blockDim.x
     M4, P = C4.shape
     N4 = B4.shape[0]
@@ -320,23 +320,19 @@ def a4_dot_b4_v2_numba_cuda_job_float64(A4, B4, C4):
     row = bx * tile_size + tx
     col = by * tile_size + ty
     tmp = float64(0.0)
-    for _ in range(100000):
-        tmp += 3 * float64(0.25)
-    # for _ in range(10):
-    #     tmp = float64(0.0)
-    #     for k in range(0, N4, tile_size):
-    #         if row < M4 and k + ty < N4:
-    #             shared_A[tx, ty] = A4[row, k + ty]
-    #         else:
-    #             shared_A[tx, ty] = float64(0.0)
-    #         if k + tx < N4 and col < P:
-    #             shared_B[tx, ty] = B4[k + tx, col]
-    #         else:
-    #             shared_B[tx, ty] = float64(0.0)
-    #         cuda.syncthreads()
-    #         for n in range(tile_size):
-    #             tmp += shared_A[tx, n] * shared_B[n, ty]
-    #         cuda.syncthreads()
+    for k in range(0, N4, tile_size):
+        if row < M4 and k + ty < N4:
+            shared_A[tx, ty] = A4[row, k + ty]
+        else:
+            shared_A[tx, ty] = float64(0.0)
+        if k + tx < N4 and col < P:
+            shared_B[tx, ty] = B4[k + tx, col]
+        else:
+            shared_B[tx, ty] = float64(0.0)
+        cuda.syncthreads()
+        for n in range(tile_size):
+            tmp += shared_A[tx, n] * shared_B[n, ty]
+        cuda.syncthreads()
     if row < M4 and col < P:
         C4[row, col] = tmp
         
@@ -355,7 +351,7 @@ def numpy_to_quat(A):
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 500, 300, 400
+    m, n, k = 2000, 8000, 1000
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
@@ -396,22 +392,23 @@ if __name__ == "__main__":
     # A4 = a4(A)    
     # A4_hat_from_a = a4_hat_from_a(A)
     # A4_hat_from_a4 = a4_hat_from_a4(A4)        
-    t1 = time.time()
-    I4_hat = i4_hat(m)
-    Q4 = q4(A)
-    B4 = b4(B)        
     
-    # A4_hat_from_q4 = a4_pure(A) - 2 * Q4             
-    # C4_v2 = np.dot(np.dot(I4_hat, A4_hat_from_q4), B4)
-    A4_pure = a4_pure(A)    
-    C4_v2 = np.dot(I4_hat, np.dot(A4_pure, B4) - (2 * Q4).dot(B4))        
+    #t1 = time.time()
+    # I4_hat = i4_hat(m)
+    # Q4 = q4(A)
+    # B4 = b4(B)        
     
-    C_v2 = c4_to_c(C4_v2, m, k)
-    t2 = time.time()
-    print(f"MULTIPLICATION 'VIA FORMULA (3), NUMPY' [time: {t2 - t1} s, all close: {np.allclose(C, C_v2)}, d_inf: {np.max(np.abs(C - C_v2))}]")    
-    if VERBOSE:    
-        print(f"C4_v2:\n {C4_v2}")        
-        print(f"C_v2:\n {C_v2}")
+    ## A4_hat_from_q4 = a4_pure(A) - 2 * Q4             
+    ## C4_v2 = np.dot(np.dot(I4_hat, A4_hat_from_q4), B4)
+    #A4_pure = a4_pure(A)    
+    #C4_v2 = np.dot(I4_hat, np.dot(A4_pure, B4) - (2 * Q4).dot(B4))        
+    
+    #C_v2 = c4_to_c(C4_v2, m, k)
+    #t2 = time.time()
+    #print(f"MULTIPLICATION 'VIA FORMULA (3), NUMPY' [time: {t2 - t1} s, all close: {np.allclose(C, C_v2)}, d_inf: {np.max(np.abs(C - C_v2))}]")    
+    #if VERBOSE:    
+    #    print(f"C4_v2:\n {C4_v2}")        
+    #    print(f"C_v2:\n {C_v2}")
     
     t1 = time.time()
     m2 = 2 * m
@@ -496,8 +493,7 @@ if __name__ == "__main__":
         print(f"C4_v3:\n {C4_v3}")        
         print(f"C_v3:\n {C_v3}")
         
-    print("[starting a_dot_b_full_numba_cuda_float64(...)]", flush=True)
-    input("[press key]")
+    # input("[press key]")
     t1nc = time.time()
     C4_v4 = a_dot_b_full_numba_cuda_float64(A_numpy, B_numpy)
     C_v4 = c4_to_c(C4_v4, m, k)
@@ -505,6 +501,6 @@ if __name__ == "__main__":
     if VERBOSE:    
         print(f"C4_v4:\n {C4_v4}")        
         print(f"C_v4:\n {C_v4}")
-    print(f"MMMULTIPLICATION 'VIA FORMULA (2), NUMBA CUDA' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v4)}, d_inf: {np.max(np.abs(C - C_v4))}]]")
+    print(f"MULTIPLICATION 'VIA FORMULA (2), NUMBA CUDA' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v4)}, d_inf: {np.max(np.abs(C - C_v4))}]]")
     
     print("QUATERNIONS MAIN DONE.")
