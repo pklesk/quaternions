@@ -351,7 +351,7 @@ def numpy_to_quat(A):
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 2000, 8000, 1000
+    m, n, k = 2000, 800, 1000
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
@@ -421,8 +421,8 @@ if __name__ == "__main__":
     Q4 = q4(A)
     B4 = b4(B)
     A4_pure_n = a4_pure_n(A)                  
-    H2 = np.array([[1., 1.], [1., -1.]])
-    H4 = np.kron(H2, H2)
+    # H2 = np.array([[1., 1.], [1., -1.]])
+    # H4 = np.kron(H2, H2)
     
     # H4En = np.kron(H4, np.eye(n))
     # H4B = H4En.dot(B4)
