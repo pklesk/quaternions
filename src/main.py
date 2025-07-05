@@ -587,7 +587,7 @@ def numpy_to_quat(A):
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 500, 1200, 900
+    m, n, k = 800, 1000, 500
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
