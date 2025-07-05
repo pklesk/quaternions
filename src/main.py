@@ -443,7 +443,7 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     t1_h4d4h4b4 = time.time()
     dev_H4D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
     tile_size = 8
-    bpg_x = (N + tile_size - 1) // tile_size
+    bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)
@@ -587,7 +587,7 @@ def numpy_to_quat(A):
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 500, 2000, 800
+    m, n, k = 500, 1200, 900
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
@@ -748,6 +748,5 @@ if __name__ == "__main__":
         print(f"C4_v5:\n {C4_v5}")        
         print(f"C_v5:\n {C_v5}")
     print(f"MULTIPLICATION 'VIA FORMULA (3*), NUMBA CUDA CHEAP' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v5)}, d_inf: {np.max(np.abs(C - C_v5))}]]")
-    
     
     print("QUATERNIONS MAIN DONE.")
