@@ -1,4 +1,3 @@
-
 import os
 NUMPY_SINGLE_THREAD = True
 if NUMPY_SINGLE_THREAD:
@@ -12,7 +11,7 @@ import numpy as np
 import quaternion as quat
 import time
 from numba import jit, prange, cuda
-from numba import void, float64
+from numba import void, float64, int8
 from numba.core.errors import NumbaPerformanceWarning
 import warnings
 
@@ -244,12 +243,8 @@ def a_dot_b_full_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     cuda.synchronize()
     t2_a4 = time.time()
     print(f"[time a4: {t2_a4 - t1_a4} s]")
-    # input("c4")
     t1_c4 = time.time()    
     dev_C4 = cuda.device_array((M4, k), dtype=np.float64)
-    # print(f"A4 size [GB]: {dev_A4.nbytes / 1024**3}")
-    # print(f"B4 size [GB]: {dev_B4.nbytes / 1024**3}")
-    # print(f"C4 size [GB]: {dev_C4.nbytes / 1024**3}")     
     # bpg = (M4, P)
     # a4_dot_b4_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_B4, dev_C4)
     tile_size = 8
@@ -261,8 +256,9 @@ def a_dot_b_full_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     cuda.synchronize()
     t2_c4 = time.time()
     print(f"[time c4: {t2_c4 - t1_c4} s, bpg: {bpg}, tpb: {tpb}]")    
-    C_result = np.empty((M4, P), dtype=np.float64)
+    C_result = None 
     if result_as_c4:
+        C_result = np.empty((M4, P), dtype=np.float64)
         dev_C4.copy_to_host(ary=C_result)
     else:
         dev_C_numpy = cuda.device_array((M, P, 4), dtype=np.float64)
@@ -281,7 +277,7 @@ def b4_numba_cuda_job_float64(B_numpy, B4):
     i_np, i_im = i_global // 4, i_global % 4    
     if i_np < N * P:
         n, p = i_np // P, i_np % P
-        B4[i_im * N + n, p] = B_numpy[n, p, i_im]
+        B4[i_im * N + n, p] = B_numpy[n, p, i_im]                
 
 @cuda.jit(void(float64[:, :, :], float64[:, :]))
 def a4_numba_cuda_job_float64(A_numpy, A4):
@@ -355,14 +351,238 @@ def c4_to_c_numpy_numba_cuda_job_float64(C4, C_numpy):
     if i_mp < M * P:
         m, p = i_mp // P, i_mp % P
         C_numpy[m, p, i_im] = C4[i_im * M + m, p] 
-            
+
+def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
+    print(f"A_DOT_B_CHEAP_NUMBA_CUDA_FLOAT64...")
+    t1 = time.time()
+    M, N, _ = A_numpy.shape
+    P = B_numpy.shape[1]
+    N4 = N << 2
+    M4 = M << 2
+    t1_b4 = time.time()
+    dev_B_numpy = cuda.to_device(B_numpy)
+    dev_B4 = cuda.device_array((N4, P), dtype=np.float64)
+    tpb = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
+    bpg = (N4 * P + tpb - 1) // tpb
+    b4_numba_cuda_job_float64[bpg, tpb](dev_B_numpy, dev_B4)
+    cuda.synchronize()    
+    t2_b4 = time.time()
+    print(f"[time b4: {t2_b4 - t1_b4} s]")
+    t1_a4 = time.time()
+    dev_A_numpy = cuda.to_device(A_numpy)
+    dev_A4f = cuda.device_array((M4, N), dtype=np.float64) # flat
+    bpg = (M4 * N + tpb - 1) // tpb 
+    b4_numba_cuda_job_float64[bpg, tpb](dev_A_numpy, dev_A4f)
+    cuda.synchronize()
+    t2_a4 = time.time()
+    print(f"[time a4: {t2_a4 - t1_a4} s]")
+    t1_h4b4 = time.time()
+    dev_H4B4 = cuda.device_array((N4, P), dtype=np.float64)
+    tile_size = 8
+    bpg_x = (N + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tpb = (tile_size, tile_size)
+    h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_H4B4)
+    cuda.synchronize()
+    t2_h4b4 = time.time()
+    print(f"[time h4b4: {t2_h4b4 - t1_h4b4} s]")
+    t1_h4a4 = time.time()
+    dev_H4A4 = cuda.device_array((M4, N), dtype=np.float64)
+    tile_size = 8
+    bpg_x = (M + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tpb = (tile_size, tile_size)
+    h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_A4f, dev_H4A4)
+    cuda.synchronize()
+    t2_h4b4 = time.time()
+    print(f"[time h4a4: {t2_h4b4 - t1_h4b4} s]")
+        
+    t1_d4h4b4 = time.time()
+    dev_D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
+    tile_size = 8
+    bpg_x = (M + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size    
+    bpg = (bpg_x, bpg_y, 4)
+    tpb = (tile_size, tile_size)
+    a4_diagdot_b4_numba_cuda_job_float64[bpg, tpb](dev_H4A4, dev_H4B4, 0.25, dev_D4H4B4)
+    cuda.synchronize()
+    t2_d4h4b4 = time.time()
+    print(f"[time d4h4b4: {t2_d4h4b4 - t1_d4h4b4} s]")
+
+    t1_q4b4 = time.time()
+    dev_Q4f = cuda.device_array((M4, N), dtype=np.float64) # flat    
+    dev_permutation_q = cuda.to_device(np.array([0, 3, 1, 2], dtype=np.int8))
+    tile_size = 8
+    bpg_x = (M + tile_size - 1) // tile_size
+    bpg_y = (N + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tpb = (tile_size, tile_size)    
+    permute_parts_numba_cuda_job_float64[bpg, tpb](dev_A4f, dev_permutation_q, dev_Q4f)    
+    cuda.synchronize()
+    dev_B4p = cuda.device_array((N4, P), dtype=np.float64) # permuted
+    dev_permutation_b = cuda.to_device(np.array([0, 2, 3, 1], dtype=np.int8))
+    permute_parts_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_permutation_b, dev_B4p)
+    cuda.synchronize()        
+    dev_Q4B4 = cuda.device_array((M4, P), dtype=np.float64)
+    tile_size = 8
+    bpg_x = (M + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size    
+    bpg = (bpg_x, bpg_y, 4)
+    tpb = (tile_size, tile_size)
+    a4_diagdot_b4_numba_cuda_job_float64[bpg, tpb](dev_Q4f, dev_B4p, 2.0, dev_Q4B4)
+    cuda.synchronize()        
+    t2_q4b4 = time.time()
+    print(f"[time q4b4: {t2_q4b4 - t1_q4b4} s]")
+
+    t1_h4d4h4b4 = time.time()
+    dev_H4D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
+    tile_size = 8
+    bpg_x = (N + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tpb = (tile_size, tile_size)
+    h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_D4H4B4, dev_H4D4H4B4)
+    cuda.synchronize()
+    t2_h4d4h4b4 = time.time()
+    print(f"[time h4d4h4b4: {t2_h4d4h4b4 - t1_h4d4h4b4} s]")
+    
+    t1_sub = time.time()
+    dev_C4 = cuda.device_array((M4, P), dtype=np.float64)    
+    bpg_x = (M4 + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tpb = (tile_size, tile_size)    
+    final_sub_numba_cuda_job_float64[bpg, tpb](dev_H4D4H4B4, dev_Q4B4, dev_C4)    
+    cuda.synchronize()
+    t2_sub = time.time()
+        
+    C_result = None 
+    if result_as_c4:
+        C_result = np.empty((M4, P), dtype=np.float64)
+        dev_C4.copy_to_host(ary=C_result)
+    else:
+        dev_C_numpy = cuda.device_array((M, P, 4), dtype=np.float64)
+        bpg = (M4 * P + tpb - 1) // tpb
+        c4_to_c_numpy_numba_cuda_job_float64[bpg, tpb](dev_C4, dev_C_numpy)
+        cuda.synchronize()
+        C_result = dev_C_numpy.copy_to_host()    
+    t2 = time.time()
+    print(f"A_DOT_B_CHEAP_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
+    return C_result
+
+@cuda.jit(void(float64[:, :], float64[:, :]))
+def h4_kron_a4_numba_cuda_job_float64(A4, H4A4):    
+    shared_A4_0 = cuda.shared.array((16, 16), dtype=float64)
+    shared_A4_1 = cuda.shared.array((16, 16), dtype=float64)
+    shared_A4_2 = cuda.shared.array((16, 16), dtype=float64)
+    shared_A4_3 = cuda.shared.array((16, 16), dtype=float64)        
+    M4, N = A4.shape
+    M = M4 >> 2
+    M2 = M << 1
+    M3 = M2 + M
+    tile_size = cuda.blockDim.x
+    bx, by = cuda.blockIdx.x, cuda.blockIdx.y
+    tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
+    row = bx * tile_size + tx
+    col = by * tile_size + ty
+    if row < M and col < N:
+        shared_A4_0[tx, ty] = A4[row, col]
+        shared_A4_1[tx, ty] = A4[row + M, col]
+        shared_A4_2[tx, ty] = A4[row + M2, col]
+        shared_A4_3[tx, ty] = A4[row + M3, col] 
+    else:
+        shared_A4_0[tx, ty] = float64(0.0)
+        shared_A4_1[tx, ty] = float64(0.0)
+        shared_A4_2[tx, ty] = float64(0.0)
+        shared_A4_3[tx, ty] = float64(0.0)
+    s0 = shared_A4_0[tx, ty] + shared_A4_1[tx, ty]
+    s1 = shared_A4_2[tx, ty] + shared_A4_3[tx, ty]
+    d0 = shared_A4_0[tx, ty] - shared_A4_1[tx, ty]
+    d1 = shared_A4_2[tx, ty] - shared_A4_3[tx, ty]
+    if row < M and col < N:    
+        H4A4[tx, ty] = s0 + s1
+        H4A4[tx + M, ty] = d0 + d1
+        H4A4[tx + M2, ty] = s0 - s1
+        H4A4[tx + M3, ty] = d0 - d1
+
+@cuda.jit(void(float64[:, :], float64[:, :], float64, float64[:, :]))
+def a4_diagdot_b4_numba_cuda_job_float64(A4, B4, factor, C4):    
+    shared_A = cuda.shared.array((16, 16), dtype=float64)
+    shared_B = cuda.shared.array((16, 16), dtype=float64)
+    tile_size = cuda.blockDim.x
+    M4, P = C4.shape
+    M = M4 >> 2
+    N4 = B4.shape[0]
+    N = N4 >> 2
+    bx, by, bz = cuda.blockIdx.x, cuda.blockIdx.y, cuda.blockIdx.z
+    tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
+    row = bx * tile_size + tx
+    col = by * tile_size + ty
+    tmp = float64(0.0)
+    for k in range(0, N, tile_size):
+        if row < M and k + ty < N:
+            shared_A[tx, ty] = A4[row + bz * M, k + ty]
+        else:
+            shared_A[tx, ty] = float64(0.0)
+        if k + tx < N and col < P:
+            shared_B[tx, ty] = B4[k + tx + bz * N, col]
+        else:
+            shared_B[tx, ty] = float64(0.0)
+        cuda.syncthreads()
+        for n in range(tile_size):
+            tmp += shared_A[tx, n] * shared_B[n, ty]
+        cuda.syncthreads()
+    if row < M and col < P:
+        C4[row + bz * M, col] = factor * tmp
+
+@cuda.jit(void(float64[:, :], int8[:], float64[:, :]))
+def permute_parts_numba_cuda_job_float64(S4, permutation, S4_permuted):    
+    shared_S4 = cuda.shared.array((16, 16, 4), dtype=float64)
+    M4, N = S4.shape
+    M = M4 >> 2
+    M2 = M << 1
+    M3 = M2 + M
+    tile_size = cuda.blockDim.x
+    bx, by = cuda.blockIdx.x, cuda.blockIdx.y
+    tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
+    row = bx * tile_size + tx
+    col = by * tile_size + ty
+    if row < M and col < N:
+        shared_S4[tx, ty, 0] = S4[row, col]
+        shared_S4[tx, ty, 1] = S4[row + M, col]
+        shared_S4[tx, ty, 2] = S4[row + M2, col]
+        shared_S4[tx, ty, 3] = S4[row + M3, col]     
+        S4_permuted[tx, ty] = shared_S4[tx, ty, permutation[0]]
+        S4_permuted[tx + M, ty] = shared_S4[tx, ty, permutation[1]]
+        S4_permuted[tx + M2, ty] = shared_S4[tx, ty, permutation[2]]
+        S4_permuted[tx + M3, ty] = shared_S4[tx, ty, permutation[3]]
+        
+@cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
+def final_sub_numba_cuda_job_float64(A4, B4, C4):    
+    shared_A = cuda.shared.array((16, 16), dtype=float64)
+    shared_B = cuda.shared.array((16, 16), dtype=float64)
+    tile_size = cuda.blockDim.x
+    M4, P = C4.shape
+    M = M4 >> 2
+    bx, by = cuda.blockIdx.x, cuda.blockIdx.y
+    tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
+    row = bx * tile_size + tx
+    col = by * tile_size + ty
+    if row < M4 and col < P:
+        shared_A[tx, ty] = A4[row, col]
+        shared_B[tx, ty] = B4[row, col]
+        result = shared_B[tx, ty] - shared_A[tx, ty] if row < M else shared_A[tx, ty] - shared_B[tx, ty]        
+        C4[row, col] = result
+                
 def numpy_to_quat(A):
     m, n, _ = A.shape
     return quat.as_quat_array(A.reshape(m * n, 4)).reshape(m, n)
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 800, 2000, 700
+    m, n, k = 5, 9, 3
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
@@ -467,18 +687,19 @@ if __name__ == "__main__":
     # D4[m:m2, n:n2] = H4A[m:m2]
     # D4[m2:m3, n2:n3] = H4A[m2:m3]
     # D4[m3:, n3:] = H4A[m3:]
-    # C4_v3 = np.dot(I4_hat, np.dot(H4Em, np.dot(0.25 * D4, H4B)) - (2.0 * Q4).dot(B4))
+    # C4_v3 = np.dot(I4_hat, np.dot(H4Em, np.dot(0.25 * D4, H4B)) - (2.0 * Q4).dot(B4)))
 
     D4H4B = np.zeros((m4, k), dtype=B4.dtype)
     D4H4B[:m] = (0.25 * H4A[:m]).dot(H4B[:n])
     D4H4B[m: m2] = (0.25 * H4A[m:m2]).dot(H4B[n:n2])
     D4H4B[m2: m3] = (0.25 * H4A[m2:m3]).dot(H4B[n2:n3])
-    D4H4B[m3:] = (0.25 * H4A[m3:]).dot(H4B[n3:])    
+    D4H4B[m3:] = (0.25 * H4A[m3:]).dot(H4B[n3:])      
+    
     Q4B = np.zeros((m4, k), dtype=B4.dtype)
     Q4B[:m] = (2.0 * Q4[:m, :n]).dot(B4[:n])
     Q4B[m: m2] = (2.0 * Q4[m:m2, n2:n3]).dot(B4[n2:n3])
     Q4B[m2: m3] = (2.0 * Q4[m2:m3, n3:]).dot(B4[n3:])
-    Q4B[m3:] = (2.0 * Q4[m3:, n:n2]).dot(B4[n:n2])    
+    Q4B[m3:] = (2.0 * Q4[m3:, n:n2]).dot(B4[n:n2])
     
     # H4D4H4B = np.dot(H4Em, D4H4B)    
     H4D4H4B2 = np.empty_like(D4H4B) 
@@ -495,7 +716,7 @@ if __name__ == "__main__":
     # I4_hat = i4_hat(m)
     # C4_v3 = np.dot(I4_hat, H4D4H4B - Q4B)
     
-    C4_v3 = H4D4H4B - Q4B    
+    C4_v3 = H4D4H4B - Q4B
     C4_v3[:m] = -C4_v3[:m]
      
     C_v3 = c4_to_c(C4_v3, m, k)
@@ -505,7 +726,6 @@ if __name__ == "__main__":
         print(f"C4_v3:\n {C4_v3}")        
         print(f"C_v3:\n {C_v3}")
         
-    # input("[press key]")
     t1nc = time.time()
     C4_v4 = a_dot_b_full_numba_cuda_float64(A_numpy, B_numpy)
     C_v4 = c4_to_c(C4_v4, m, k)
@@ -513,6 +733,16 @@ if __name__ == "__main__":
     if VERBOSE:    
         print(f"C4_v4:\n {C4_v4}")        
         print(f"C_v4:\n {C_v4}")
-    print(f"MULTIPLICATION 'VIA FORMULA (2), NUMBA CUDA' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v4)}, d_inf: {np.max(np.abs(C - C_v4))}]]")
+    print(f"MULTIPLICATION 'VIA FORMULA (2), NUMBA CUDA FULL' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v4)}, d_inf: {np.max(np.abs(C - C_v4))}]]")
+
+    t1nc = time.time()
+    C4_v5 = a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy)
+    C_v5 = c4_to_c(C4_v5, m, k)
+    t2nc = time.time()
+    if VERBOSE:    
+        print(f"C4_v5:\n {C4_v5}")        
+        print(f"C_v5:\n {C_v5}")
+    print(f"MULTIPLICATION 'VIA FORMULA (3*), NUMBA CUDA CHEAP' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v5)}, d_inf: {np.max(np.abs(C - C_v5))}]]")
+    
     
     print("QUATERNIONS MAIN DONE.")
