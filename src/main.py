@@ -391,13 +391,13 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     dev_H4A4 = cuda.device_array((M4, N), dtype=np.float64)
     tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
-    bpg_y = (P + tile_size - 1) // tile_size
+    bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)
     h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_A4f, dev_H4A4)
     cuda.synchronize()
-    t2_h4b4 = time.time()
-    print(f"[time h4a4: {t2_h4b4 - t1_h4b4} s]")
+    t2_h4a4 = time.time()
+    print(f"[time h4a4: {t2_h4a4 - t1_h4a4} s]")
         
     t1_d4h4b4 = time.time()
     dev_D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
@@ -409,7 +409,7 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     a4_diagdot_b4_numba_cuda_job_float64[bpg, tpb](dev_H4A4, dev_H4B4, 0.25, dev_D4H4B4)
     cuda.synchronize()
     t2_d4h4b4 = time.time()
-    print(f"[time d4h4b4: {t2_d4h4b4 - t1_d4h4b4} s]")
+    print(f"[time d4h4b4: {t2_d4h4b4 - t1_d4h4b4} s]")    
 
     t1_q4b4 = time.time()
     dev_Q4f = cuda.device_array((M4, N), dtype=np.float64) # flat    
@@ -423,6 +423,10 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     cuda.synchronize()
     dev_B4p = cuda.device_array((N4, P), dtype=np.float64) # permuted
     dev_permutation_b = cuda.to_device(np.array([0, 2, 3, 1], dtype=np.int8))
+    bpg_x = (N + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tile_size = 8
     permute_parts_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_permutation_b, dev_B4p)
     cuda.synchronize()        
     dev_Q4B4 = cuda.device_array((M4, P), dtype=np.float64)
@@ -434,7 +438,7 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     a4_diagdot_b4_numba_cuda_job_float64[bpg, tpb](dev_Q4f, dev_B4p, 2.0, dev_Q4B4)
     cuda.synchronize()        
     t2_q4b4 = time.time()
-    print(f"[time q4b4: {t2_q4b4 - t1_q4b4} s]")
+    print(f"[time q4b4: {t2_q4b4 - t1_q4b4} s]")    
 
     t1_h4d4h4b4 = time.time()
     dev_H4D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
@@ -457,6 +461,7 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     final_sub_numba_cuda_job_float64[bpg, tpb](dev_H4D4H4B4, dev_Q4B4, dev_C4)    
     cuda.synchronize()
     t2_sub = time.time()
+    print(f"[time sub: {t2_sub - t1_sub} s]")
         
     C_result = None 
     if result_as_c4:
@@ -502,10 +507,10 @@ def h4_kron_a4_numba_cuda_job_float64(A4, H4A4):
     d0 = shared_A4_0[tx, ty] - shared_A4_1[tx, ty]
     d1 = shared_A4_2[tx, ty] - shared_A4_3[tx, ty]
     if row < M and col < N:    
-        H4A4[tx, ty] = s0 + s1
-        H4A4[tx + M, ty] = d0 + d1
-        H4A4[tx + M2, ty] = s0 - s1
-        H4A4[tx + M3, ty] = d0 - d1
+        H4A4[row, col] = s0 + s1
+        H4A4[row + M, col] = d0 + d1
+        H4A4[row + M2, col] = s0 - s1
+        H4A4[row + M3, col] = d0 - d1
 
 @cuda.jit(void(float64[:, :], float64[:, :], float64, float64[:, :]))
 def a4_diagdot_b4_numba_cuda_job_float64(A4, B4, factor, C4):    
@@ -554,10 +559,10 @@ def permute_parts_numba_cuda_job_float64(S4, permutation, S4_permuted):
         shared_S4[tx, ty, 1] = S4[row + M, col]
         shared_S4[tx, ty, 2] = S4[row + M2, col]
         shared_S4[tx, ty, 3] = S4[row + M3, col]     
-        S4_permuted[tx, ty] = shared_S4[tx, ty, permutation[0]]
-        S4_permuted[tx + M, ty] = shared_S4[tx, ty, permutation[1]]
-        S4_permuted[tx + M2, ty] = shared_S4[tx, ty, permutation[2]]
-        S4_permuted[tx + M3, ty] = shared_S4[tx, ty, permutation[3]]
+        S4_permuted[row, col] = shared_S4[tx, ty, permutation[0]]
+        S4_permuted[row + M, col] = shared_S4[tx, ty, permutation[1]]
+        S4_permuted[row + M2, col] = shared_S4[tx, ty, permutation[2]]
+        S4_permuted[row + M3, col] = shared_S4[tx, ty, permutation[3]]
         
 @cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
 def final_sub_numba_cuda_job_float64(A4, B4, C4):    
@@ -582,7 +587,7 @@ def numpy_to_quat(A):
 
 if __name__ == "__main__":    
     SEED = 0
-    m, n, k = 5, 9, 3
+    m, n, k = 500, 2000, 800
     RANGE = 5        
     VERBOSE = False
     FLOAT64_ELEMENTS = True
@@ -693,7 +698,7 @@ if __name__ == "__main__":
     D4H4B[:m] = (0.25 * H4A[:m]).dot(H4B[:n])
     D4H4B[m: m2] = (0.25 * H4A[m:m2]).dot(H4B[n:n2])
     D4H4B[m2: m3] = (0.25 * H4A[m2:m3]).dot(H4B[n2:n3])
-    D4H4B[m3:] = (0.25 * H4A[m3:]).dot(H4B[n3:])      
+    D4H4B[m3:] = (0.25 * H4A[m3:]).dot(H4B[n3:])
     
     Q4B = np.zeros((m4, k), dtype=B4.dtype)
     Q4B[:m] = (2.0 * Q4[:m, :n]).dot(B4[:n])
