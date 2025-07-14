@@ -12,6 +12,7 @@ import time
 from numba import jit, prange, cuda
 from numba import void, float32, float64, int8, int32
 from numba.core.errors import NumbaPerformanceWarning
+from utils import cpu_and_system_props, gpu_props, dict_to_str, Logger, experiment_hash_str, save_and_zip_experiment, unzip_and_load_experiment
 
 import warnings
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
@@ -208,7 +209,7 @@ def qmatmul_direct_numpy(A, B):
     C = c4_to_c(C4)
     return C
 
-def qmatmul_direct_algolike_numpy(A, B):
+def qmatmul_algolike_numpy(A, B): # only to check result correctness
     I4_tilde = i4_tilde(A.shape[0], A.dtype)
     A44_ubar = a44_ubar(A)
     A44_lbar = a44_lbar(A)
@@ -377,7 +378,8 @@ def c4_to_c_numba_cuda_job_float64(C4, C):
         C[m, p, i_im] = C4[i_im * M + m, p] 
 
 def qmatmul_algo_numba_cuda_float64(A, B, verbose=False):
-    print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64...")
+    if verbose:
+        print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64...")
     t1 = time.time()
     M, N, _ = A.shape
     P = B.shape[1]
@@ -497,7 +499,8 @@ def qmatmul_algo_numba_cuda_float64(A, B, verbose=False):
     cuda.synchronize()
     C = dev_C.copy_to_host()    
     t2 = time.time()
-    print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
+    if verbose:
+        print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
     return C
 
 @cuda.jit(void(float64[:, :], float64[:, :]))
@@ -628,21 +631,25 @@ if __name__ == "__main__":
     
     # experiment settings
     SEED = 0
-    M, N, P = 150, 190, 170
+    M, N, P = 551, 1002, 673
     RANGE = 10
     DTYPE = np.float64
     VERBOSE = False         
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
         "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy),
-        "QMATMUL_DIRECT_ALGOLIKE_NUMPY": (False, qmatmul_direct_algolike_numpy),
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
         }
     
-    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")            
+    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")
+    c_props = cpu_and_system_props()
+    g_props = gpu_props()
+    cpu_gpu_info = f"[CPU: {c_props['cpu_name']}, gpu: {g_props['name']}]".upper()
+    print(f"CPU AND SYSTEM PROPS:\n{dict_to_str(c_props)}")
+    print(f"GPU PROPS:\n{dict_to_str(g_props)}")            
     np.random.seed(SEED)
     A = qmatrand(M, N, -RANGE, RANGE, DTYPE)
     B = qmatrand(N, P, -RANGE, RANGE, DTYPE)  
