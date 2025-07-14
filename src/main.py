@@ -822,7 +822,6 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=True):
     bpg = (bpg_x, bpg_y, 4)
     tpb = (tile_size, tile_size)
     matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_A4l, dev_B4l, np.float32(2.0), dev_A4lB4l)
-    cpu_gpu_info = f"[CPU: {c_props['cpu_name']}, gpu: {g_props['name']}]".upper()
     cuda.synchronize()        
     t2_a4lb4l = time.time()
     if verbose:
@@ -886,8 +885,8 @@ def had4_numba_cuda_job_float32(E4, H4E4):
 
 @cuda.jit(void(float32[:, :], float32[:, :], float32, float32[:, :]))
 def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     
-    shared_E = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 16
-    shared_F = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 16
+    shared_E = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 8
+    shared_F = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 8
     tile_size = cuda.blockDim.x
     R4, T = G4.shape
     R = R4 >> 2
@@ -980,7 +979,7 @@ if __name__ == "__main__":
     
     # experiment settings
     SEED = 0
-    M, N, P = 10001, 1002, 5003
+    M, N, P = 501, 1002, 603
     RANGE = 10
     DTYPE = np.float32
     VERBOSE = False         
