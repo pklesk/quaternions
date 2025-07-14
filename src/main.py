@@ -33,42 +33,39 @@ def qmatrand(M, N, range_min, range_max, dtype=np.float32):
     A = (np.random.rand(M, N, 4) * (range_max - range_min) + range_min).astype(dtype)
     return A
 
-def a4(A, a_blocks_signs=A_BLOCKS_SIGNS, a_blocks_parts=A_BLOCKS_PARTS):
+def stack(E):
+    R, S, _ = E.shape
+    R2 = R << 1
+    R3 = R2 + R
+    R4 = R << 2           
+    E4 = np.empty((R4, S), dtype=E.dtype)
+    E4[:R] = E[:, :, 0]
+    E4[R:R2] = E[:, :, 1]
+    E4[R2:R3] = E[:, :, 2]
+    E4[R3:] = E[:, :, 3]
+    return E4  
+
+def a44(A, a_blocks_signs=A_BLOCKS_SIGNS, a_blocks_parts=A_BLOCKS_PARTS):
     M, N, _ = A.shape
-    A4 = np.empty((M << 2, N << 2), dtype=A.dtype)
+    A44 = np.empty((M << 2, N << 2), dtype=A.dtype)
     for i in range(4):
         iM = i * M
         for j in range(4):
             jN = j * N
-            A4[iM:iM + M, jN:jN + N] = a_blocks_signs[i, j] * A[:, :, a_blocks_parts[i, j]] 
-    return A4
+            A44[iM:iM + M, jN:jN + N] = a_blocks_signs[i, j] * A[:, :, a_blocks_parts[i, j]] 
+    return A44
 
-def a4_bar(A, a_blocks_parts=A_BLOCKS_PARTS):
+def a44_ubar(A, a_blocks_parts=A_BLOCKS_PARTS):
     M, N, _ = A.shape
-    A4_bar = np.empty((M << 2, N << 2), dtype=A.dtype)
+    A44_ubar = np.empty((M << 2, N << 2), dtype=A.dtype)
     for i in range(4):
         iM = i * M
         for j in range(4):
             jN = j * N
-            A4_bar[iM:iM + M, jN:jN + N] = A[:, :, a_blocks_parts[i, j]] 
-    return A4_bar
+            A44_ubar[iM:iM + M, jN:jN + N] = A[:, :, a_blocks_parts[i, j]] 
+    return A44_ubar
 
-def b4(B):
-    N, P, _ = B.shape
-    N2 = N << 1
-    N3 = N2 + N
-    N4 = N << 2           
-    B4 = np.empty((N4, P), dtype=B.dtype)
-    B4[:N] = B[:, :, 0]
-    B4[N:N2] = B[:, :, 1]
-    B4[N2:N3] = B[:, :, 2]
-    B4[N3:] = B[:, :, 3]
-    return B4  
-
-def a4_bar_thin(A):
-    return b4(A)
-
-def q4(A):
+def a44_lbar(A):
     M, N, _ = A.shape
     M2 = M << 1
     M3 = M2 + M
@@ -76,30 +73,30 @@ def q4(A):
     N2 = N << 1
     N3 = N2 + N
     N4 = N << 2    
-    Q4 = np.zeros((M4, N4), dtype=A.dtype)
-    Q4[:M, :N] = A[:, :, 0]
-    Q4[M:M2, N2:N3] = A[:, :, 3]
-    Q4[M2:M3, N3:] = A[:, :, 1]
-    Q4[M3:, N:N2] = A[:, :, 2]
-    return Q4 
+    A44_lbar = np.zeros((M4, N4), dtype=A.dtype)
+    A44_lbar[:M, :N] = A[:, :, 0]
+    A44_lbar[M:M2, N2:N3] = A[:, :, 3]
+    A44_lbar[M2:M3, N3:] = A[:, :, 1]
+    A44_lbar[M3:, N:N2] = A[:, :, 2]
+    return A44_lbar 
 
-def q4_thin(A):
+def a4_lbar(A):
     M, N, _ = A.shape
     M2 = M << 1
     M3 = M2 + M
     M4 = M << 2
-    Q4_thin = np.zeros((M4, N), dtype=A.dtype)
-    Q4_thin[:M] = A[:, :, 0]
-    Q4_thin[M:M2] = A[:, :, 3]
-    Q4_thin[M2:M3] = A[:, :, 1]
-    Q4_thin[M3:] = A[:, :, 2]
-    return Q4_thin
+    A4_lbar = np.zeros((M4, N), dtype=A.dtype)
+    A4_lbar[:M] = A[:, :, 0]
+    A4_lbar[M:M2] = A[:, :, 3]
+    A4_lbar[M2:M3] = A[:, :, 1]
+    A4_lbar[M3:] = A[:, :, 2]
+    return A4_lbar
 
-def i4_hat(M, dtype):
-    I4_hat = np.eye(M << 2, dtype=dtype)
-    diag_quarter = I4_hat[np.arange(M), np.arange(M)]
-    I4_hat[np.arange(M), np.arange(M)] = -diag_quarter
-    return I4_hat
+def i4_tilde(M, dtype):
+    I4_tilde = np.eye(M << 2, dtype=dtype)
+    diag_quarter = I4_tilde[np.arange(M), np.arange(M)]
+    I4_tilde[np.arange(M), np.arange(M)] = -diag_quarter
+    return I4_tilde
 
 def c4_to_c(C4):
     M4, P = C4.shape
@@ -206,19 +203,35 @@ def qmatmul_naive_numba_parallel_int32(A, B):
                 C[m, p] += qmul_numba_int32(A[m, n], B[n, p])
     return C
 
-def qmatmul_full_numpy(A, B):
-    C4 = a4(A).dot(b4(B))
+def qmatmul_direct_numpy(A, B):
+    C4 = a44(A).dot(stack(B))
     C = c4_to_c(C4)
     return C
 
-def qmatmul_full_algolike_numpy(A, B):
-    I4_hat = i4_hat(A.shape[0], A.dtype)
-    A4_bar = a4_bar(A)
-    Q4 = q4(A)
-    B4 = b4(B)        
-    C4 = np.dot(I4_hat, np.dot(A4_bar, B4) - (2 * Q4).dot(B4))
+def qmatmul_direct_algolike_numpy(A, B):
+    I4_tilde = i4_tilde(A.shape[0], A.dtype)
+    A44_ubar = a44_ubar(A)
+    A44_lbar = a44_lbar(A)
+    B4 = stack(B)        
+    C4 = np.dot(I4_tilde, np.dot(A44_ubar, B4) - (2 * A44_lbar).dot(B4))
     C = c4_to_c(C4)
     return C
+
+def had4(E4):
+    R4 = E4.shape[0]
+    R2 = R4 >> 1
+    R = R2 >> 1
+    R3 = R2 + R
+    E4_s0 = E4[:R] + E4[R:R2]
+    E4_s1 = E4[R2:R3] + E4[R3:]
+    E4_d0 = E4[:R] - E4[R:R2]
+    E4_d1 = E4[R2:R3] - E4[R3:]
+    H4E4 = np.empty_like(E4)
+    H4E4[:R] = E4_s0 + E4_s1
+    H4E4[R:R2] = E4_d0 + E4_d1
+    H4E4[R2:R3] = E4_s0 - E4_s1
+    H4E4[R3:] = E4_d0 - E4_d1
+    return H4E4     
 
 def qmatmul_algo_numpy(A, B):
     M, N, _ = A.shape
@@ -226,85 +239,60 @@ def qmatmul_algo_numpy(A, B):
     M3 = M2 + M
     M4 = M2 << 1
     N2 = N << 1
-    N3 = N2 + N
-    N4 = N2 << 1            
-    B4 = b4(B)
-    A4_bar_thin = a4_bar_thin(A)                   
-    B4_s0 = B4[:N] + B4[N:N2]
-    B4_s1 = B4[N2:N3] + B4[N3:N4]
-    B4_d0 = B4[:N] - B4[N:N2]
-    B4_d1 = B4[N2:N3] - B4[N3:N4]
-    H4B = np.empty_like(B4) # to be equivalent to: np.kron(H4, np.eye(N)).dot(B4)
-    H4B[:N] = B4_s0 + B4_s1
-    H4B[N:N2] = B4_d0 + B4_d1
-    H4B[N2:N3] = B4_s0 - B4_s1
-    H4B[N3:] = B4_d0 - B4_d1     
-    H4A = np.empty_like(A4_bar_thin) # to be equivalent to: np.kron(H4, np.eye(M)).dot(A4_bar_thin)    
-    A4_s0 = A4_bar_thin[:M] + A4_bar_thin[M:M2]
-    A4_s1 = A4_bar_thin[M2:M3] + A4_bar_thin[M3:]
-    A4_d0 = A4_bar_thin[:M] - A4_bar_thin[M:M2]
-    A4_d1 = A4_bar_thin[M2:M3] - A4_bar_thin[M3:]    
-    H4A[:M] = A4_s0 + A4_s1
-    H4A[M:M2] = A4_d0 + A4_d1
-    H4A[M2:M3] = A4_s0 - A4_s1
-    H4A[M3:] = A4_d0 - A4_d1        
-    D4H4B = np.zeros((M4, P), dtype=np.float64) # type purposely extended due to 0.25 factor 
-    D4H4B[:M] = 0.25 * (H4A[:M].dot(H4B[:N]))
-    D4H4B[M:M2] = 0.25 * (H4A[M:M2].dot(H4B[N:N2]))
-    D4H4B[M2:M3] = 0.25 * (H4A[M2:M3].dot(H4B[N2:N3]))
-    D4H4B[M3:] = 0.25 * (H4A[M3:].dot(H4B[N3:]))
-    H4D4H4B = np.empty_like(D4H4B) 
-    D4H4B_s0 = D4H4B[:M] + D4H4B[M:M2]
-    D4H4B_s1 = D4H4B[M2:M3] + D4H4B[M3:]
-    D4H4B_d0 = D4H4B[:M] - D4H4B[M:M2]
-    D4H4B_d1 = D4H4B[M2:M3] - D4H4B[M3:]
-    H4D4H4B[:M] = D4H4B_s0 + D4H4B_s1
-    H4D4H4B[M:M2] = D4H4B_d0 + D4H4B_d1
-    H4D4H4B[M2:M3] = D4H4B_s0 - D4H4B_s1
-    H4D4H4B[M3:] = D4H4B_d0 - D4H4B_d1            
-    Q4_thin = q4_thin(A) 
-    Q4B = np.zeros((M4, P), dtype=np.float64) # type purposely extended
-    Q4B[:M] = (2.0 * Q4_thin[:M]).dot(B4[:N])
-    Q4B[M:M2] = (2.0 * Q4_thin[M:M2]).dot(B4[N2:N3])
-    Q4B[M2:M3] = (2.0 * Q4_thin[M2:M3]).dot(B4[N3:])
-    Q4B[M3:] = (2.0 * Q4_thin[M3:]).dot(B4[N:N2])
-    C4 = H4D4H4B - Q4B
+    N3 = N2 + N     
+    B4 = stack(B)
+    A4 = stack(A)
+    H4A4 = had4(A4)                   
+    H4B4 = had4(B4)        
+    D4 = np.zeros((M4, P), dtype=np.float64) # type purposely extended due to 0.25 factor 
+    D4[:M] = 0.25 * (H4A4[:M].dot(H4B4[:N]))
+    D4[M:M2] = 0.25 * (H4A4[M:M2].dot(H4B4[N:N2]))
+    D4[M2:M3] = 0.25 * (H4A4[M2:M3].dot(H4B4[N2:N3]))
+    D4[M3:] = 0.25 * (H4A4[M3:].dot(H4B4[N3:]))
+    H4D4 = had4(D4)  
+    A4l = a4_lbar(A) 
+    A4lB4l = np.zeros((M4, P), dtype=np.float64) # type purposely extended
+    A4lB4l[:M] = (2.0 * A4l[:M]).dot(B4[:N])
+    A4lB4l[M:M2] = (2.0 * A4l[M:M2]).dot(B4[N2:N3])
+    A4lB4l[M2:M3] = (2.0 * A4l[M2:M3]).dot(B4[N3:])
+    A4lB4l[M3:] = (2.0 * A4l[M3:]).dot(B4[N:N2])
+    C4 = H4D4 - A4lB4l
     C4[:M] = -C4[:M]
     if C4.dtype != A.dtype:
         C4 = C4.astype(A.dtype)
     C = c4_to_c(C4)
     return C
 
-def qmatmul_full_numba_cuda_float64(A_numpy, B_numpy, verbose=False):
+def qmatmul_direct_numba_cuda_float64(A, B, verbose=False):
     if verbose:
-        print(f"QMATMUL_FULL_NUMBA_CUDA_FLOAT64...")
+        print(f"QMATMUL_DIRECT_NUMBA_CUDA_FLOAT64...")
     t1 = time.time()
-    M, N, _ = A_numpy.shape
-    P = B_numpy.shape[1]
+    M, N, _ = A.shape
+    P = B.shape[1]
     N4 = N << 2
     M4 = M << 2
     t1_b4 = time.time()
-    dev_B_numpy = cuda.to_device(B_numpy)
+    dev_B = cuda.to_device(B)
     dev_B4 = cuda.device_array((N4, P), dtype=np.float64)
     tpb_default = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
     tpb = tpb_default
     bpg = (N4 * P + tpb - 1) // tpb
-    b4_numba_cuda_job_float64[bpg, tpb](dev_B_numpy, dev_B4)
+    stack_numba_cuda_job_float64[bpg, tpb](dev_B, dev_B4)
     cuda.synchronize()    
     t2_b4 = time.time()
     if verbose:
         print(f"[time b4: {t2_b4 - t1_b4} s]")
-    t1_a4 = time.time()
-    dev_A_numpy = cuda.to_device(A_numpy)
-    dev_A4 = cuda.device_array((M4, N4), dtype=np.float64)
+    t1_a44 = time.time()
+    dev_A = cuda.to_device(A)
+    dev_A44 = cuda.device_array((M4, N4), dtype=np.float64)
     mn_bpg = (M * N + tpb - 1) // tpb 
     bpg = (mn_bpg, 4, 4)
     tpb = tpb_default
-    a4_numba_cuda_job_float64[bpg, tpb](dev_A_numpy, dev_A4)
+    a44_numba_cuda_job_float64[bpg, tpb](dev_A, dev_A44)
     cuda.synchronize()
-    t2_a4 = time.time()
+    t2_a44 = time.time()
     if verbose:
-        print(f"[time a4: {t2_a4 - t1_a4} s]")
+        print(f"[time a44: {t2_a44 - t1_a44} s]")
     t1_c4 = time.time()    
     dev_C4 = cuda.device_array((M4, P), dtype=np.float64)
     tile_size = 8
@@ -312,7 +300,7 @@ def qmatmul_full_numba_cuda_float64(A_numpy, B_numpy, verbose=False):
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size) 
-    a4_dot_b4_v2_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_B4, dev_C4)    
+    matmul_numba_cuda_job_float64[bpg, tpb](dev_A44, dev_B4, dev_C4)    
     cuda.synchronize()
     t2_c4 = time.time()
     if verbose:
@@ -329,58 +317,32 @@ def qmatmul_full_numba_cuda_float64(A_numpy, B_numpy, verbose=False):
         print(f"[time c: {t2_c - t1_c} s, bpg: {bpg}, tpb: {tpb}]")    
     t2 = time.time()
     if verbose:
-        print(f"QMATMUL_FULL_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
+        print(f"QMATMUL_DIRECT_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
     return C
          
 @cuda.jit(void(float64[:, :, :], float64[:, :]))
-def b4_numba_cuda_job_float64(B_numpy, B4):
-    N, P, _ = B_numpy.shape
+def stack_numba_cuda_job_float64(E, E4):
+    R, S, _ = E.shape
     i_global = cuda.grid(1)
-    i_np, i_im = i_global // 4, i_global % 4    
-    if i_np < N * P:
-        n, p = i_np // P, i_np % P
-        B4[i_im * N + n, p] = B_numpy[n, p, i_im]                
+    i_rs, i_im = i_global // 4, i_global % 4    
+    if i_rs < R * S:
+        r, s = i_rs // S, i_rs % S
+        E4[i_im * R + r, s] = E[r, s, i_im]                
 
 @cuda.jit(void(float64[:, :, :], float64[:, :]))
-def a4_numba_cuda_job_float64(A_numpy, A4):
+def a44_numba_cuda_job_float64(A, A4):
     const_a_blocks_signs = cuda.const.array_like(A_BLOCKS_SIGNS)
     const_a_blocks_parts = cuda.const.array_like(A_BLOCKS_PARTS)
-    M, N, _ = A_numpy.shape
-    i_mn, mat_row, mat_col = cuda.grid(3)        
+    M, N, _ = A.shape
+    i_mn, block_row, block_col = cuda.grid(3)        
     if i_mn < M * N:
         m, n = i_mn // N, i_mn % N
-        A4[mat_row * M + m, mat_col * N + n] = const_a_blocks_signs[mat_row, mat_col] * A_numpy[m, n, const_a_blocks_parts[mat_row, mat_col]]
-
-@cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
-def a4_dot_b4_numba_cuda_job_float64(A4, B4, C4):
-    elements = cuda.shared.array(512, dtype=float64) # assumed max corresponding to max tpb
-    N4 = B4.shape[0]    
-    m4 = cuda.blockIdx.x
-    p = cuda.blockIdx.y
-    tpb = cuda.blockDim.x
-    t = cuda.threadIdx.x
-    ept = (N4 + tpb - 1) // tpb
-    elements[t] = float64(0.0)        
-    cuda.syncthreads()
-    e = t
-    for _ in range(ept):
-        if e < N4:
-            elements[t] += A4[m4, e] * B4[e, p] 
-        e += tpb
-    cuda.syncthreads()
-    stride = tpb >> 1
-    while stride > 0:
-        if t < stride:
-            elements[t] += elements[t + stride]
-        cuda.syncthreads()
-        stride >>= 1
-    if t == 0:
-        C4[m4, p] = elements[0]
+        A4[block_row * M + m, block_col * N + n] = const_a_blocks_signs[block_row, block_col] * A[m, n, const_a_blocks_parts[block_row, block_col]]
         
 @cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
-def a4_dot_b4_v2_numba_cuda_job_float64(A4, B4, C4):    
-    shared_A = cuda.shared.array((16, 16), dtype=float64)
-    shared_B = cuda.shared.array((16, 16), dtype=float64)
+def matmul_numba_cuda_job_float64(A44, B4, C4):    
+    shared_A = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    shared_B = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
     tile_size = cuda.blockDim.x
     M4, P = C4.shape
     N4 = B4.shape[0]
@@ -391,7 +353,7 @@ def a4_dot_b4_v2_numba_cuda_job_float64(A4, B4, C4):
     tmp = float64(0.0)
     for k in range(0, N4, tile_size):
         if row < M4 and k + ty < N4:
-            shared_A[tx, ty] = A4[row, k + ty]
+            shared_A[tx, ty] = A44[row, k + ty]
         else:
             shared_A[tx, ty] = float64(0.0)
         if k + tx < N4 and col < P:
@@ -406,38 +368,41 @@ def a4_dot_b4_v2_numba_cuda_job_float64(A4, B4, C4):
         C4[row, col] = tmp
         
 @cuda.jit(void(float64[:, :], float64[:, :, :]))
-def c4_to_c_numba_cuda_job_float64(C4, C_numpy):
-    M, P, _ = C_numpy.shape
+def c4_to_c_numba_cuda_job_float64(C4, C):
+    M, P, _ = C.shape
     i_global = cuda.grid(1)
     i_mp, i_im = i_global // 4, i_global % 4    
     if i_mp < M * P:
         m, p = i_mp // P, i_mp % P
-        C_numpy[m, p, i_im] = C4[i_im * M + m, p] 
+        C[m, p, i_im] = C4[i_im * M + m, p] 
 
-def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
-    print(f"A_DOT_B_CHEAP_NUMBA_CUDA_FLOAT64...")
+def qmatmul_algo_numba_cuda_float64(A, B, verbose=False):
+    print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64...")
     t1 = time.time()
-    M, N, _ = A_numpy.shape
-    P = B_numpy.shape[1]
+    M, N, _ = A.shape
+    P = B.shape[1]
     N4 = N << 2
     M4 = M << 2
+    tpb_default = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
     t1_b4 = time.time()
-    dev_B_numpy = cuda.to_device(B_numpy)
+    dev_B = cuda.to_device(B)
     dev_B4 = cuda.device_array((N4, P), dtype=np.float64)
-    tpb = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
+    tpb = tpb_default
     bpg = (N4 * P + tpb - 1) // tpb
-    b4_numba_cuda_job_float64[bpg, tpb](dev_B_numpy, dev_B4)
+    stack_numba_cuda_job_float64[bpg, tpb](dev_B, dev_B4)
     cuda.synchronize()    
     t2_b4 = time.time()
-    print(f"[time b4: {t2_b4 - t1_b4} s]")
+    if verbose:
+        print(f"[time b4: {t2_b4 - t1_b4} s]")
     t1_a4 = time.time()
-    dev_A_numpy = cuda.to_device(A_numpy)
-    dev_A4f = cuda.device_array((M4, N), dtype=np.float64) # flat
+    dev_A = cuda.to_device(A)
+    dev_A4 = cuda.device_array((M4, N), dtype=np.float64)
     bpg = (M4 * N + tpb - 1) // tpb 
-    b4_numba_cuda_job_float64[bpg, tpb](dev_A_numpy, dev_A4f)
+    stack_numba_cuda_job_float64[bpg, tpb](dev_A, dev_A4)
     cuda.synchronize()
     t2_a4 = time.time()
-    print(f"[time a4: {t2_a4 - t1_a4} s]")
+    if verbose:
+        print(f"[time a4: {t2_a4 - t1_a4} s]")
     t1_h4b4 = time.time()
     dev_H4B4 = cuda.device_array((N4, P), dtype=np.float64)
     tile_size = 8
@@ -445,10 +410,11 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)
-    h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_H4B4)
+    had4_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_H4B4)
     cuda.synchronize()
     t2_h4b4 = time.time()
-    print(f"[time h4b4: {t2_h4b4 - t1_h4b4} s]")
+    if verbose:
+        print(f"[time h4b4: {t2_h4b4 - t1_h4b4} s]")
     t1_h4a4 = time.time()
     dev_H4A4 = cuda.device_array((M4, N), dtype=np.float64)
     tile_size = 8
@@ -456,156 +422,151 @@ def a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy, result_as_c4=True):
     bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)
-    h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_A4f, dev_H4A4)
+    had4_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_H4A4)
     cuda.synchronize()
     t2_h4a4 = time.time()
-    print(f"[time h4a4: {t2_h4a4 - t1_h4a4} s]")
-        
-    t1_d4h4b4 = time.time()
-    dev_D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
+    if verbose:
+        print(f"[time h4a4: {t2_h4a4 - t1_h4a4} s]")        
+    t1_d4 = time.time()
+    dev_D4 = cuda.device_array((M4, P), dtype=np.float64)
     tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
     tpb = (tile_size, tile_size)
-    a4_diagdot_b4_numba_cuda_job_float64[bpg, tpb](dev_H4A4, dev_H4B4, 0.25, dev_D4H4B4)
+    matmuldiag_numba_cuda_job_float64[bpg, tpb](dev_H4A4, dev_H4B4, 0.25, dev_D4)
     cuda.synchronize()
-    t2_d4h4b4 = time.time()
-    print(f"[time d4h4b4: {t2_d4h4b4 - t1_d4h4b4} s]")    
-
-    t1_q4b4 = time.time()
-    dev_Q4f = cuda.device_array((M4, N), dtype=np.float64) # flat    
-    dev_permutation_q = cuda.to_device(np.array([0, 3, 1, 2], dtype=np.int8))
+    t2_d4 = time.time()
+    if verbose:
+        print(f"[time d4: {t2_d4 - t1_d4} s]")    
+    t1_h4d4 = time.time()
+    dev_H4D4 = cuda.device_array((M4, P), dtype=np.float64)
+    tile_size = 8
+    bpg_x = (M + tile_size - 1) // tile_size
+    bpg_y = (P + tile_size - 1) // tile_size
+    bpg = (bpg_x, bpg_y)
+    tpb = (tile_size, tile_size)
+    had4_numba_cuda_job_float64[bpg, tpb](dev_D4, dev_H4D4)
+    cuda.synchronize()
+    t2_h4d4 = time.time()
+    if verbose:
+        print(f"[time h4d4: {t2_h4d4 - t1_h4d4} s]")        
+    t1_a4lb4l = time.time()
+    dev_A4l = cuda.device_array((M4, N), dtype=np.float64)    
+    dev_permutation_a4l = cuda.to_device(np.array([0, 3, 1, 2], dtype=np.int8))
     tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)    
-    permute_parts_numba_cuda_job_float64[bpg, tpb](dev_A4f, dev_permutation_q, dev_Q4f)    
-    cuda.synchronize()
-    dev_B4p = cuda.device_array((N4, P), dtype=np.float64) # permuted
-    dev_permutation_b = cuda.to_device(np.array([0, 2, 3, 1], dtype=np.int8))
+    permute_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_permutation_a4l, dev_A4l)    
+    dev_B4l = cuda.device_array((N4, P), dtype=np.float64)
+    dev_permutation_b4l = cuda.to_device(np.array([0, 2, 3, 1], dtype=np.int8))
     bpg_x = (N + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tile_size = 8
-    permute_parts_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_permutation_b, dev_B4p)
+    permute_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_permutation_b4l, dev_B4l)
     cuda.synchronize()        
-    dev_Q4B4 = cuda.device_array((M4, P), dtype=np.float64)
+    dev_A4lB4l = cuda.device_array((M4, P), dtype=np.float64)
     tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
     tpb = (tile_size, tile_size)
-    a4_diagdot_b4_numba_cuda_job_float64[bpg, tpb](dev_Q4f, dev_B4p, 2.0, dev_Q4B4)
+    matmuldiag_numba_cuda_job_float64[bpg, tpb](dev_A4l, dev_B4l, 2.0, dev_A4lB4l)
     cuda.synchronize()        
-    t2_q4b4 = time.time()
-    print(f"[time q4b4: {t2_q4b4 - t1_q4b4} s]")    
-
-    t1_h4d4h4b4 = time.time()
-    dev_H4D4H4B4 = cuda.device_array((M4, P), dtype=np.float64)
-    tile_size = 8
-    bpg_x = (M + tile_size - 1) // tile_size
-    bpg_y = (P + tile_size - 1) // tile_size
-    bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)
-    h4_kron_a4_numba_cuda_job_float64[bpg, tpb](dev_D4H4B4, dev_H4D4H4B4)
-    cuda.synchronize()
-    t2_h4d4h4b4 = time.time()
-    print(f"[time h4d4h4b4: {t2_h4d4h4b4 - t1_h4d4h4b4} s]")
-    
+    t2_a4lb4l = time.time()
+    if verbose:
+        print(f"[time a4lb4l: {t2_a4lb4l - t1_a4lb4l} s]")                
     t1_sub = time.time()
     dev_C4 = cuda.device_array((M4, P), dtype=np.float64)    
     bpg_x = (M4 + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)    
-    final_sub_numba_cuda_job_float64[bpg, tpb](dev_H4D4H4B4, dev_Q4B4, dev_C4)    
+    matsub_numba_cuda_job_float64[bpg, tpb](dev_H4D4, dev_A4lB4l, dev_C4)    
     cuda.synchronize()
     t2_sub = time.time()
-    print(f"[time sub: {t2_sub - t1_sub} s]")
-        
-    C_result = None 
-    if result_as_c4:
-        C_result = np.empty((M4, P), dtype=np.float64)
-        dev_C4.copy_to_host(ary=C_result)
-    else:
-        dev_C_numpy = cuda.device_array((M, P, 4), dtype=np.float64)
-        bpg = (M4 * P + tpb - 1) // tpb
-        c4_to_c_numpy_numba_cuda_job_float64[bpg, tpb](dev_C4, dev_C_numpy)
-        cuda.synchronize()
-        C_result = dev_C_numpy.copy_to_host()    
+    if verbose:
+        print(f"[time sub: {t2_sub - t1_sub} s]")        
+    dev_C = cuda.device_array((M, P, 4), dtype=np.float64)
+    tpb = tpb_default
+    bpg = (M4 * P + tpb - 1) // tpb
+    c4_to_c_numba_cuda_job_float64[bpg, tpb](dev_C4, dev_C)
+    cuda.synchronize()
+    C = dev_C.copy_to_host()    
     t2 = time.time()
-    print(f"A_DOT_B_CHEAP_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
-    return C_result
+    print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
+    return C
 
 @cuda.jit(void(float64[:, :], float64[:, :]))
-def h4_kron_a4_numba_cuda_job_float64(A4, H4A4):    
-    shared_A4_0 = cuda.shared.array((16, 16), dtype=float64)
-    shared_A4_1 = cuda.shared.array((16, 16), dtype=float64)
-    shared_A4_2 = cuda.shared.array((16, 16), dtype=float64)
-    shared_A4_3 = cuda.shared.array((16, 16), dtype=float64)        
-    M4, N = A4.shape
-    M = M4 >> 2
-    M2 = M << 1
-    M3 = M2 + M
+def had4_numba_cuda_job_float64(E4, H4E4):    
+    shared_E4_0 = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    shared_E4_1 = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    shared_E4_2 = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    shared_E4_3 = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    R4, S = E4.shape
+    R = R4 >> 2
+    R2 = R << 1
+    R3 = R2 + R
     tile_size = cuda.blockDim.x
     bx, by = cuda.blockIdx.x, cuda.blockIdx.y
     tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
     row = bx * tile_size + tx
     col = by * tile_size + ty
-    if row < M and col < N:
-        shared_A4_0[tx, ty] = A4[row, col]
-        shared_A4_1[tx, ty] = A4[row + M, col]
-        shared_A4_2[tx, ty] = A4[row + M2, col]
-        shared_A4_3[tx, ty] = A4[row + M3, col] 
+    if row < R and col < S:
+        shared_E4_0[tx, ty] = E4[row, col]
+        shared_E4_1[tx, ty] = E4[row + R, col]
+        shared_E4_2[tx, ty] = E4[row + R2, col]
+        shared_E4_3[tx, ty] = E4[row + R3, col] 
     else:
-        shared_A4_0[tx, ty] = float64(0.0)
-        shared_A4_1[tx, ty] = float64(0.0)
-        shared_A4_2[tx, ty] = float64(0.0)
-        shared_A4_3[tx, ty] = float64(0.0)
-    s0 = shared_A4_0[tx, ty] + shared_A4_1[tx, ty]
-    s1 = shared_A4_2[tx, ty] + shared_A4_3[tx, ty]
-    d0 = shared_A4_0[tx, ty] - shared_A4_1[tx, ty]
-    d1 = shared_A4_2[tx, ty] - shared_A4_3[tx, ty]
-    if row < M and col < N:    
-        H4A4[row, col] = s0 + s1
-        H4A4[row + M, col] = d0 + d1
-        H4A4[row + M2, col] = s0 - s1
-        H4A4[row + M3, col] = d0 - d1
+        shared_E4_0[tx, ty] = float64(0.0)
+        shared_E4_1[tx, ty] = float64(0.0)
+        shared_E4_2[tx, ty] = float64(0.0)
+        shared_E4_3[tx, ty] = float64(0.0)
+    s0 = shared_E4_0[tx, ty] + shared_E4_1[tx, ty]
+    s1 = shared_E4_2[tx, ty] + shared_E4_3[tx, ty]
+    d0 = shared_E4_0[tx, ty] - shared_E4_1[tx, ty]
+    d1 = shared_E4_2[tx, ty] - shared_E4_3[tx, ty]
+    if row < R and col < S:    
+        H4E4[row, col] = s0 + s1
+        H4E4[row + R, col] = d0 + d1
+        H4E4[row + R2, col] = s0 - s1
+        H4E4[row + R3, col] = d0 - d1
 
 @cuda.jit(void(float64[:, :], float64[:, :], float64, float64[:, :]))
-def a4_diagdot_b4_numba_cuda_job_float64(A4, B4, factor, C4):    
-    shared_A = cuda.shared.array((16, 16), dtype=float64)
-    shared_B = cuda.shared.array((16, 16), dtype=float64)
+def matmuldiag_numba_cuda_job_float64(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     
+    shared_E = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    shared_F = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
     tile_size = cuda.blockDim.x
-    M4, P = C4.shape
-    M = M4 >> 2
-    N4 = B4.shape[0]
-    N = N4 >> 2
+    R4, T = G4.shape
+    R = R4 >> 2
+    S4 = F4.shape[0]
+    S = S4 >> 2
     bx, by, bz = cuda.blockIdx.x, cuda.blockIdx.y, cuda.blockIdx.z
     tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
     row = bx * tile_size + tx
     col = by * tile_size + ty
     tmp = float64(0.0)
-    for k in range(0, N, tile_size):
-        if row < M and k + ty < N:
-            shared_A[tx, ty] = A4[row + bz * M, k + ty]
+    for k in range(0, S, tile_size):
+        if row < R and k + ty < S:
+            shared_E[tx, ty] = E4[row + bz * R, k + ty]
         else:
-            shared_A[tx, ty] = float64(0.0)
-        if k + tx < N and col < P:
-            shared_B[tx, ty] = B4[k + tx + bz * N, col]
+            shared_E[tx, ty] = float64(0.0)
+        if k + tx < S and col < T:
+            shared_F[tx, ty] = F4[k + tx + bz * S, col]
         else:
-            shared_B[tx, ty] = float64(0.0)
+            shared_F[tx, ty] = float64(0.0)
         cuda.syncthreads()
-        for n in range(tile_size):
-            tmp += shared_A[tx, n] * shared_B[n, ty]
+        for s in range(tile_size):
+            tmp += shared_E[tx, s] * shared_F[s, ty]
         cuda.syncthreads()
-    if row < M and col < P:
-        C4[row + bz * M, col] = factor * tmp
+    if row < R and col < T:
+        G4[row + bz * R, col] = factor * tmp
 
 @cuda.jit(void(float64[:, :], int8[:], float64[:, :]))
-def permute_parts_numba_cuda_job_float64(S4, permutation, S4_permuted):    
+def permute_numba_cuda_job_float64(S4, permutation, S4_permuted):    
     shared_S4 = cuda.shared.array((16, 16, 4), dtype=float64)
     M4, N = S4.shape
     M = M4 >> 2
@@ -627,9 +588,9 @@ def permute_parts_numba_cuda_job_float64(S4, permutation, S4_permuted):
         S4_permuted[row + M3, col] = shared_S4[tx, ty, permutation[3]]
         
 @cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
-def final_sub_numba_cuda_job_float64(A4, B4, C4):    
-    shared_A = cuda.shared.array((16, 16), dtype=float64)
-    shared_B = cuda.shared.array((16, 16), dtype=float64)
+def matsub_numba_cuda_job_float64(C4_left, C4_right, C4):    
+    shared_L = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
+    shared_R = cuda.shared.array((16, 16), dtype=float64) # assumed max tile size: 16
     tile_size = cuda.blockDim.x
     M4, P = C4.shape
     M = M4 >> 2
@@ -638,9 +599,9 @@ def final_sub_numba_cuda_job_float64(A4, B4, C4):
     row = bx * tile_size + tx
     col = by * tile_size + ty
     if row < M4 and col < P:
-        shared_A[tx, ty] = A4[row, col]
-        shared_B[tx, ty] = B4[row, col]
-        result = shared_B[tx, ty] - shared_A[tx, ty] if row < M else shared_A[tx, ty] - shared_B[tx, ty]        
+        shared_L[tx, ty] = C4_left[row, col]
+        shared_R[tx, ty] = C4_right[row, col]
+        result = shared_R[tx, ty] - shared_L[tx, ty] if row < M else shared_L[tx, ty] - shared_R[tx, ty]        
         C4[row, col] = result
                 
 if __name__ == "__main__":
@@ -654,29 +615,34 @@ if __name__ == "__main__":
         np.float32: qmatmul_naive_numba_parallel_float32,
         np.int32: qmatmul_naive_numba_parallel_int32
         }
-    QMATMUL_FULL_NUMBA_CUDA_FUNCTIONS = {
-        np.float64: qmatmul_full_numba_cuda_float64, 
+    QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS = {
+        np.float64: qmatmul_direct_numba_cuda_float64, 
+        np.float32: None, # TODO
+        np.int32: None # TODO
+        }
+    QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS = {
+        np.float64: qmatmul_algo_numba_cuda_float64, 
         np.float32: None, # TODO
         np.int32: None # TODO
         }    
     
     # experiment settings
     SEED = 0
-    M, N, P = 500, 900, 700
+    M, N, P = 150, 190, 170
     RANGE = 10
     DTYPE = np.float64
     VERBOSE = False         
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
         "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
-        "QMATMUL_FULL_NUMPY": (True, qmatmul_full_numpy),
-        "QMATMUL_FULL_ALGOLIKE_NUMPY": (True, qmatmul_full_algolike_numpy),
+        "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy),
+        "QMATMUL_DIRECT_ALGOLIKE_NUMPY": (False, qmatmul_direct_algolike_numpy),
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
-        "QMATMUL_FULL_NUMBA_CUDA": (True, QMATMUL_FULL_NUMBA_CUDA_FUNCTIONS[DTYPE])        
+        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
+        "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
         }
-        
-    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")    
-            
+    
+    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")            
     np.random.seed(SEED)
     A = qmatrand(M, N, -RANGE, RANGE, DTYPE)
     B = qmatrand(N, P, -RANGE, RANGE, DTYPE)  
@@ -697,24 +663,5 @@ if __name__ == "__main__":
             print(f"APPROACH {index + 1}: {approach_name} DONE. [time: {t2 - t1} s{extra_info}]", flush=True)            
         else:
             print(f"APPROACH {index + 1}: {approach_name} OFF.")                    
-    
-    
-    # t1nc = time.time()
-    # C4_v4 = a_dot_b_full_numba_cuda_float64(A_numpy, B_numpy)
-    # C_v4 = c4_to_c(C4_v4, m, k)
-    # t2nc = time.time()
-    # if VERBOSE:    
-    #     print(f"C4_v4:\n {C4_v4}")        
-    #     print(f"C_v4:\n {C_v4}")
-    # print(f"MULTIPLICATION 'VIA FORMULA (2), NUMBA CUDA FULL' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v4)}, d_inf: {np.max(np.abs(C - C_v4))}]]")
-    #
-    # t1nc = time.time()
-    # C4_v5 = a_dot_b_cheap_numba_cuda_float64(A_numpy, B_numpy)
-    # C_v5 = c4_to_c(C4_v5, m, k)
-    # t2nc = time.time()
-    # if VERBOSE:    
-    #     print(f"C4_v5:\n {C4_v5}")        
-    #     print(f"C_v5:\n {C_v5}")
-    # print(f"MULTIPLICATION 'VIA FORMULA (3*), NUMBA CUDA CHEAP' [time: {t2nc - t1nc} s, all close: {np.allclose(C, C_v5)}, d_inf: {np.max(np.abs(C - C_v5))}]]")
-    
+        
     print("QUATERNIONS MAIN DONE.")
