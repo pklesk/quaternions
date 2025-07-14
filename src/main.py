@@ -246,6 +246,8 @@ def qmatmul_algo_numpy(A, B):
     H4A4 = had4(A4)                   
     H4B4 = had4(B4)        
     D4 = np.zeros((M4, P), dtype=np.float64) # type purposely extended due to 0.25 factor 
+    cpu_gpu_info = f"[CPU: {c_props['cpu_name']}, gpu: {g_props['name']}]".upper()
+    cpu_gpu_info = f"[CPU: {c_props['cpu_name']}, gpu: {g_props['name']}]".upper()
     D4[:M] = 0.25 * (H4A4[:M].dot(H4B4[:N]))
     D4[M:M2] = 0.25 * (H4A4[M:M2].dot(H4B4[N:N2]))
     D4[M2:M3] = 0.25 * (H4A4[M2:M3].dot(H4B4[N2:N3]))
@@ -720,7 +722,7 @@ def matsub_numba_cuda_job_float64(C4_left, C4_right, C4):
         result = shared_R[tx, ty] - shared_L[tx, ty] if row < M else shared_L[tx, ty] - shared_R[tx, ty]        
         C4[row, col] = result
 
-def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
+def qmatmul_algo_numba_cuda_float32(A, B, verbose=True):
     if verbose:
         print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT32...")
     t1 = time.time()
@@ -779,7 +781,7 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
     tpb = (tile_size, tile_size)
-    matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_H4A4, dev_H4B4, 0.25, dev_D4)
+    matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_H4A4, dev_H4B4, np.float32(0.25), dev_D4)
     cuda.synchronize()
     t2_d4 = time.time()
     if verbose:
@@ -819,7 +821,8 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
     tpb = (tile_size, tile_size)
-    matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_A4l, dev_B4l, 2.0, dev_A4lB4l)
+    matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_A4l, dev_B4l, np.float32(2.0), dev_A4lB4l)
+    cpu_gpu_info = f"[CPU: {c_props['cpu_name']}, gpu: {g_props['name']}]".upper()
     cuda.synchronize()        
     t2_a4lb4l = time.time()
     if verbose:
@@ -883,8 +886,8 @@ def had4_numba_cuda_job_float32(E4, H4E4):
 
 @cuda.jit(void(float32[:, :], float32[:, :], float32, float32[:, :]))
 def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     
-    shared_E = cuda.shared.array((16, 16), dtype=float32) # assumed max tile size: 16
-    shared_F = cuda.shared.array((16, 16), dtype=float32) # assumed max tile size: 16
+    shared_E = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 16
+    shared_F = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 16
     tile_size = cuda.blockDim.x
     R4, T = G4.shape
     R = R4 >> 2
@@ -895,21 +898,24 @@ def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S),
     row = bx * tile_size + tx
     col = by * tile_size + ty
     tmp = float32(0.0)
+    row_bz_R = row + bz * R
+    tx_bz_S = tx + bz * S
     for k in range(0, S, tile_size):
         if row < R and k + ty < S:
-            shared_E[tx, ty] = E4[row + bz * R, k + ty]
+            shared_E[tx, ty] = E4[row_bz_R, k + ty]
         else:
             shared_E[tx, ty] = float32(0.0)
         if k + tx < S and col < T:
-            shared_F[tx, ty] = F4[k + tx + bz * S, col]
+            shared_F[tx, ty] = F4[k + tx_bz_S, col]
         else:
             shared_F[tx, ty] = float32(0.0)
         cuda.syncthreads()
         for s in range(tile_size):
             tmp += shared_E[tx, s] * shared_F[s, ty]
+            # tmp = cuda.fma(shared_E[tx, s], shared_F[s, ty], tmp)
         cuda.syncthreads()
     if row < R and col < T:
-        G4[row + bz * R, col] = factor * tmp
+        G4[row_bz_R, col] = factor * tmp
 
 @cuda.jit(void(float32[:, :], int8[:], float32[:, :]))
 def permute_numba_cuda_job_float32(S4, permutation, S4_permuted):    
@@ -974,13 +980,13 @@ if __name__ == "__main__":
     
     # experiment settings
     SEED = 0
-    M, N, P = 301, 302, 303
+    M, N, P = 10001, 1002, 5003
     RANGE = 10
-    DTYPE = np.float64
+    DTYPE = np.float32
     VERBOSE = False         
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
         "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy),
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
@@ -1009,7 +1015,7 @@ if __name__ == "__main__":
             t2 = time.time()    
             if C_ref is None:
                 C_ref = C
-            extra_info = "" if C_ref is None else f", all close: {np.allclose(C, C_ref, atol=1e-2, rtol=1e-3)}, d_inf: {np.max(np.abs(C - C_ref))}"
+            extra_info = "" if C_ref is None else f", all close: {np.allclose(C, C_ref, atol=1e-1, rtol=1e-3)}, d_inf: {np.max(np.abs(C - C_ref))}"
             if VERBOSE:
                 print(f"C:\n {C}")        
             print(f"APPROACH {index + 1}: {approach_name} DONE. [time: {t2 - t1} s{extra_info}]", flush=True)            
