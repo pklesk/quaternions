@@ -631,7 +631,7 @@ if __name__ == "__main__":
     
     # experiment settings
     SEED = 0
-    M, N, P = 551, 1002, 673
+    M, N, P = 3000, 3000, 3000
     RANGE = 10
     DTYPE = np.float64
     VERBOSE = False         
@@ -642,19 +642,21 @@ if __name__ == "__main__":
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
-        }
-    
-    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")
+        } 
     c_props = cpu_and_system_props()
     g_props = gpu_props()
-    cpu_gpu_info = f"[CPU: {c_props['cpu_name']}, gpu: {g_props['name']}]".upper()
     print(f"CPU AND SYSTEM PROPS:\n{dict_to_str(c_props)}")
     print(f"GPU PROPS:\n{dict_to_str(g_props)}")            
+    
+    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")
     np.random.seed(SEED)
     A = qmatrand(M, N, -RANGE, RANGE, DTYPE)
     B = qmatrand(N, P, -RANGE, RANGE, DTYPE)  
     C_ref = None
 
+    print(f"A size [GB]: {A.nbytes / 1024**3}") 
+    print(f"B size [GB]: {B.nbytes / 1024**3}") 
+    
     # experiment to go  
     for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
         if approach_on:
