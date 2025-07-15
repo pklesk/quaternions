@@ -1,21 +1,10 @@
-"""
-Auxiliary module with simple utility and informative functions.
-
-Link to project repository
---------------------------
-`https://github.com/pklesk/mcts_numba_cuda <https://github.com/pklesk/mcts_numba_cuda>`_ 
-"""
-
 import cpuinfo
 import platform
 import psutil
 from numba import cuda
 import pickle
-import time
-import zipfile as zf
-import os
-import json
 import sys
+import numpy as np
  
 __author__ = "Przemysław Klęsk"
 __email__ = "pklesk@zut.edu.pl"
@@ -145,48 +134,17 @@ class Logger:
         """Empty function required for buffering."""
         pass  
     
-def experiment_hash_str(matchup_info, c_props, g_props, main_hs_digits=10, matchup_hs_digits=5, env_hs_digits=3):
+def experiment_hash_str(experiment_info, c_props, g_props, all_hs_digits=10, experiment_hs_digits=5, env_hs_digits=3):
     """Returns a hash string for an experiment, based on its settings and properties."""
-    matchup_hs = hash_str(matchup_info, digits=matchup_hs_digits)
+    experiment_hs =  hash_str(experiment_info, digits=experiment_hs_digits)    
     env_props = {**c_props, **g_props}    
     env_hs =  hash_str(env_props, digits=env_hs_digits)
-    all_info = {**matchup_info, **env_props}
-    all_hs = hash_str(all_info, digits=main_hs_digits)
-    hs = f"{all_hs}_{matchup_hs}_{env_hs}_[{matchup_info['ai_a_shortname']};{matchup_info['ai_b_shortname']};{matchup_info['game_name']};{matchup_info['n_games']}]"
+    all_info = {**experiment_info, **env_props}
+    all_hs = hash_str(all_info, digits=all_hs_digits)
+    approaches_flags_str = ""
+    for key in experiment_info.keys():
+        if key.startswith("QMATMUL_"):
+            approaches_flags_str += "T" if experiment_info[key][0] else "F" 
+    suffix = f"{experiment_info['M']};{experiment_info['N']};{experiment_info['P']};{experiment_info['RANGE']};{np.dtype(experiment_info['DTYPE']).name};{approaches_flags_str}"
+    hs = f"{all_hs}_{experiment_hs}_{env_hs}_[{suffix}]"
     return hs
-
-def save_and_zip_experiment(experiment_hs, experiment_info, folder):
-    """Saves and zips .json and .log files for an experiment given its hash string and information stored in a dictionary."""
-    print(f"SAVE AND ZIP EXPERIMENT... [hash string: {experiment_hs}]")
-    t1 = time.time()
-    fpath = folder + experiment_hs    
-    try:        
-        f = open(fpath + ".json", "w+")
-        json.dump(experiment_info, f, indent=2)
-        f.close()
-        with zf.ZipFile(fpath + ".zip", mode="w", compression=zf.ZIP_DEFLATED) as archive:
-                archive.write(fpath + ".json", arcname=experiment_hs + ".json")
-                archive.write(fpath + ".log", arcname=experiment_hs + ".log")
-        os.remove(fpath + ".json")
-        os.remove(fpath + ".log") 
-    except IOError:
-        sys.exit(f"[error occurred when trying to save and zip experiment info: {fname}]")            
-    t2 = time.time()
-    print(f"SAVE AND ZIP EXPERIMENT DONE. [time: {t2 - t1} s]")
-
-def unzip_and_load_experiment(experiment_hs, folder):
-    """Unzips, loads an experiment given its hash string, and returns a dictionary with experiments' information."""
-    print(f"UNZIP AND LOAD EXPERIMENT... [hash string: {experiment_hs}]")
-    t1 = time.time()
-    fpath = folder + experiment_hs    
-    try:        
-        with zf.ZipFile(fpath + ".zip", "r") as zip_ref:
-            zip_ref.extract(experiment_hs + ".json", path=os.path.dirname(fpath + ".json"))            
-        with open(fpath + ".json", 'r', encoding="utf-8") as json_file:
-            experiment_info = json.load(json_file) 
-        os.remove(fpath + ".json") # TODO uncomment this back, to have extracted file removed once used
-    except IOError:
-        sys.exit(f"[error occurred when trying to unzip and load experiment info: {experiment_hs}]")            
-    t2 = time.time()
-    print(f"UNZIP AND LOAD EXPERIMENT DONE. [time: {t2 - t1} s]")
-    return experiment_info

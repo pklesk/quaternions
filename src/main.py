@@ -12,10 +12,14 @@ import time
 from numba import jit, prange, cuda
 from numba import void, float32, float64, int8, int32
 from numba.core.errors import NumbaPerformanceWarning
-from utils import cpu_and_system_props, gpu_props, dict_to_str, Logger, experiment_hash_str, save_and_zip_experiment, unzip_and_load_experiment
+from utils import cpu_and_system_props, gpu_props, dict_to_str, Logger, experiment_hash_str
+import sys
 
 import warnings
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
+
+__author__ = "Przemysław Klęsk"
+__email__ = "pklesk@zut.edu.pl"
 
 A_BLOCKS_SIGNS = np.array([
     [1, -1,  -1, -1],
@@ -961,6 +965,9 @@ def matsub_numba_cuda_job_float32(C4_left, C4_right, C4):
         result = shared_R[tx, ty] - shared_L[tx, ty] if row < M else shared_L[tx, ty] - shared_R[tx, ty]        
         C4[row, col] = result
                 
+FOLDER_EXPERIMENTS = "../experiments/"
+LINE_SEPARATOR = 208 * "="                
+
 if __name__ == "__main__":
     QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS = {
         np.float64: qmatmul_naive_numba_st_float64, 
@@ -984,10 +991,10 @@ if __name__ == "__main__":
         }    
     
     # experiment settings
-    SEED = 0
     M, N, P = 300, 300, 300
+    SEED = 0    
     RANGE = 10
-    DTYPE = np.float32
+    DTYPE = np.float32    
     VERBOSE = False         
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
@@ -996,21 +1003,36 @@ if __name__ == "__main__":
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
-        } 
+        }
+    APPROACHES_INFO = {key:  (APPROACHES[key][0], APPROACHES[key][1].__name__) for key in APPROACHES.keys()}
+    experiment_info = {"M": M, "N": N, "P": P, "SEED": SEED, "RANGE": RANGE, "DTYPE": DTYPE, "NUMPY_SINGLE_THREAD": NUMPY_SINGLE_THREAD, **APPROACHES_INFO}    
     c_props = cpu_and_system_props()
     g_props = gpu_props()
-    print(f"CPU AND SYSTEM PROPS:\n{dict_to_str(c_props)}")
-    print(f"GPU PROPS:\n{dict_to_str(g_props)}")            
+    experiment_hs = experiment_hash_str(experiment_info, c_props, g_props)
     
-    print(f"QUATERNIONS MAIN... [M: {M}, N: {N}, P: {P}, SEED: {SEED}, RANGE: {RANGE}, DTYPE: {DTYPE}, M x N x P: {M * N * P:.2e}, NUMPY_SINGLE_THREAD: {NUMPY_SINGLE_THREAD}]")
+    logger = Logger(f"{FOLDER_EXPERIMENTS}{experiment_hs}.log")    
+    sys.stdout = logger
+    
+    print(f"QUATERNIONS MAIN...")    
+    print(f"HASH STRING: {experiment_hs}")
+    print(LINE_SEPARATOR)
+    print(f"EXPERIMENT INFO:\n{dict_to_str(experiment_info)}")
+    print(LINE_SEPARATOR)
+    print(f"CPU AND SYSTEM PROPS:\n{dict_to_str(c_props)}")
+    print(f"GPU PROPS:\n{dict_to_str(g_props)}")
+    print(LINE_SEPARATOR)         
     np.random.seed(SEED)
     A = qmatrand(M, N, -RANGE, RANGE, DTYPE)
     B = qmatrand(N, P, -RANGE, RANGE, DTYPE)  
     C_ref = None
     time_ref = None
 
-    print(f"A size [GB]: {A.nbytes / 1024**3}") 
-    print(f"B size [GB]: {B.nbytes / 1024**3}") 
+    # memory info
+    print("MEMORY INFO:")
+    print(f"A: {A.nbytes / 1024**2:.3f} MB") 
+    print(f"B: {B.nbytes / 1024**2:.3f} MB")
+    print(f"C: {np.empty((M, P, 4), dtype=DTYPE).nbytes / 1024**2:.3f} MB") 
+    print(LINE_SEPARATOR)
     
     # experiment to go  
     for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
@@ -1030,5 +1052,8 @@ if __name__ == "__main__":
             print(f"APPROACH {index + 1}: {approach_name} DONE. [time: {t2 - t1} s{extra_info}{reference_info}]", flush=True)            
         else:
             print(f"APPROACH {index + 1}: {approach_name} OFF.")                    
-        
-    print("QUATERNIONS MAIN DONE.")
+    
+    print(LINE_SEPARATOR)
+    print("QUATERNIONS MAIN DONE.")    
+    sys.stdout = sys.__stdout__
+    logger.logfile.close()
