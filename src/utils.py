@@ -122,7 +122,7 @@ class Logger:
     """Class for simultaneous logging to console and a log file (for purposes of experiments)."""
     def __init__(self, fname):
         """Constructor of ``MCTSNC`` instances."""
-        self.logfile = open(fname, "a", encoding="utf-8")  
+        self.logfile = open(fname, "w", encoding="utf-8")  
         
     def write(self, message):
         """Writes a message to console and a log file.""" 
@@ -145,6 +145,6 @@ def experiment_hash_str(experiment_info, c_props, g_props, all_hs_digits=10, exp
     for key in experiment_info.keys():
         if key.startswith("QMATMUL_"):
             approaches_flags_str += "T" if experiment_info[key][0] else "F" 
-    suffix = f"{experiment_info['M']};{experiment_info['N']};{experiment_info['P']};{experiment_info['RANGE']};{np.dtype(experiment_info['DTYPE']).name};{approaches_flags_str}"
+    suffix = f"{experiment_info['M']};{experiment_info['N']};{experiment_info['P']};{experiment_info['RANGE']};{np.dtype(experiment_info['DTYPE']).name};{experiment_info['REPETITIONS']};{approaches_flags_str}"
     hs = f"{all_hs}_{experiment_hs}_{env_hs}_[{suffix}]"
     return hs

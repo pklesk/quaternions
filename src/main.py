@@ -21,6 +21,7 @@ warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
 __author__ = "Przemysław Klęsk"
 __email__ = "pklesk@zut.edu.pl"
 
+# constants
 A_BLOCKS_SIGNS = np.array([
     [1, -1,  -1, -1],
     [1,  1, -1,  1],
@@ -964,37 +965,44 @@ def matsub_numba_cuda_job_float32(C4_left, C4_right, C4):
         shared_R[tx, ty] = C4_right[row, col]
         result = shared_R[tx, ty] - shared_L[tx, ty] if row < M else shared_L[tx, ty] - shared_R[tx, ty]        
         C4[row, col] = result
-                
+
+
+# global settings                
 FOLDER_EXPERIMENTS = "../experiments/"
 LINE_SEPARATOR = 208 * "="                
+QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS = {
+    np.float64: qmatmul_naive_numba_st_float64, 
+    np.float32: qmatmul_naive_numba_st_float32,
+    np.int32: qmatmul_naive_numba_st_int32
+    }
+QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS = {
+    np.float64: qmatmul_naive_numba_parallel_float64, 
+    np.float32: qmatmul_naive_numba_parallel_float32,
+    np.int32: qmatmul_naive_numba_parallel_int32
+    }
+QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS = {
+    np.float64: qmatmul_direct_numba_cuda_float64, 
+    np.float32: qmatmul_direct_numba_cuda_float32, 
+    np.int32: None # TODO
+    }
+QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS = {
+    np.float64: qmatmul_algo_numba_cuda_float64, 
+    np.float32: qmatmul_algo_numba_cuda_float32, 
+    np.int32: None # TODO
+    }
 
+# --------------------------------------------------------------------------------------------------------------------------------
+# MAIN
+# --------------------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
-    QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS = {
-        np.float64: qmatmul_naive_numba_st_float64, 
-        np.float32: qmatmul_naive_numba_st_float32,
-        np.int32: qmatmul_naive_numba_st_int32
-        }
-    QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS = {
-        np.float64: qmatmul_naive_numba_parallel_float64, 
-        np.float32: qmatmul_naive_numba_parallel_float32,
-        np.int32: qmatmul_naive_numba_parallel_int32
-        }
-    QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS = {
-        np.float64: qmatmul_direct_numba_cuda_float64, 
-        np.float32: qmatmul_direct_numba_cuda_float32, 
-        np.int32: None # TODO
-        }
-    QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS = {
-        np.float64: qmatmul_algo_numba_cuda_float64, 
-        np.float32: qmatmul_algo_numba_cuda_float32, 
-        np.int32: None # TODO
-        }    
-    
+    t1_main = time.time()
+         
     # experiment settings
-    M, N, P = 300, 300, 300
+    M, N, P = 100, 300, 200
     SEED = 0    
     RANGE = 10
-    DTYPE = np.float32    
+    DTYPE = np.float32
+    REPETITIONS = 10
     VERBOSE = False         
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
@@ -1005,14 +1013,14 @@ if __name__ == "__main__":
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
         }
     APPROACHES_INFO = {key:  (APPROACHES[key][0], APPROACHES[key][1].__name__) for key in APPROACHES.keys()}
-    experiment_info = {"M": M, "N": N, "P": P, "SEED": SEED, "RANGE": RANGE, "DTYPE": DTYPE, "NUMPY_SINGLE_THREAD": NUMPY_SINGLE_THREAD, **APPROACHES_INFO}    
+    experiment_info = {"M": M, "N": N, "P": P, "SEED": SEED, "RANGE": RANGE, "DTYPE": DTYPE, "REPETITIONS": REPETITIONS, "NUMPY_SINGLE_THREAD": NUMPY_SINGLE_THREAD, **APPROACHES_INFO}    
     c_props = cpu_and_system_props()
     g_props = gpu_props()
-    experiment_hs = experiment_hash_str(experiment_info, c_props, g_props)
-    
+    experiment_hs = experiment_hash_str(experiment_info, c_props, g_props)    
     logger = Logger(f"{FOLDER_EXPERIMENTS}{experiment_hs}.log")    
     sys.stdout = logger
     
+    # general info
     print(f"QUATERNIONS MAIN...")    
     print(f"HASH STRING: {experiment_hs}")
     print(LINE_SEPARATOR)
@@ -1034,26 +1042,49 @@ if __name__ == "__main__":
     print(f"C: {np.empty((M, P, 4), dtype=DTYPE).nbytes / 1024**2:.3f} MB") 
     print(LINE_SEPARATOR)
     
-    # experiment to go  
-    for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
-        reference_info = ""
-        if approach_on:
-            print(f"APPROACH {index + 1}: {approach_name}...", flush=True) 
-            t1 = time.time()
-            C = approach_function(A, B)
-            t2 = time.time()    
-            if C_ref is None:
-                C_ref = C
-                time_ref = t2 - t1
-                reference_info = ", reference"
-            extra_info = "" if C_ref is None else f", all close: {np.allclose(C, C_ref, atol=1e-1, rtol=1e-3)}, d_inf: {np.max(np.abs(C - C_ref))}, speed-up vs reference: {time_ref / (t2 - t1):.2f}"
-            if VERBOSE:
-                print(f"C:\n {C}")        
-            print(f"APPROACH {index + 1}: {approach_name} DONE. [time: {t2 - t1} s{extra_info}{reference_info}]", flush=True)            
-        else:
-            print(f"APPROACH {index + 1}: {approach_name} OFF.")                    
-    
+    # experiment to go
+    times = {}
+    reference_approach_name = None
+    for r in range(REPETITIONS):
+        print(f"REPETITION: {r + 1}/{REPETITIONS}:")
+        for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
+            reference_info = ""
+            if approach_on:
+                print(f"APPROACH {index + 1}: {approach_name}...", flush=True) 
+                t1 = time.time()
+                C = approach_function(A, B)
+                t2 = time.time()
+                t2_t1 = t2 - t1
+                if approach_name in times:
+                    times[approach_name].append(t2_t1)
+                else:
+                    times[approach_name] = []
+                if C_ref is None:
+                    C_ref = C
+                    time_ref = t2_t1
+                    reference_approach_name = approach_name
+                    reference_info = ", reference"
+                extra_info = "" if C_ref is None else f", all close: {np.allclose(C, C_ref, atol=1e-1, rtol=1e-3)}, d_inf: {np.max(np.abs(C - C_ref))}, speed-up vs reference: {time_ref / t2_t1:.2f}"
+                if VERBOSE:
+                    print(f"C:\n {C}")        
+                print(f"APPROACH {index + 1}: {approach_name} DONE. [time: {t2_t1} s{extra_info}{reference_info}]", flush=True)            
+            else:
+                print(f"APPROACH {index + 1}: {approach_name} OFF.")    
     print(LINE_SEPARATOR)
-    print("QUATERNIONS MAIN DONE.")    
+    print("SUMMARY:")
+    reference_mean_time = np.mean(times[reference_approach_name]) 
+    for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
+        if approach_on:
+            reference_info = " (REFERENCE)" if approach_name == reference_approach_name else ""
+            time_mean = np.mean(times[approach_name])
+            time_std = np.std(times[approach_name])
+            speedup = reference_mean_time / time_mean 
+            print(f"APPROACH {index + 1}: {approach_name}{reference_info} -> MEAN TIME: {time_mean}, STD: {time_std}, SPEED-UP: {speedup:.2f}", flush=True)
+        else:
+            print(f"APPROACH {index + 1}: {approach_name} OFF.")            
+    print(LINE_SEPARATOR)
+    t2_main = time.time()
+            
+    print(f"QUATERNIONS MAIN DONE. [time: {t2 - t1} s]")    
     sys.stdout = sys.__stdout__
     logger.logfile.close()
