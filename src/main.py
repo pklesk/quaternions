@@ -998,15 +998,15 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 100, 300, 200
+    M, N, P = 1000, 1000, 2000
     SEED = 0    
     RANGE = 10
     DTYPE = np.float32
-    REPETITIONS = 10
+    REPETITIONS = 3
     VERBOSE = False         
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
         "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy),
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
@@ -1055,10 +1055,9 @@ if __name__ == "__main__":
                 C = approach_function(A, B)
                 t2 = time.time()
                 t2_t1 = t2 - t1
-                if approach_name in times:
-                    times[approach_name].append(t2_t1)
-                else:
+                if approach_name not in times:
                     times[approach_name] = []
+                times[approach_name].append(t2_t1)
                 if C_ref is None:
                     C_ref = C
                     time_ref = t2_t1
