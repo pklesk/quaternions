@@ -998,10 +998,10 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 1000, 1000, 2000
+    M, N, P = 2000, 2000, 2000
     SEED = 0    
     RANGE = 10
-    DTYPE = np.float32
+    DTYPE = np.float64
     REPETITIONS = 3
     VERBOSE = False         
     APPROACHES = {
@@ -1084,6 +1084,6 @@ if __name__ == "__main__":
     print(LINE_SEPARATOR)
     t2_main = time.time()
             
-    print(f"QUATERNIONS MAIN DONE. [time: {t2 - t1} s]")    
+    print(f"QUATERNIONS MAIN DONE. [time: {t2_main - t1_main} s]")    
     sys.stdout = sys.__stdout__
     logger.logfile.close()
