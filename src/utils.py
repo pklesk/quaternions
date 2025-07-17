@@ -5,6 +5,7 @@ from numba import cuda
 import pickle
 import sys
 import numpy as np
+from matplotlib import pyplot as plt
  
 __author__ = "Przemysław Klęsk"
 __email__ = "pklesk@zut.edu.pl"
@@ -148,3 +149,40 @@ def experiment_hash_str(experiment_info, c_props, g_props, all_hs_digits=10, exp
     suffix = f"{experiment_info['M']};{experiment_info['N']};{experiment_info['P']};{experiment_info['RANGE']};{np.dtype(experiment_info['DTYPE']).name};{experiment_info['REPETITIONS']};{approaches_flags_str}"
     hs = f"{all_hs}_{experiment_hs}_{env_hs}_[{suffix}]"
     return hs
+
+def speedups_plot():
+    args = [1e6, 6.0 * 1e6, 2.7 * 1e7, 1e9, 6.0 * 1e9, 2.7 * 1e10]
+    series_float32 = {
+        "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [12.1, 11.8, 13.4, 12.9, 12.0, 11.0],
+        "QMATMUL_DIRECT_NUMPY": [137.3, 176.6, 218.8, 279.7, 322.7, 306.5],
+        "QMATMUL_ALGO_NUMPY": [140.8, 196.0, 229.3, 399.8, 528.0, 520.1],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [71.4, 264.5, 544.6, 1001.7, 1775.4, 1837.8],
+        "QMATMUL_ALGO_NUMBA_CUDA": [34.7, 164.8, 438.2, 2813.7, 4124.8, 4270.0]
+        }
+    series_float64 = {
+        "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [11.9, 13.2, 13.6, 14.1, 11.3, 11.0],
+        "QMATMUL_DIRECT_NUMPY": [81.3, 93.3, 120.1, 152.9, 150.0, 152.5],
+        "QMATMUL_ALGO_NUMPY": [96.7, 124.9, 151.7, 247.4, 255.8, 271.8],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [62.1, 180.2, 338.3, 544.8, 749.4, 833.2],
+        "QMATMUL_ALGO_NUMBA_CUDA": [31.5, 127.8, 306.2, 1183.1, 1518.1, 1641.0]
+        }
+    series = series_float32
+    title = "SPEED-UPS (DATA TYPE: FLOAT32)"
+    plt.figure(figsize=(12, 6))
+    for label, values in series.items():
+        plt.plot(args, values, marker="o", markersize=4, label=label)
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.grid(True, which="major", linestyle="--", linewidth=0.5, color="lightgray", zorder=0)
+    plt.grid(True, which="minor", linestyle=":", linewidth=0.3, color="lightgray", zorder=0)
+    plt.xlabel(r"$M\cdot N\cdot P$")
+    plt.ylabel("SPEED-UP")
+    plt.title(title)
+    plt.legend(loc="upper left")
+    plt.tight_layout()
+    plt.show()
+    
+if __name__ == "__main__":
+    speedups_plot()
