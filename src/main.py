@@ -277,11 +277,12 @@ def qmatmul_direct_numba_cuda_float64(A, B, verbose=False):
     P = B.shape[1]
     N4 = N << 2
     M4 = M << 2
+    tile_size = 8
     t1_b4 = time.time()
     dev_B = cuda.to_device(B)
     dev_B4 = cuda.device_array((N4, P), dtype=np.float64)
     tpb_default = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
-    tpb = tpb_default
+    tpb = tpb_default    
     bpg = (N4 * P + tpb - 1) // tpb
     stack_numba_cuda_job_float64[bpg, tpb](dev_B, dev_B4)
     cuda.synchronize()    
@@ -301,7 +302,6 @@ def qmatmul_direct_numba_cuda_float64(A, B, verbose=False):
         print(f"[time a44: {t2_a44 - t1_a44} s, bpg: {bpg}, tpb: {tpb}]")
     t1_c4 = time.time()    
     dev_C4 = cuda.device_array((M4, P), dtype=np.float64)
-    tile_size = 8
     bpg_x = (M4 + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
@@ -390,6 +390,7 @@ def qmatmul_direct_numba_cuda_float32(A, B, verbose=False):
     P = B.shape[1]
     N4 = N << 2
     M4 = M << 2
+    tile_size = 8
     t1_b4 = time.time()
     dev_B = cuda.to_device(B)
     dev_B4 = cuda.device_array((N4, P), dtype=np.float32)
@@ -414,7 +415,6 @@ def qmatmul_direct_numba_cuda_float32(A, B, verbose=False):
         print(f"[time a44: {t2_a44 - t1_a44} s, bpg: {bpg}, tpb: {tpb}]")
     t1_c4 = time.time()    
     dev_C4 = cuda.device_array((M4, P), dtype=np.float64)
-    tile_size = 8
     bpg_x = (M4 + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
@@ -503,57 +503,43 @@ def qmatmul_algo_numba_cuda_float64(A, B, verbose=False):
     P = B.shape[1]
     N4 = N << 2
     M4 = M << 2
+    tile_size = 8
     tpb_default = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
-    t1_b4 = time.time()
+    t1_stacks = time.time()
     dev_B = cuda.to_device(B)
     dev_B4 = cuda.device_array((N4, P), dtype=np.float64)
     tpb = tpb_default
     bpg = (N4 * P + tpb - 1) // tpb
-    stack_numba_cuda_job_float64[bpg, tpb](dev_B, dev_B4)
-    cuda.synchronize()    
-    t2_b4 = time.time()
-    if verbose:
-        print(f"[time b4: {t2_b4 - t1_b4} s, bpg: {bpg}, tpb: {tpb}]")
-    t1_a4 = time.time()
+    stack_numba_cuda_job_float64[bpg, tpb](dev_B, dev_B4)    
     dev_A = cuda.to_device(A)
     dev_A4 = cuda.device_array((M4, N), dtype=np.float64)
     bpg = (M4 * N + tpb - 1) // tpb 
     stack_numba_cuda_job_float64[bpg, tpb](dev_A, dev_A4)
     cuda.synchronize()
-    t2_a4 = time.time()
+    t2_stacks = time.time()
     if verbose:
-        print(f"[time a4: {t2_a4 - t1_a4} s, bpg: {bpg}, tpb: {tpb}]")
-    t1_h4b4 = time.time()
+        print(f"[time stacks: {t2_stacks - t1_stacks} s, tpb: {tpb}]")
+    t1_h4s = time.time()
     dev_H4B4 = cuda.device_array((N4, P), dtype=np.float64)
-    tile_size = 8
     bpg_x = (N + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)
     had4_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_H4B4)
-    cuda.synchronize()
-    t2_h4b4 = time.time()
-    if verbose:
-        print(f"[time h4b4: {t2_h4b4 - t1_h4b4} s, bpg: {bpg}, tpb: {tpb}]")
-    t1_h4a4 = time.time()
     dev_H4A4 = cuda.device_array((M4, N), dtype=np.float64)
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)
     had4_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_H4A4)
     cuda.synchronize()
-    t2_h4a4 = time.time()
+    t2_h4s = time.time()
     if verbose:
-        print(f"[time h4a4: {t2_h4a4 - t1_h4a4} s, bpg: {bpg}, tpb: {tpb}]")        
+        print(f"[time h4s: {t2_h4s - t1_h4s} s, tpb: {tpb}]")        
     t1_d4 = time.time()
     dev_D4 = cuda.device_array((M4, P), dtype=np.float64)
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
-    tpb = (tile_size, tile_size)
     matmuldiag_numba_cuda_job_float64[bpg, tpb](dev_H4A4, dev_H4B4, 0.25, dev_D4)
     cuda.synchronize()
     t2_d4 = time.time()
@@ -561,11 +547,7 @@ def qmatmul_algo_numba_cuda_float64(A, B, verbose=False):
         print(f"[time d4: {t2_d4 - t1_d4} s, bpg: {bpg}, tpb: {tpb}]")    
     t1_h4d4 = time.time()
     dev_H4D4 = cuda.device_array((M4, P), dtype=np.float64)
-    tile_size = 8
-    bpg_x = (M + tile_size - 1) // tile_size
-    bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)
     had4_numba_cuda_job_float64[bpg, tpb](dev_D4, dev_H4D4)
     cuda.synchronize()
     t2_h4d4 = time.time()
@@ -574,37 +556,31 @@ def qmatmul_algo_numba_cuda_float64(A, B, verbose=False):
     t1_a4lb4l = time.time()
     dev_A4l = cuda.device_array((M4, N), dtype=np.float64)    
     dev_permutation_a4l = cuda.to_device(np.array([0, 3, 1, 2], dtype=np.int8))
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)    
     permute_numba_cuda_job_float64[bpg, tpb](dev_A4, dev_permutation_a4l, dev_A4l)    
     dev_B4l = cuda.device_array((N4, P), dtype=np.float64)
     dev_permutation_b4l = cuda.to_device(np.array([0, 2, 3, 1], dtype=np.int8))
     bpg_x = (N + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tile_size = 8
     permute_numba_cuda_job_float64[bpg, tpb](dev_B4, dev_permutation_b4l, dev_B4l)
     cuda.synchronize()        
     dev_A4lB4l = cuda.device_array((M4, P), dtype=np.float64)
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
-    tpb = (tile_size, tile_size)
     matmuldiag_numba_cuda_job_float64[bpg, tpb](dev_A4l, dev_B4l, 2.0, dev_A4lB4l)
-    cuda.synchronize()        
+    cuda.synchronize()
     t2_a4lb4l = time.time()
     if verbose:
-        print(f"[time a4lb4l: {t2_a4lb4l - t1_a4lb4l} s, bpg: {bpg}, tpb: {tpb}]")                
+        print(f"[time a4lb4l: {t2_a4lb4l - t1_a4lb4l} s, tpb: {tpb}]")                
     t1_sub = time.time()
     dev_C4 = cuda.device_array((M4, P), dtype=np.float64)    
     bpg_x = (M4 + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
-    bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)    
+    bpg = (bpg_x, bpg_y)    
     matsub_numba_cuda_job_float64[bpg, tpb](dev_H4D4, dev_A4lB4l, dev_C4)    
     cuda.synchronize()
     t2_sub = time.time()
@@ -737,57 +713,43 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
     P = B.shape[1]
     N4 = N << 2
     M4 = M << 2
-    tpb_default = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2
-    t1_b4 = time.time()
+    tile_size = 8
+    tpb_default = cuda.get_current_device().MAX_THREADS_PER_BLOCK // 2    
+    t1_stacks = time.time()
     dev_B = cuda.to_device(B)
     dev_B4 = cuda.device_array((N4, P), dtype=np.float32)
     tpb = tpb_default
     bpg = (N4 * P + tpb - 1) // tpb
     stack_numba_cuda_job_float32[bpg, tpb](dev_B, dev_B4)
-    cuda.synchronize()    
-    t2_b4 = time.time()
-    if verbose:
-        print(f"[time b4: {t2_b4 - t1_b4} s, bpg: {bpg}, tpb: {tpb}]")
-    t1_a4 = time.time()
     dev_A = cuda.to_device(A)
     dev_A4 = cuda.device_array((M4, N), dtype=np.float32)
     bpg = (M4 * N + tpb - 1) // tpb 
     stack_numba_cuda_job_float32[bpg, tpb](dev_A, dev_A4)
     cuda.synchronize()
-    t2_a4 = time.time()
+    t2_stacks = time.time()
     if verbose:
-        print(f"[time a4: {t2_a4 - t1_a4} s, bpg: {bpg}, tpb: {tpb}]")
-    t1_h4b4 = time.time()
+        print(f"[time stacks: {t2_stacks - t1_stacks} s, tpb: {tpb}]")
+    t1_h4s = time.time()
     dev_H4B4 = cuda.device_array((N4, P), dtype=np.float32)
-    tile_size = 8
     bpg_x = (N + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
     tpb = (tile_size, tile_size)
     had4_numba_cuda_job_float32[bpg, tpb](dev_B4, dev_H4B4)
-    cuda.synchronize()
-    t2_h4b4 = time.time()
-    if verbose:
-        print(f"[time h4b4: {t2_h4b4 - t1_h4b4} s, bpg: {bpg}, tpb: {tpb}]")
-    t1_h4a4 = time.time()
     dev_H4A4 = cuda.device_array((M4, N), dtype=np.float32)
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)
     had4_numba_cuda_job_float32[bpg, tpb](dev_A4, dev_H4A4)
     cuda.synchronize()
-    t2_h4a4 = time.time()
+    t2_h4s = time.time()
     if verbose:
-        print(f"[time h4a4: {t2_h4a4 - t1_h4a4} s, bpg: {bpg}, tpb: {tpb}]")        
+        print(f"[time h4s: {t2_h4s - t1_h4s} s, tpb: {tpb}]")        
     t1_d4 = time.time()
     dev_D4 = cuda.device_array((M4, P), dtype=np.float32)
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
-    bpg_y = (P + tile_size - 1) // tile_size    
+    bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y, 4)
-    tpb = (tile_size, tile_size)
     matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_H4A4, dev_H4B4, np.float32(0.25), dev_D4)
     cuda.synchronize()
     t2_d4 = time.time()
@@ -795,11 +757,7 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
         print(f"[time d4: {t2_d4 - t1_d4} s, bpg: {bpg}, tpb: {tpb}]")    
     t1_h4d4 = time.time()
     dev_H4D4 = cuda.device_array((M4, P), dtype=np.float32)
-    tile_size = 8
-    bpg_x = (M + tile_size - 1) // tile_size
-    bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)
     had4_numba_cuda_job_float32[bpg, tpb](dev_D4, dev_H4D4)
     cuda.synchronize()
     t2_h4d4 = time.time()
@@ -808,26 +766,21 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
     t1_a4lb4l = time.time()
     dev_A4l = cuda.device_array((M4, N), dtype=np.float32)    
     dev_permutation_a4l = cuda.to_device(np.array([0, 3, 1, 2], dtype=np.int8))
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (N + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)    
     permute_numba_cuda_job_float32[bpg, tpb](dev_A4, dev_permutation_a4l, dev_A4l)    
     dev_B4l = cuda.device_array((N4, P), dtype=np.float32)
     dev_permutation_b4l = cuda.to_device(np.array([0, 2, 3, 1], dtype=np.int8))
     bpg_x = (N + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
-    tile_size = 8
     permute_numba_cuda_job_float32[bpg, tpb](dev_B4, dev_permutation_b4l, dev_B4l)
     cuda.synchronize()        
     dev_A4lB4l = cuda.device_array((M4, P), dtype=np.float32)
-    tile_size = 8
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
-    tpb = (tile_size, tile_size)
     matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_A4l, dev_B4l, np.float32(2.0), dev_A4lB4l)
     cuda.synchronize()        
     t2_a4lb4l = time.time()
@@ -837,8 +790,7 @@ def qmatmul_algo_numba_cuda_float32(A, B, verbose=False):
     dev_C4 = cuda.device_array((M4, P), dtype=np.float32)
     bpg_x = (M4 + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size
-    bpg = (bpg_x, bpg_y)
-    tpb = (tile_size, tile_size)    
+    bpg = (bpg_x, bpg_y)    
     matsub_numba_cuda_job_float32[bpg, tpb](dev_H4D4, dev_A4lB4l, dev_C4)    
     cuda.synchronize()
     t2_sub = time.time()
@@ -998,11 +950,11 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 1000, 3000, 2000
+    M, N, P = 300, 300, 300
     SEED = 0    
     RANGE = 10
     DTYPE = np.float32
-    REPETITIONS = 3
+    REPETITIONS = 10
     VERBOSE = False         
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
