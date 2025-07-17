@@ -953,7 +953,7 @@ if __name__ == "__main__":
     M, N, P = 300, 300, 300
     SEED = 0    
     RANGE = 10
-    DTYPE = np.float32
+    DTYPE = np.float64
     REPETITIONS = 10
     VERBOSE = False         
     APPROACHES = {
