@@ -950,10 +950,10 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 300, 300, 300
+    M, N, P = 100, 100, 100
     SEED = 0    
     RANGE = 10
-    DTYPE = np.float64
+    DTYPE = np.float32
     REPETITIONS = 10
     VERBOSE = False         
     APPROACHES = {
