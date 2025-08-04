@@ -668,7 +668,7 @@ def matmuldiag_numba_cuda_job_float64(E4, F4, factor, G4): # E4 shape: (R4 x S),
 
 @cuda.jit(void(float64[:, :], int8[:], float64[:, :]))
 def permute_numba_cuda_job_float64(S4, permutation, S4_permuted):    
-    shared_S4 = cuda.shared.array((16, 16, 4), dtype=float64)
+    shared_S4 = cuda.shared.array((16, 16, 4), dtype=float64) # assumed max tile size: 16
     M4, N = S4.shape
     M = M4 >> 2
     M2 = M << 1
