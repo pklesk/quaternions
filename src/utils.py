@@ -154,22 +154,25 @@ def speedups_plot():
     args = [1e6, 6.0 * 1e6, 2.7 * 1e7, 1e9, 6.0 * 1e9, 2.7 * 1e10]
     series_float32 = {
         "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": [12.1, 11.8, 13.4, 12.9, 12.0, 11.0],
-        "QMATMUL_DIRECT_NUMPY": [137.3, 176.6, 218.8, 279.7, 322.7, 306.5],
-        "QMATMUL_ALGO_NUMPY": [140.8, 196.0, 229.3, 399.8, 528.0, 520.1],
-        "QMATMUL_DIRECT_NUMBA_CUDA": [71.4, 264.5, 544.6, 1001.7, 1775.4, 1837.8],
-        "QMATMUL_ALGO_NUMBA_CUDA": [34.7, 164.8, 438.2, 2813.7, 4124.8, 4270.0]
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [11.4, 11.5, 12.6, 12.3, 11.5, 11.1],
+        "QMATMUL_DIRECT_NUMPY": [135.0, 179.5, 213.5, 282.4, 322.6, 312.7],
+        "QMATMUL_ALGO_NUMPY": [134.7, 187.8, 226.6, 404.3, 526.4, 527.0],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [67.5, 246.5, 496.8, 1271.4, 1876.7, 1891.7],
+        "QMATMUL_ALGO_NUMBA_CUDA": [35.5, 163.3, 433.3, 2771.3, 4142.3, 4316.4]
         }
     series_float64 = {
         "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": [11.9, 13.2, 13.6, 14.1, 11.3, 11.0],
-        "QMATMUL_DIRECT_NUMPY": [81.3, 93.3, 120.1, 152.9, 150.0, 152.5],
-        "QMATMUL_ALGO_NUMPY": [96.7, 124.9, 151.7, 247.4, 255.8, 271.8],
-        "QMATMUL_DIRECT_NUMBA_CUDA": [62.1, 180.2, 338.3, 544.8, 749.4, 833.2],
-        "QMATMUL_ALGO_NUMBA_CUDA": [31.5, 127.8, 306.2, 1183.1, 1518.1, 1641.0]
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [12.0, 12.7, 12.3, 13.0, 10.4, 10.6],
+        "QMATMUL_DIRECT_NUMPY": [78.4, 89.4, 116.1, 153.2, 146.4, 153.8],
+        "QMATMUL_ALGO_NUMPY": [92.1, 118.6, 146.3, 248.0, 249.5, 273.1],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [59.6, 165.2, 299.2, 623.6, 756.9, 854.1],
+        "QMATMUL_ALGO_NUMBA_CUDA": [31.9, 127.1, 291.5, 1201.1, 1473.2, 1664.3]
         }
+    fontsize_title = 18
+    fontsize_labels = 14
+    fontsize_legend = 11
     series = series_float32
-    title = "SPEED-UPS (DATA TYPE: FLOAT32)"
+    title = "SPEED-UPS OF QMATMUL FUNCTIONS (DATA TYPE: FLOAT32)"
     plt.figure(figsize=(12, 6))
     for label, values in series.items():
         plt.plot(args, values, marker="o", markersize=4, label=label)
@@ -177,10 +180,10 @@ def speedups_plot():
     plt.yscale("log")
     plt.grid(True, which="major", linestyle="--", linewidth=0.5, color="lightgray", zorder=0)
     plt.grid(True, which="minor", linestyle=":", linewidth=0.3, color="lightgray", zorder=0)
-    plt.xlabel(r"$M\cdot N\cdot P$")
-    plt.ylabel("SPEED-UP")
-    plt.title(title)
-    plt.legend(loc="upper left")
+    plt.xlabel(r"$M\cdot N\cdot P$", fontsize=fontsize_labels)
+    plt.ylabel("SPEED-UP", fontsize=fontsize_labels)    
+    plt.title(title, fontsize=fontsize_title)
+    plt.legend(loc="upper left", fontsize=fontsize_legend, labelspacing=0.25)
     plt.tight_layout()
     plt.show()
     
