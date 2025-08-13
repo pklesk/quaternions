@@ -171,28 +171,6 @@ def qmatmul_naive_numba_parallel_float32(A, B):
                 C[m, p] += qmul_numba_float32(A[m, n], B[n, p])
     return C
 
-@jit(int32[:, :, :](int32[:, :, :], int32[:, :, :]), nopython=True, cache=True, parallel=False)
-def qmatmul_naive_numba_st_int32(A, B):
-    M, N, _ = A.shape    
-    P = B.shape[1]
-    C = np.zeros((M, P, 4), dtype=np.int32)
-    for m in range(M):
-        for p in range(P):
-            for n in range(N):
-                C[m, p] += qmul_numba_int32(A[m, n], B[n, p])
-    return C
-
-@jit(int32[:, :, :](int32[:, :, :], int32[:, :, :]), nopython=True, cache=True, parallel=True)
-def qmatmul_naive_numba_parallel_int32(A, B):
-    M, N, _ = A.shape    
-    P = B.shape[1]
-    C = np.zeros((M, P, 4), dtype=np.int32)
-    for m in prange(M):
-        for p in range(P):
-            for n in range(N):
-                C[m, p] += qmul_numba_int32(A[m, n], B[n, p])
-    return C
-
 def qmatmul_direct_numpy(A, B):
     C4 = a44(A).dot(stack(B))
     C = c4_to_c(C4)
@@ -223,7 +201,31 @@ def had4(E4):
     H4E4[R3:] = E4_d0 - E4_d1
     return H4E4     
 
-def qmatmul_algo_numpy(A, B):
+def matmuldiag(E4, F4, factor):
+    R4, S = E4.shape
+    R2 = R4 >> 1
+    R = R2 >> 1
+    R3 = R2 + R
+    S2 = S << 1
+    S3 = S2 + S
+    T = F4.shape[1]
+    D4 = np.empty((R4, T), dtype=E4.dtype)
+    D4[:R] = factor * (E4[:R].dot(F4[:S]))
+    D4[R:R2] = factor * (E4[R:R2].dot(F4[S:S2]))
+    D4[R2:R3] = factor * (E4[R2:R3].dot(F4[S2:S3]))
+    D4[R3:] = factor * (E4[R3:].dot(F4[S3:]))    
+    return D4
+
+def permute(E4, permutation):
+    R4 = E4.shape[0]
+    R = R4 >> 2
+    E4p = np.empty_like(E4)
+    for i in range(4):
+        p = permutation[i]
+        E4p[i * R:(i + 1) * R] = E4[p * R:(p + 1) * R]     
+    return E4p
+
+def qmatmul_algo_numpy_OLD(A, B):
     M, N, _ = A.shape
     P = B.shape[1]
     M2 = M << 1
@@ -251,6 +253,22 @@ def qmatmul_algo_numpy(A, B):
     C4[:M] = -C4[:M]
     if C4.dtype != A.dtype: 
         C4 = C4.astype(A.dtype) # type narrowed back if needed
+    C = c4_to_c(C4)
+    return C
+
+def qmatmul_algo_numpy(A, B):
+    M = A.shape[0]
+    B4 = stack(B)
+    A4 = stack(A)
+    H4A4 = had4(A4)                   
+    H4B4 = had4(B4)    
+    D4u = matmuldiag(H4A4, H4B4, 0.25)
+    H4D4u = had4(D4u)  
+    A4p = permute(A4, np.array([0, 3, 1, 2], dtype=np.int8))
+    B4p = permute(B4, np.array([0, 2, 3, 1], dtype=np.int8)) 
+    D4l = matmuldiag(A4p, B4p, 2.0)
+    C4 = H4D4u - D4l
+    C4[:M] = -C4[:M]
     C = c4_to_c(C4)
     return C
 
@@ -652,7 +670,7 @@ def matmuldiag_numba_cuda_job_float64(E4, F4, factor, G4): # E4 shape: (R4 x S),
         G4[row + bz * R, col] = factor * tmp
 
 @cuda.jit(void(float64[:, :], int8[:], float64[:, :]))
-def permute_numba_cuda_job_float64(S4, permutation, S4_permuted):    
+def permute_numba_cuda_job_float64(S4, permutation, S4_permuted): # TODO naming to E4 of shape 4R x S (instead of S4 arg)    
     shared_S4 = cuda.shared.array((16, 16, 4), dtype=float64) # assumed max tile size: 16
     M4, N = S4.shape
     M = M4 >> 2
@@ -865,7 +883,7 @@ def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S),
         G4[row_bz_R, col] = factor * tmp
 
 @cuda.jit(void(float32[:, :], int8[:], float32[:, :]))
-def permute_numba_cuda_job_float32(S4, permutation, S4_permuted):    
+def permute_numba_cuda_job_float32(S4, permutation, S4_permuted): # TODO naming to E4 of shape 4R x S (instead of S4 arg)    
     shared_S4 = cuda.shared.array((16, 16, 4), dtype=float32)
     M4, N = S4.shape
     M = M4 >> 2

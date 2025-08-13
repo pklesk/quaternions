@@ -14,10 +14,8 @@ import sys
 from qmatmul import (
     qmatmul_naive_numba_st_float64, 
     qmatmul_naive_numba_st_float32, 
-    qmatmul_naive_numba_st_int32,
     qmatmul_naive_numba_parallel_float64,
     qmatmul_naive_numba_parallel_float32,
-    qmatmul_naive_numba_parallel_int32,
     qmatmul_direct_numba_cuda_float64,
     qmatmul_direct_numba_cuda_float32,
     qmatmul_algo_numba_cuda_float64,
@@ -30,27 +28,25 @@ FOLDER_EXPERIMENTS = "../experiments/"
 LINE_SEPARATOR = 208 * "="                
 QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS = {
     np.float64: qmatmul_naive_numba_st_float64, 
-    np.float32: qmatmul_naive_numba_st_float32,
-    np.int32: qmatmul_naive_numba_st_int32
+    np.float32: qmatmul_naive_numba_st_float32
     }
 QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS = {
     np.float64: qmatmul_naive_numba_parallel_float64, 
-    np.float32: qmatmul_naive_numba_parallel_float32,
-    np.int32: qmatmul_naive_numba_parallel_int32
+    np.float32: qmatmul_naive_numba_parallel_float32
     }
 QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS = {
     np.float64: qmatmul_direct_numba_cuda_float64, 
-    np.float32: qmatmul_direct_numba_cuda_float32, 
-    np.int32: None # TODO
+    np.float32: qmatmul_direct_numba_cuda_float32
     }
 QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS = {
     np.float64: qmatmul_algo_numba_cuda_float64, 
-    np.float32: qmatmul_algo_numba_cuda_float32, 
-    np.int32: None # TODO
+    np.float32: qmatmul_algo_numba_cuda_float32
     }
 
-def qmatrand(M, N, range_min, range_max, dtype=np.float32):
+def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
     A = (np.random.rand(M, N, 4) * (range_max - range_min) + range_min).astype(dtype)
+    if rounding:
+        A = np.round(A)
     return A
 
 # --------------------------------------------------------------------------------------------------------------------------------
@@ -63,9 +59,9 @@ if __name__ == "__main__":
     M, N, P = 100, 300, 200
     SEED = 0    
     RANGE = 10
-    DTYPE = np.float64
-    REPETITIONS = 1
-    VERBOSE = False         
+    DTYPE = np.float32 # {np.float64, np.float32} 
+    REPETITIONS = 3
+    VERBOSE = False     
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
         "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
@@ -117,6 +113,8 @@ if __name__ == "__main__":
                 C = approach_function(A, B)
                 t2 = time.time()
                 t2_t1 = t2 - t1
+                if t2_t1 == 0.0:
+                    t2_t1 = 1e-10 # epsilon: 0.1 ns
                 if approach_name not in times:
                     times[approach_name] = []
                 times[approach_name].append(t2_t1)
