@@ -154,19 +154,19 @@ def speedups_plot():
     args = [1e6, 6.0 * 1e6, 2.7 * 1e7, 1e9, 6.0 * 1e9, 2.7 * 1e10]
     series_float32 = {
         "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": [11.4, 11.5, 12.6, 12.3, 11.5, 11.1],
-        "QMATMUL_DIRECT_NUMPY": [135.0, 179.5, 213.5, 282.4, 322.6, 312.7],
-        "QMATMUL_ALGO_NUMPY": [134.7, 187.8, 226.6, 404.3, 526.4, 527.0],
-        "QMATMUL_DIRECT_NUMBA_CUDA": [67.5, 246.5, 496.8, 1271.4, 1876.7, 1891.7],
-        "QMATMUL_ALGO_NUMBA_CUDA": [35.5, 163.3, 433.3, 2771.3, 4142.3, 4316.4]
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [12.2, 12.1, 13.5, 11.6, 12.0, 11.0],
+        "QMATMUL_DIRECT_NUMPY": [143.9, 179.8, 226.1, 282.4, 320.5, 306.7],
+        "QMATMUL_ALGO_NUMPY": [168.9, 202.5, 285.5, 462.6, 563.6, 561.3],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [73.2, 272.7, 573.8, 926.7, 1771.4, 1838.1],
+        "QMATMUL_ALGO_NUMBA_CUDA": [36.7, 169.0, 443.6, 2716.8, 4041.2, 4184.2]
         }
     series_float64 = {
         "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": [12.0, 12.7, 12.3, 13.0, 10.4, 10.6],
-        "QMATMUL_DIRECT_NUMPY": [78.4, 89.4, 116.1, 153.2, 146.4, 153.8],
-        "QMATMUL_ALGO_NUMPY": [92.1, 118.6, 146.3, 248.0, 249.5, 273.1],
-        "QMATMUL_DIRECT_NUMBA_CUDA": [59.6, 165.2, 299.2, 623.6, 756.9, 854.1],
-        "QMATMUL_ALGO_NUMBA_CUDA": [31.9, 127.1, 291.5, 1201.1, 1473.2, 1664.3]
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [11.4, 12.3, 13.0, 11.4, 10.7, 10.5],
+        "QMATMUL_DIRECT_NUMPY": [83.2, 90.4, 116.5, 139.4, 149.6, 152.1],
+        "QMATMUL_ALGO_NUMPY": [93.9, 103.9, 144.4, 228.3, 260.6, 276.6],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [63.7, 168.1, 330.5, 516.8, 741.1, 831.0],
+        "QMATMUL_ALGO_NUMBA_CUDA": [33.3, 127.6, 305.9, 1053.9, 1412.4, 1608.0]
         }
     fontsize_title = 18
     fontsize_labels = 14

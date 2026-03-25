@@ -6,7 +6,7 @@ if NUMPY_SINGLE_THREAD:
     os.environ["MKL_NUM_THREADS"] = "1"
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
     os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-
+    
 import numpy as np
 import time
 from utils import cpu_and_system_props, gpu_props, dict_to_str, Logger, experiment_hash_str
@@ -20,6 +20,7 @@ from qmatmul import (
     qmatmul_direct_numba_cuda_float32,
     qmatmul_algo_numba_cuda_float64,
     qmatmul_algo_numba_cuda_float32,
+    qmatmul_algo_numba_cuda_float32_PAPER,
     qmatmul_direct_numpy,
     qmatmul_algo_numpy)
 
@@ -40,7 +41,7 @@ QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS = {
     }
 QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS = {
     np.float64: qmatmul_algo_numba_cuda_float64, 
-    np.float32: qmatmul_algo_numba_cuda_float32
+    np.float32: qmatmul_algo_numba_cuda_float32_PAPER
     }
 
 def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
@@ -56,16 +57,16 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 300, 300, 300
+    M, N, P = 3000, 3000, 3000
     SEED = 0    
     RANGE = 10
-    DTYPE = np.float64 # {np.float64, np.float32} 
-    REPETITIONS = 10
+    DTYPE = np.float32 # {np.float64, np.float32} 
+    REPETITIONS = 3
     VERBOSE = False     
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
-        "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy),
+        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
+        "QMATMUL_DIRECT_NUMPY": (False, qmatmul_direct_numpy),
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
