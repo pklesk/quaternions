@@ -1,11 +1,11 @@
 QUATERNIONS MAIN...
-HASH STRING: 0076572892_22173_901_[1000;3000;2000;10;float32;3;FFFTTT]
+HASH STRING: 2633652642_82403_901_[3000;3000;3000;10;float32;3;FFFFTT]
 ================================================================================================================================================================================================================
 EXPERIMENT INFO:
 {
-  M: 1000,
+  M: 3000,
   N: 3000,
-  P: 2000,
+  P: 3000,
   SEED: 0,
   RANGE: 10,
   DTYPE: <class 'numpy.float32'>,
@@ -14,7 +14,7 @@ EXPERIMENT INFO:
   QMATMUL_NAIVE_NUMBA_ST: (False, 'qmatmul_naive_numba_st_float32'),
   QMATMUL_NAIVE_NUMBA_PARALLEL: (False, 'qmatmul_naive_numba_parallel_float32'),
   QMATMUL_DIRECT_NUMPY: (False, 'qmatmul_direct_numpy'),
-  QMATMUL_ALGO_NUMPY: (True, 'qmatmul_algo_numpy'),
+  QMATMUL_ALGO_NUMPY: (False, 'qmatmul_algo_numpy'),
   QMATMUL_DIRECT_NUMBA_CUDA: (True, 'qmatmul_direct_numba_cuda_float32'),
   QMATMUL_ALGO_NUMBA_CUDA: (True, 'qmatmul_algo_numba_cuda_float32')
 }
@@ -51,74 +51,71 @@ GPU PROPS:
 }
 ================================================================================================================================================================================================================
 MEMORY INFO:
-A: 45.776 MB
-B: 91.553 MB
-C: 30.518 MB
+A: 137.329 MB
+B: 137.329 MB
+C: 137.329 MB
 ================================================================================================================================================================================================================
 REPETITION: 1/3:
 APPROACH 1: QMATMUL_NAIVE_NUMBA_ST OFF.
 APPROACH 2: QMATMUL_NAIVE_NUMBA_PARALLEL OFF.
 APPROACH 3: QMATMUL_DIRECT_NUMPY OFF.
-APPROACH 4: QMATMUL_ALGO_NUMPY...
-APPROACH 4: QMATMUL_ALGO_NUMPY DONE. [time: 0.43229126930236816 s, all close: True, d_inf: 0.0, speed-up vs reference: 1.00, reference]
+APPROACH 4: QMATMUL_ALGO_NUMPY OFF.
 APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA...
-APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA DONE. [time: 0.07393574714660645 s, all close: True, d_inf: 0.08984375, speed-up vs reference: 5.85]
+APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA DONE. [time: 0.4346797466278076 s, all close: True, d_inf: 0.0, speed-up vs reference: 1.00, reference]
 APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA...
 QMATMUL_ALGO_NUMBA_CUDA_FLOAT32...
-[time stacks: 0.012174606323242188 s, tpb: 512]
-[time h4s: 0.00032329559326171875 s, tpb: (8, 8)]
-[time d4: 0.011518478393554688 s, bpg: (250, 125, 4), tpb: (8, 8)]
-[time h4d4: 0.00011157989501953125 s, bpg: (250, 125), tpb: (8, 8)]
-[time a4lb4l: 0.012084007263183594 s, bpg: (250, 125, 4), tpb: (8, 8)]
-[time sub: 0.00015997886657714844 s, bpg: (500, 250), tpb: (8, 8)]
-[time c: 0.0025827884674072266 s, bpg: 15625, tpb: 512]
-QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: 0.03911590576171875 s]
-APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA DONE. [time: 0.04123973846435547 s, all close: True, d_inf: 0.05810546875, speed-up vs reference: 10.48]
+[time stacks: 0.022160768508911133 s, tpb: 512]
+[time h4s: 0.0005266666412353516 s, tpb: (8, 8)]
+[time d4: 0.05080699920654297 s, bpg: (375, 375, 4), tpb: (8, 8)]
+[time h4d4: 0.0002765655517578125 s, bpg: (375, 375), tpb: (8, 8)]
+[time a4lb4l: 0.051695823669433594 s, bpg: (375, 375, 4), tpb: (8, 8)]
+[time sub: 0.0007793903350830078 s, bpg: (1500, 375), tpb: (8, 8)]
+[time c: 0.015666961669921875 s, bpg: 70313, tpb: 512]
+QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: 0.14209461212158203 s]
+APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA DONE. [time: 0.14646625518798828 s, all close: True, d_inf: 0.125, speed-up vs reference: 2.97]
 REPETITION: 2/3:
 APPROACH 1: QMATMUL_NAIVE_NUMBA_ST OFF.
 APPROACH 2: QMATMUL_NAIVE_NUMBA_PARALLEL OFF.
 APPROACH 3: QMATMUL_DIRECT_NUMPY OFF.
-APPROACH 4: QMATMUL_ALGO_NUMPY...
-APPROACH 4: QMATMUL_ALGO_NUMPY DONE. [time: 0.42756009101867676 s, all close: True, d_inf: 0.0, speed-up vs reference: 1.01]
+APPROACH 4: QMATMUL_ALGO_NUMPY OFF.
 APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA...
-APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA DONE. [time: 0.07443618774414062 s, all close: True, d_inf: 0.08984375, speed-up vs reference: 5.81]
+APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA DONE. [time: 0.43823671340942383 s, all close: True, d_inf: 0.0, speed-up vs reference: 0.99]
 APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA...
 QMATMUL_ALGO_NUMBA_CUDA_FLOAT32...
-[time stacks: 0.011747360229492188 s, tpb: 512]
-[time h4s: 0.00028133392333984375 s, tpb: (8, 8)]
-[time d4: 0.011456727981567383 s, bpg: (250, 125, 4), tpb: (8, 8)]
-[time h4d4: 0.000102996826171875 s, bpg: (250, 125), tpb: (8, 8)]
-[time a4lb4l: 0.01198887825012207 s, bpg: (250, 125, 4), tpb: (8, 8)]
-[time sub: 0.00033473968505859375 s, bpg: (500, 250), tpb: (8, 8)]
-[time c: 0.0026068687438964844 s, bpg: 15625, tpb: 512]
-QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: 0.038683414459228516 s]
-APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA DONE. [time: 0.04063677787780762 s, all close: True, d_inf: 0.05810546875, speed-up vs reference: 10.64]
+[time stacks: 0.02243781089782715 s, tpb: 512]
+[time h4s: 0.0004949569702148438 s, tpb: (8, 8)]
+[time d4: 0.050881385803222656 s, bpg: (375, 375, 4), tpb: (8, 8)]
+[time h4d4: 0.00027060508728027344 s, bpg: (375, 375), tpb: (8, 8)]
+[time a4lb4l: 0.05165433883666992 s, bpg: (375, 375, 4), tpb: (8, 8)]
+[time sub: 0.0008006095886230469 s, bpg: (1500, 375), tpb: (8, 8)]
+[time c: 0.015780210494995117 s, bpg: 70313, tpb: 512]
+QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: 0.1425008773803711 s]
+APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA DONE. [time: 0.14710664749145508 s, all close: True, d_inf: 0.125, speed-up vs reference: 2.95]
 REPETITION: 3/3:
 APPROACH 1: QMATMUL_NAIVE_NUMBA_ST OFF.
 APPROACH 2: QMATMUL_NAIVE_NUMBA_PARALLEL OFF.
 APPROACH 3: QMATMUL_DIRECT_NUMPY OFF.
-APPROACH 4: QMATMUL_ALGO_NUMPY...
-APPROACH 4: QMATMUL_ALGO_NUMPY DONE. [time: 0.4288792610168457 s, all close: True, d_inf: 0.0, speed-up vs reference: 1.01]
+APPROACH 4: QMATMUL_ALGO_NUMPY OFF.
 APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA...
-APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA DONE. [time: 0.07554411888122559 s, all close: True, d_inf: 0.08984375, speed-up vs reference: 5.72]
+APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA DONE. [time: 0.4355320930480957 s, all close: True, d_inf: 0.0, speed-up vs reference: 1.00]
 APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA...
 QMATMUL_ALGO_NUMBA_CUDA_FLOAT32...
-[time stacks: 0.011799335479736328 s, tpb: 512]
-[time h4s: 0.0003147125244140625 s, tpb: (8, 8)]
-[time d4: 0.011435985565185547 s, bpg: (250, 125, 4), tpb: (8, 8)]
-[time h4d4: 9.965896606445312e-05 s, bpg: (250, 125), tpb: (8, 8)]
-[time a4lb4l: 0.01201629638671875 s, bpg: (250, 125, 4), tpb: (8, 8)]
-[time sub: 0.00015735626220703125 s, bpg: (500, 250), tpb: (8, 8)]
-[time c: 0.0025560855865478516 s, bpg: 15625, tpb: 512]
-QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: 0.038535118103027344 s]
-APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA DONE. [time: 0.04038214683532715 s, all close: True, d_inf: 0.05810546875, speed-up vs reference: 10.71]
+[time stacks: 0.022359132766723633 s, tpb: 512]
+[time h4s: 0.0005087852478027344 s, tpb: (8, 8)]
+[time d4: 0.05085301399230957 s, bpg: (375, 375, 4), tpb: (8, 8)]
+[time h4d4: 0.00028061866760253906 s, bpg: (375, 375), tpb: (8, 8)]
+[time a4lb4l: 0.05167746543884277 s, bpg: (375, 375, 4), tpb: (8, 8)]
+[time sub: 0.0007889270782470703 s, bpg: (1500, 375), tpb: (8, 8)]
+[time c: 0.015476465225219727 s, bpg: 70313, tpb: 512]
+QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: 0.14212679862976074 s]
+APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA DONE. [time: 0.14674735069274902 s, all close: True, d_inf: 0.125, speed-up vs reference: 2.96]
 ================================================================================================================================================================================================================
 SUMMARY:
 APPROACH 1: QMATMUL_NAIVE_NUMBA_ST OFF.
 APPROACH 2: QMATMUL_NAIVE_NUMBA_PARALLEL OFF.
 APPROACH 3: QMATMUL_DIRECT_NUMPY OFF.
-APPROACH 4: QMATMUL_ALGO_NUMPY (REFERENCE) -> MEAN TIME: 0.4295768737792969, STD: 0.001993491018752339, SPEED-UP: 1.00
-APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA -> MEAN TIME: 0.07463868459065755, STD: 0.0006720459502233563, SPEED-UP: 5.76
-APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA -> MEAN TIME: 0.04075288772583008, STD: 0.0003596080951542584, SPEED-UP: 10.54
+APPROACH 4: QMATMUL_ALGO_NUMPY OFF.
+APPROACH 5: QMATMUL_DIRECT_NUMBA_CUDA (REFERENCE) -> MEAN TIME: 0.43614951769510907, STD: 0.0015163361692876601, SPEED-UP: 1.00
+APPROACH 6: QMATMUL_ALGO_NUMBA_CUDA -> MEAN TIME: 0.1467734177907308, STD: 0.00026208802056150394, SPEED-UP: 2.97
 ================================================================================================================================================================================================================
-QUATERNIONS MAIN DONE. [time: 3.0774753093719482 s]
+QUATERNIONS MAIN DONE. [time: 3.900341749191284 s]

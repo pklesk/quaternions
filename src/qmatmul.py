@@ -784,7 +784,7 @@ def qmatmul_algo_numba_cuda_float32_PAPER(A, B, verbose=True):
     bpg_x = (M + tile_size - 1) // tile_size
     bpg_y = (P + tile_size - 1) // tile_size    
     bpg = (bpg_x, bpg_y, 4)
-    matmuldiag_numba_cuda_job_float32[bpg, tpb](dev_A4l, dev_B4l, np.float32(2.0), dev_A4lB4l)
+    matmuldiag_numba_cuda_job_float32_PAPER[bpg, tpb](dev_A4l, dev_B4l, np.float32(2.0), dev_A4lB4l)
     cuda.synchronize()        
     t2_a4lb4l = time.time()
     if verbose:
@@ -993,8 +993,8 @@ def had4_numba_cuda_job_float32(E4, H4E4):
 
 @cuda.jit(void(float32[:, :], float32[:, :], float32, float32[:, :]))
 def matmuldiag_numba_cuda_job_float32_PAPER(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     
-    shared_E = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 8
-    shared_F = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 8
+    shared_E = cuda.shared.array((16, 16), dtype=float32) # assumed max tile size: 16
+    shared_F = cuda.shared.array((16, 16), dtype=float32) # assumed max tile size: 16
     tile_size = cuda.blockDim.x
     R4, T = G4.shape
     R = R4 >> 2
@@ -1027,8 +1027,8 @@ def matmuldiag_numba_cuda_job_float32_PAPER(E4, F4, factor, G4): # E4 shape: (R4
 
 @cuda.jit(void(float32[:, :], float32[:, :], float32, float32[:, :]))
 def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     
-    shared_E = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 8
-    shared_F = cuda.shared.array((8, 8), dtype=float32) # assumed max tile size: 8
+    shared_E = cuda.shared.array((16, 16), dtype=float32) # assumed max tile size: 16
+    shared_F = cuda.shared.array((16, 16), dtype=float32) # assumed max tile size: 16
     tile_size = cuda.blockDim.x
     R4, T = G4.shape
     R = R4 >> 2

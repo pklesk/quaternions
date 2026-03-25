@@ -41,7 +41,7 @@ QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS = {
     }
 QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS = {
     np.float64: qmatmul_algo_numba_cuda_float64, 
-    np.float32: qmatmul_algo_numba_cuda_float32_PAPER
+    np.float32: qmatmul_algo_numba_cuda_float32
     }
 
 def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 1000, 3000, 2000
+    M, N, P = 3000, 3000, 3000
     SEED = 0    
     RANGE = 10
     DTYPE = np.float32 # {np.float64, np.float32} 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
         "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
         "QMATMUL_DIRECT_NUMPY": (False, qmatmul_direct_numpy),
-        "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy),
+        "QMATMUL_ALGO_NUMPY": (False, qmatmul_algo_numpy),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
         }
