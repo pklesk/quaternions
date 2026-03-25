@@ -969,22 +969,22 @@ def had4_numba_cuda_job_float32(E4, H4E4):
     tile_size = cuda.blockDim.x
     bx, by = cuda.blockIdx.x, cuda.blockIdx.y
     tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
-    col = bx * tile_size + tx
     row = by * tile_size + ty
+    col = bx * tile_size + tx
     if row < R and col < S:
-        shared_E4_0[tx, ty] = E4[row, col]
-        shared_E4_1[tx, ty] = E4[row + R, col]
-        shared_E4_2[tx, ty] = E4[row + R2, col]
-        shared_E4_3[tx, ty] = E4[row + R3, col] 
+        shared_E4_0[ty, tx] = E4[row, col]
+        shared_E4_1[ty, tx] = E4[row + R, col]
+        shared_E4_2[ty, tx] = E4[row + R2, col]
+        shared_E4_3[ty, tx] = E4[row + R3, col] 
     else:
-        shared_E4_0[tx, ty] = float32(0.0)
-        shared_E4_1[tx, ty] = float32(0.0)
-        shared_E4_2[tx, ty] = float32(0.0)
-        shared_E4_3[tx, ty] = float32(0.0)
-    s0 = shared_E4_0[tx, ty] + shared_E4_1[tx, ty]
-    s1 = shared_E4_2[tx, ty] + shared_E4_3[tx, ty]
-    d0 = shared_E4_0[tx, ty] - shared_E4_1[tx, ty]
-    d1 = shared_E4_2[tx, ty] - shared_E4_3[tx, ty]
+        shared_E4_0[ty, tx] = float32(0.0)
+        shared_E4_1[ty, tx] = float32(0.0)
+        shared_E4_2[ty, tx] = float32(0.0)
+        shared_E4_3[ty, tx] = float32(0.0)
+    s0 = shared_E4_0[ty, tx] + shared_E4_1[ty, tx]
+    s1 = shared_E4_2[ty, tx] + shared_E4_3[ty, tx]
+    d0 = shared_E4_0[ty, tx] - shared_E4_1[ty, tx]
+    d1 = shared_E4_2[ty, tx] - shared_E4_3[ty, tx]
     if row < R and col < S:    
         H4E4[row, col] = s0 + s1
         H4E4[row + R, col] = d0 + d1
@@ -1035,25 +1035,25 @@ def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S),
     S4 = F4.shape[0]
     S = S4 >> 2
     bx, by, bz = cuda.blockIdx.x, cuda.blockIdx.y, cuda.blockIdx.z
-    ty, tx = cuda.threadIdx.x, cuda.threadIdx.y
-    row = bx * tile_size + tx
-    col = by * tile_size + ty
+    tx, ty = cuda.threadIdx.x, cuda.threadIdx.y
+    row = by * tile_size + ty
+    col = bx * tile_size + tx
     tmp = float32(0.0)
     row_bz_R = row + bz * R
-    tx_bz_S = tx + bz * S
+    ty_bz_S = ty + bz * S
     for k in range(0, S, tile_size):
-        if row < R and k + ty < S:
-            shared_E[tx, ty] = E4[row_bz_R, k + ty]
+        if row < R and k + tx < S:
+            shared_E[ty, tx] = E4[row_bz_R, k + tx]
         else:
-            shared_E[tx, ty] = float32(0.0)
-        if k + tx < S and col < T:
-            shared_F[tx, ty] = F4[k + tx_bz_S, col]
+            shared_E[ty, tx] = float32(0.0)
+        if k + ty < S and col < T:
+            shared_F[ty, tx] = F4[k + ty_bz_S, col]
         else:
-            shared_F[tx, ty] = float32(0.0)
+            shared_F[ty, tx] = float32(0.0)
         cuda.syncthreads()
         for s in range(tile_size):
-            tmp += shared_E[tx, s] * shared_F[s, ty]
-            # tmp = cuda.fma(shared_E[tx, s], shared_F[s, ty], tmp)
+            tmp += shared_E[ty, s] * shared_F[s, tx]
+            # tmp = cuda.fma(shared_E[ty, s], shared_F[s, tx], tmp)
         cuda.syncthreads()
     if row < R and col < T:
         G4[row_bz_R, col] = factor * tmp

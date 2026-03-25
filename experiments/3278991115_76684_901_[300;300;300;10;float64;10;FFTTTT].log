@@ -1,0 +1,63 @@
+QUATERNIONS MAIN...
+HASH STRING: 3278991115_76684_901_[300;300;300;10;float64;10;FFTTTT]
+================================================================================================================================================================================================================
+EXPERIMENT INFO:
+{
+  M: 300,
+  N: 300,
+  P: 300,
+  SEED: 0,
+  RANGE: 10,
+  DTYPE: <class 'numpy.float64'>,
+  REPETITIONS: 10,
+  NUMPY_SINGLE_THREAD: True,
+  QMATMUL_NAIVE_NUMBA_ST: (False, 'qmatmul_naive_numba_st_float64'),
+  QMATMUL_NAIVE_NUMBA_PARALLEL: (False, 'qmatmul_naive_numba_parallel_float64'),
+  QMATMUL_DIRECT_NUMPY: (True, 'qmatmul_direct_numpy'),
+  QMATMUL_ALGO_NUMPY: (True, 'qmatmul_algo_numpy'),
+  QMATMUL_DIRECT_NUMBA_CUDA: (True, 'qmatmul_direct_numba_cuda_float64'),
+  QMATMUL_ALGO_NUMBA_CUDA: (True, 'qmatmul_algo_numba_cuda_float64')
+}
+================================================================================================================================================================================================================
+CPU AND SYSTEM PROPS:
+{
+  cpu_name: AMD Ryzen 9 9950X 16-Core Processor,
+  ram_size: 123.4 GB,
+  os_name: Linux 6.14.0-37-generic,
+  os_version: #37~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Nov 20 10:25:38 UTC 2,
+  os_machine: x86_64
+}
+GPU PROPS:
+{
+  name: NVIDIA GeForce RTX 5090,
+  max_threads_per_block: 1024,
+  max_block_dim_x: 1024,
+  max_block_dim_y: 1024,
+  max_block_dim_z: 64,
+  max_grid_dim_x: 2147483647,
+  max_grid_dim_y: 65535,
+  max_grid_dim_z: 65535,
+  max_shared_memory_per_block: 49152,
+  async_engine_count: 2,
+  can_map_host_memory: 1,
+  multiprocessor_count: 170,
+  warp_size: 32,
+  unified_addressing: 1,
+  pci_bus_id: 1,
+  pci_device_id: 0,
+  compute_capability: ComputeCapability(major=12, minor=0),
+  cores_per_SM: 128,
+  cores_total: 21760
+}
+================================================================================================================================================================================================================
+MEMORY INFO:
+A: 2.747 MB
+B: 2.747 MB
+C: 2.747 MB
+================================================================================================================================================================================================================
+REPETITION: 1/10:
+APPROACH 1: QMATMUL_NAIVE_NUMBA_ST OFF.
+APPROACH 2: QMATMUL_NAIVE_NUMBA_PARALLEL OFF.
+APPROACH 3: QMATMUL_DIRECT_NUMPY...
+APPROACH 3: QMATMUL_DIRECT_NUMPY DONE. [time: 0.011837959289550781 s, all close: True, d_inf: 0.0, speed-up vs reference: 1.00, reference]
+APPROACH 4: QMATMUL_ALGO_NUMPY...
