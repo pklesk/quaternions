@@ -6,9 +6,10 @@ import pickle
 import sys
 import numpy as np
 from matplotlib import pyplot as plt
+import time
  
-__author__ = "Przemysław Klęsk"
-__email__ = "pklesk@zut.edu.pl"
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexanddr.tariov@zut.edu.pl"]
 
 def dict_to_str(d, indent=0):
     """Returns a vertically formatted string representation of a dictionary."""

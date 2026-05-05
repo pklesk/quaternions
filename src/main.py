@@ -11,18 +11,21 @@ import numpy as np
 import time
 from utils import cpu_and_system_props, gpu_props, dict_to_str, Logger, experiment_hash_str
 import sys
+import qmatmul as qmm
 from qmatmul import (
     qmatmul_naive_numba_st_float64, 
     qmatmul_naive_numba_st_float32, 
     qmatmul_naive_numba_parallel_float64,
     qmatmul_naive_numba_parallel_float32,
-    qmatmul_direct_numba_cuda_float64,
-    qmatmul_direct_numba_cuda_float32,
+    qmatmul_direct_numba_cuda_float64,    
+    qmatmul_direct_numba_cuda_float32, 
     qmatmul_algo_numba_cuda_float64,
     qmatmul_algo_numba_cuda_float32,
-    qmatmul_algo_numba_cuda_float32_PAPER,
     qmatmul_direct_numpy,
     qmatmul_algo_numpy)
+
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 
 # global settings                
 FOLDER_EXPERIMENTS = "../experiments/"
@@ -59,17 +62,17 @@ if __name__ == "__main__":
     # experiment settings
     M, N, P = 3000, 3000, 3000
     SEED = 0    
-    RANGE = 10
+    RANGE = 2.0
     DTYPE = np.float32 # {np.float64, np.float32} 
-    REPETITIONS = 3
+    REPETITIONS = 1 # TODO 10
     VERBOSE = False     
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE]),
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE]),
-        "QMATMUL_DIRECT_NUMPY": (False, qmatmul_direct_numpy),
-        "QMATMUL_ALGO_NUMPY": (False, qmatmul_algo_numpy),
-        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE]),
-        "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE])        
+        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy, {"verbose": False}),
+        "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy, {"verbose": False}),
+        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}), 
+        "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False})        
         }
     APPROACHES_INFO = {key:  (APPROACHES[key][0], APPROACHES[key][1].__name__) for key in APPROACHES.keys()}
     experiment_info = {"M": M, "N": N, "P": P, "SEED": SEED, "RANGE": RANGE, "DTYPE": DTYPE, "REPETITIONS": REPETITIONS, "NUMPY_SINGLE_THREAD": NUMPY_SINGLE_THREAD, **APPROACHES_INFO}    
@@ -106,12 +109,12 @@ if __name__ == "__main__":
     reference_approach_name = None
     for r in range(REPETITIONS):
         print(f"REPETITION: {r + 1}/{REPETITIONS}:")
-        for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
+        for index, (approach_name, (approach_on, approach_function, approach_extra_args)) in enumerate(APPROACHES.items()):
             reference_info = ""
             if approach_on:
                 print(f"APPROACH {index + 1}: {approach_name}...", flush=True) 
                 t1 = time.time()
-                C = approach_function(A, B)
+                C = approach_function(A, B, **approach_extra_args)
                 t2 = time.time()
                 t2_t1 = t2 - t1
                 if t2_t1 == 0.0:
@@ -133,7 +136,7 @@ if __name__ == "__main__":
     print(LINE_SEPARATOR)
     print("SUMMARY:")
     reference_mean_time = np.mean(times[reference_approach_name]) 
-    for index, (approach_name, (approach_on, approach_function)) in enumerate(APPROACHES.items()):
+    for index, (approach_name, (approach_on, approach_function, approach_extra_args)) in enumerate(APPROACHES.items()):
         if approach_on:
             reference_info = " (REFERENCE)" if approach_name == reference_approach_name else ""
             time_mean = np.mean(times[approach_name])
