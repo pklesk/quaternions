@@ -63,12 +63,12 @@ if __name__ == "__main__":
     M, N, P = 3000, 3000, 3000
     SEED = 0    
     RANGE = 2.0
-    DTYPE = np.float32 # {np.float64, np.float32} 
-    REPETITIONS = 1 # TODO 10
-    VERBOSE = False     
+    DTYPE = np.float32 # {np.float64, np.float32}
+    REPETITIONS = 10
+    VERBOSE = False
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": (False, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE], {"verbose": False}),
         "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy, {"verbose": False}),
         "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy, {"verbose": False}),
         "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}), 
@@ -99,9 +99,9 @@ if __name__ == "__main__":
 
     # memory info
     print("MEMORY INFO:")
-    print(f"A: {A.nbytes / 1024**2:.3f} MB") 
-    print(f"B: {B.nbytes / 1024**2:.3f} MB")
-    print(f"C: {np.empty((M, P, 4), dtype=DTYPE).nbytes / 1024**2:.3f} MB") 
+    print(f"A: {A.nbytes / 1024**2:.3f} MiB") 
+    print(f"B: {B.nbytes / 1024**2:.3f} MiB")
+    print(f"C: {np.empty((M, P, 4), dtype=DTYPE).nbytes / 1024**2:.2f} MiB") 
     print(LINE_SEPARATOR)
     
     # experiment to go
@@ -114,7 +114,7 @@ if __name__ == "__main__":
             if approach_on:
                 print(f"APPROACH {index + 1}: {approach_name}...", flush=True) 
                 t1 = time.time()
-                C = approach_function(A, B, **approach_extra_args)
+                C = approach_function(A, B, **approach_extra_args)                
                 t2 = time.time()
                 t2_t1 = t2 - t1
                 if t2_t1 == 0.0:
@@ -127,12 +127,12 @@ if __name__ == "__main__":
                     time_ref = t2_t1
                     reference_approach_name = approach_name
                     reference_info = ", reference"
-                extra_info = "" if C_ref is None else f", all close: {np.allclose(C, C_ref, atol=1e-1, rtol=1e-3)}, d_inf: {np.max(np.abs(C - C_ref))}, speed-up vs reference: {time_ref / t2_t1:.2f}"
+                extra_info = "" if C_ref is None else f", all close: {np.allclose(C, C_ref, rtol=1e-5, atol=1e-2)}, speed-up vs reference: {time_ref / t2_t1:.2f}"
                 if VERBOSE:
                     print(f"C:\n {C}")        
                 print(f"APPROACH {index + 1}: {approach_name} DONE. [time: {t2_t1} s{extra_info}{reference_info}]", flush=True)            
             else:
-                print(f"APPROACH {index + 1}: {approach_name} OFF.")    
+                print(f"APPROACH {index + 1}: {approach_name} OFF.")
     print(LINE_SEPARATOR)
     print("SUMMARY:")
     reference_mean_time = np.mean(times[reference_approach_name]) 
@@ -142,12 +142,11 @@ if __name__ == "__main__":
             time_mean = np.mean(times[approach_name])
             time_std = np.std(times[approach_name])
             speedup = reference_mean_time / time_mean 
-            print(f"APPROACH {index + 1}: {approach_name}{reference_info} -> MEAN TIME: {time_mean}, STD: {time_std}, SPEED-UP: {speedup:.2f}", flush=True)
+            print(f"APPROACH {index + 1}: {approach_name}{reference_info} -> MEAN TIME: {time_mean} s, TIME STD: {time_std} s, STD_%: {(time_std / time_mean) * 100:.1f}%, SPEED-UP: {speedup:.2f}", flush=True)
         else:
             print(f"APPROACH {index + 1}: {approach_name} OFF.")            
     print(LINE_SEPARATOR)
-    t2_main = time.time()
-            
-    print(f"QUATERNIONS MAIN DONE. [time: {t2_main - t1_main} s]")    
+    t2_main = time.time()            
+    print(f"QUATERNIONS MAIN DONE. [hash string: {experiment_hs}, time: {t2_main - t1_main} s]")    
     sys.stdout = sys.__stdout__
     logger.logfile.close()
