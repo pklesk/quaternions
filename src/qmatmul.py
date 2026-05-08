@@ -5,6 +5,7 @@ import warnings
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
 import numpy as np
 import time
+from threadpoolctl import threadpool_limits
 
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
@@ -215,15 +216,28 @@ def qmatmul_naive_numba_parallel_float32_job(A, B):
                 C[m, p] += qmul_numba_float32(A[m, n], B[n, p])
     return C
 
-def qmatmul_direct_numpy(A, B, verbose=False):
+def qmatmul_direct_numpy_parallel(A, B, verbose=False):
     if verbose:
-        print(f"QMATMUL_DIRECT_NUMPY...")
+        print(f"QMATMUL_DIRECT_NUMPY_PARALLEL...")
         t1 = time.time()    
     C4 = a44(A).dot(stack(B))
     C = c4_to_c(C4)
     if verbose:
         t2 = time.time()
-        print(f"QMATMUL_DIRECT_NUMPY DONE. [time: {t2 - t1} s]")        
+        print(f"QMATMUL_DIRECT_NUMPY_PARALLEL DONE. [time: {t2 - t1} s]")        
+    return C
+
+
+def qmatmul_direct_numpy_st(A, B, verbose=False):
+    if verbose:
+        print(f"QMATMUL_DIRECT_NUMPY_ST...")
+        t1 = time.time()
+    with threadpool_limits(limits=1):    
+        C4 = a44(A).dot(stack(B))
+        C = c4_to_c(C4)
+    if verbose:
+        t2 = time.time()
+        print(f"QMATMUL_DIRECT_NUMPY_ST DONE. [time: {t2 - t1} s]")        
     return C
 
 def qmatmul_algolike_numpy(A, B): # only to check correctness (compliance) of computational outcomes
@@ -275,9 +289,9 @@ def permute(E4, permutation):
         E4p[i * R:(i + 1) * R] = E4[p * R:(p + 1) * R]     
     return E4p
 
-def qmatmul_algo_numpy(A, B, verbose=False):
+def qmatmul_algo_numpy_parallel(A, B, verbose=False):
     if verbose:
-        print(f"QMATMUL_ALGO_NUMPY...")
+        print(f"QMATMUL_ALGO_NUMPY_PARALLEL...")
         t1 = time.time()    
     M = A.shape[0]
     B4 = stack(B)
@@ -294,8 +308,31 @@ def qmatmul_algo_numpy(A, B, verbose=False):
     C = c4_to_c(C4)
     if verbose:
         t2 = time.time()
-        print(f"QMATMUL_ALGO_NUMPY DONE. [time: {t2 - t1} s]")    
+        print(f"QMATMUL_ALGO_NUMPY_PARALLEL DONE. [time: {t2 - t1} s]")    
     return C
+
+def qmatmul_algo_numpy_st(A, B, verbose=False):
+    if verbose:
+        print(f"QMATMUL_ALGO_NUMPY_ST...")
+        t1 = time.time()
+    with threadpool_limits(limits=1):            
+        M = A.shape[0]
+        B4 = stack(B)
+        A4 = stack(A)        
+        H4A4 = had4(A4)                   
+        H4B4 = had4(B4)
+        D4u = matmuldiag(H4A4, H4B4, 0.25)
+        H4D4u = had4(D4u)  
+        A4p = permute(A4, np.array([0, 3, 1, 2], dtype=np.int32))
+        B4p = permute(B4, np.array([0, 2, 3, 1], dtype=np.int32)) 
+        D4l = matmuldiag(A4p, B4p, 2.0)
+        C4 = H4D4u - D4l
+        C4[:M] = -C4[:M]
+        C = c4_to_c(C4)
+    if verbose:
+        t2 = time.time()
+        print(f"QMATMUL_ALGO_NUMPY_ST DONE. [time: {t2 - t1} s]")    
+    return C    
 
 def qmatmul_direct_numba_cuda_float64(A, B, tile_size=DEFAULT_TILE_SIZE, verbose=False):
     if verbose:

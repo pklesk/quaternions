@@ -1,5 +1,5 @@
 import os
-NUMPY_SINGLE_THREAD = True
+NUMPY_SINGLE_THREAD = False
 if NUMPY_SINGLE_THREAD:
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -17,12 +17,14 @@ from qmatmul import (
     qmatmul_naive_numba_st_float32, 
     qmatmul_naive_numba_parallel_float64,
     qmatmul_naive_numba_parallel_float32,
+    qmatmul_direct_numpy_st,    
+    qmatmul_direct_numpy_parallel, 
+    qmatmul_algo_numpy_st,
+    qmatmul_algo_numpy_parallel,   
     qmatmul_direct_numba_cuda_float64,    
     qmatmul_direct_numba_cuda_float32, 
     qmatmul_algo_numba_cuda_float64,
-    qmatmul_algo_numba_cuda_float32,
-    qmatmul_direct_numpy,
-    qmatmul_algo_numpy)
+    qmatmul_algo_numba_cuda_float32)
 
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
@@ -60,18 +62,20 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 3000, 3000, 3000
+    M, N, P = 1000, 3000, 2000
     SEED = 0    
     RANGE = 2.0
     DTYPE = np.float32 # {np.float64, np.float32}
-    REPETITIONS = 10
+    REPETITIONS = 1
     VERBOSE = False
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
         "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE], {"verbose": False}),
-        "QMATMUL_DIRECT_NUMPY": (True, qmatmul_direct_numpy, {"verbose": False}),
-        "QMATMUL_ALGO_NUMPY": (True, qmatmul_algo_numpy, {"verbose": False}),
-        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}), 
+        "QMATMUL_DIRECT_NUMPY_ST": (True, qmatmul_direct_numpy_st, {"verbose": False}),
+        "QMATMUL_DIRECT_NUMPY_PARALLEL": (True, qmatmul_direct_numpy_parallel, {"verbose": False}),
+        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}),        
+        "QMATMUL_ALGO_NUMPY_ST": (True, qmatmul_algo_numpy_st, {"verbose": False}),
+        "QMATMUL_ALGO_NUMPY_PARALLEL": (True, qmatmul_algo_numpy_parallel, {"verbose": False}),        
         "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False})        
         }
     APPROACHES_INFO = {key:  (APPROACHES[key][0], APPROACHES[key][1].__name__) for key in APPROACHES.keys()}
