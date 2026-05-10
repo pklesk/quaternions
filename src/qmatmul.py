@@ -3,6 +3,8 @@ from numba import void, float32, float64, int8, int32
 from numba.core.errors import NumbaPerformanceWarning
 import warnings
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
+import os
+os.environ["NUMBA_DISABLE_PERFORMANCE_WARNINGS"] = "1"
 import numpy as np
 import time
 from threadpoolctl import threadpool_limits
@@ -26,6 +28,22 @@ A_BLOCKS_PARTS = np.array([
     [2, 3, 0, 1],
     [3, 2, 1, 0]
 ], dtype=np.int8)
+
+def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
+    A = (np.random.rand(M, N, 4) * (range_max - range_min) + range_min).astype(dtype)
+    if rounding:
+        A = np.round(A)
+    return A
+
+def dot(A, B, approach_name="algo_numba_cuda", extra_args={"verbose": False}):
+    dtype_suffix = ""
+    if "numba" in approach_name: 
+        dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"  
+    approach_function = globals().get("qmatmul_" + approach_name + dtype_suffix)
+    if not approach_function:        
+        dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"        
+        approach_function = globals().get("qmatmul_algo_numba_cuda" + dtype_suffix)
+    return approach_function(A, B, **extra_args)
 
 def stack(E):
     R, S, _ = E.shape
@@ -954,13 +972,3 @@ def matsub_numba_cuda_job_float32(C4_left, C4_right, C4):
         result = shared_R[tx, ty] - shared_L[tx, ty] if row < M else shared_L[tx, ty] - shared_R[tx, ty]        
         C4[row, col] = result
         
-def dot(A, B, approach_name="algo_numba_cuda", extra_args={"verbose": False}):
-    dtype_suffix = ""
-    if "numba" in approach_name: 
-        dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"  
-    approach_function = globals().get("qmatmul_" + approach_name + dtype_suffix)
-    if not approach_function:        
-        dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"        
-        approach_function = globals().get("qmatmul_algo_numba_cuda" + dtype_suffix)
-    print(approach_function)
-    return approach_function(A, B, **extra_args)

@@ -2,11 +2,9 @@ import cpuinfo
 import platform
 import psutil
 from numba import cuda
-import pickle
 import sys
 import numpy as np
 from matplotlib import pyplot as plt
-import time
  
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexanddr.tariov@zut.edu.pl"]
@@ -29,33 +27,6 @@ def list_to_str(l, indent=0):
         list_str += "[" if i == 0 else " "  
         list_str += str(elem) + (",\n" if i < len(l) - 1 else "]")
     return list_str 
-
-def pickle_objects(fname, some_list):
-    """Pickles a list of objects to a binary file."""
-    print(f"PICKLE OBJECTS... [to file: {fname}]")
-    t1 = time.time()
-    try:
-        f = open(fname, "wb+")
-        pickle.dump(some_list, f, protocol=pickle.HIGHEST_PROTOCOL)
-        f.close()
-    except IOError:
-        sys.exit("[error occurred when trying to open or pickle the file]")
-    t2 = time.time()
-    print(f"PICKLE OBJECTS DONE. [time: {t2 - t1} s]")
-
-def unpickle_objects(fname):
-    """Returns an a list of objects from a binary file."""
-    print(f"UNPICKLE OBJECTS... [from file: {fname}]")
-    t1 = time.time()
-    try:    
-        f = open(fname, "rb")
-        some_list = pickle.load(f)
-        f.close()
-    except IOError:
-        sys.exit("[error occurred when trying to open or read the file]")
-    t2 = time.time()
-    print(f"UNPICKLE OBJECTS DONE. [time: {t2 - t1} s]")
-    return some_list
 
 def cpu_and_system_props():
     """Returns a dictionary with properties of CPU and OS."""
@@ -154,7 +125,7 @@ def experiment_hash_str(experiment_info, c_props, g_props, all_hs_digits=10, exp
         if key.startswith("QMATMUL_"):
             approaches_flags_str += "T" if experiment_info[key][0] else "F" 
     suffix = f"{experiment_info['M']};{experiment_info['N']};{experiment_info['P']};{experiment_info['RANGE']};{np.dtype(experiment_info['DTYPE']).name};" \
-        f"{experiment_info['REPETITIONS']};{experiment_info['NUMPY_SINGLE_THREAD']};{approaches_flags_str}"
+        f"{experiment_info['REPETITIONS']};{approaches_flags_str}"
     hs = f"{all_hs}_{experiment_hs}_{env_hs}_[{suffix}]"
     return hs
 
