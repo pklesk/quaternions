@@ -53,21 +53,21 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 100, 100, 100
+    M, N, P = 300, 300, 300
     SEED = 0    
     RANGE = 2.0
     DTYPE = np.float32 # {np.float32, np.float64}
     REPETITIONS = 10
     VERBOSE = False
     APPROACHES = {
-        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_NAIVE_NUMBA_ST": (False, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
         "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE], {"verbose": False}),
         "QMATMUL_DIRECT_NUMPY_ST": (True, qmatmul_direct_numpy_st, {"verbose": False}),
         "QMATMUL_DIRECT_NUMPY_PARALLEL": (True, qmatmul_direct_numpy_parallel, {"verbose": False}),
-        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}),        
+        "QMATMUL_DIRECT_NUMBA_CUDA": (False, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}),        
         "QMATMUL_ALGO_NUMPY_ST": (True, qmatmul_algo_numpy_st, {"verbose": False}),
         "QMATMUL_ALGO_NUMPY_PARALLEL": (True, qmatmul_algo_numpy_parallel, {"verbose": False}),        
-        "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False})        
+        "QMATMUL_ALGO_NUMBA_CUDA": (False, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False})        
         }
     APPROACHES_INFO = {key:  (APPROACHES[key][0], APPROACHES[key][1].__name__) for key in APPROACHES.keys()}
     experiment_info = {"M": M, "N": N, "P": P, "SEED": SEED, "RANGE": RANGE, "DTYPE": DTYPE, "REPETITIONS": REPETITIONS, **APPROACHES_INFO}    
