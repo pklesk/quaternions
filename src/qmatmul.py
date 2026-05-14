@@ -730,7 +730,6 @@ def matmuldiag_numba_cuda_job_float64(E4, F4, factor, G4): # E4 shape: (R4 x S),
         cuda.syncthreads()
         for s in range(tile_size):
             tmp += shared_E[ty, s] * shared_F[s, tx]
-            # tmp = cuda.fma(shared_E[ty, s], shared_F[s, tx], tmp) # TODO to check if fma makes sense and savings
         cuda.syncthreads()
     if row < R and col < T:
         G4[row_bz_R, col] = factor * tmp        
@@ -928,7 +927,6 @@ def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S),
         cuda.syncthreads()
         for s in range(tile_size):
             tmp += shared_E[ty, s] * shared_F[s, tx]
-            # tmp = cuda.fma(shared_E[ty, s], shared_F[s, tx], tmp) # TODO to check if fma makes sense and savings
         cuda.syncthreads()
     if row < R and col < T:
         G4[row_bz_R, col] = factor * tmp

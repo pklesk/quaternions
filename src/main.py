@@ -53,7 +53,7 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 100, 100, 100
+    M, N, P = 300, 300, 300
     SEED = 0    
     RANGE = 2.0
     DTYPE = np.float64 # {np.float32, np.float64}
