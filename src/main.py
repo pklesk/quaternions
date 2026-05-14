@@ -53,11 +53,11 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 3000, 3000, 3000
+    M, N, P = 100, 100, 100
     SEED = 0    
     RANGE = 2.0
     DTYPE = np.float64 # {np.float32, np.float64}
-    REPETITIONS = 10
+    REPETITIONS = 100
     VERBOSE = False
     APPROACHES = {
         "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
