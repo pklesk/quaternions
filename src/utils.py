@@ -129,42 +129,87 @@ def experiment_hash_str(experiment_info, c_props, g_props, all_hs_digits=10, exp
     hs = f"{all_hs}_{experiment_hs}_{env_hs}_[{suffix}]"
     return hs
 
-def speedups_plot():
+def speedups_plot(dtype):
     args = [1e6, 6.0 * 1e6, 2.7 * 1e7, 1e9, 6.0 * 1e9, 2.7 * 1e10]
     series_float32 = {
-        "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": [12.2, 12.1, 13.5, 11.6, 12.0, 11.0],
-        "QMATMUL_DIRECT_NUMPY": [143.9, 179.8, 226.1, 282.4, 320.5, 306.7],
-        "QMATMUL_ALGO_NUMPY": [168.9, 202.5, 285.5, 462.6, 563.6, 561.3],
-        "QMATMUL_DIRECT_NUMBA_CUDA": [73.2, 272.7, 573.8, 926.7, 1771.4, 1838.1],
-        "QMATMUL_ALGO_NUMBA_CUDA": [36.7, 169.0, 443.6, 2716.8, 4041.2, 4184.2]
-        }
+        "QMATMUL_NAIVE_NUMBA_ST": [1.7, 1.5, 1.5, 1.5, 1.6, 1.5],  
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [10.6, 25.5, 48.5, 60.5, 63.1, 59.1],        
+        "QMATMUL_DIRECT_NUMPY_ST": [145.5, 290.9, 375.2, 665.4, 765.2, 753.3],        
+        "QMATMUL_DIRECT_NUMPY_PARALLEL": [18.6, 92.4, 856.7, 2805.3, 3946.2, 3657.5],        
+        "QMATMUL_DIRECT_NUMBA_CUDA": [199.1, 579.2, 1346.2, 3275.4, 6752.9, 8130.6],        
+        "QMATMUL_ALGO_NUMPY_ST": [159.4, 345.0, 399.4, 1009.4, 1242.0, 1308.4],        
+        "QMATMUL_ALGO_NUMPY_PARALLEL": [490.5, 675.2, 676.1, 2473.1, 2943.8, 4192.3],        
+        "QMATMUL_ALGO_NUMBA_CUDA": [107.4, 398.0, 746.2, 6527.9, 12331.5, 15291.1]
+    }    
     series_float64 = {
-        "QMATMUL_NAIVE_NUMBA_ST": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  
-        "QMATMUL_NAIVE_NUMBA_PARALLEL": [11.4, 12.3, 13.0, 11.4, 10.7, 10.5],
-        "QMATMUL_DIRECT_NUMPY": [83.2, 90.4, 116.5, 139.4, 149.6, 152.1],
-        "QMATMUL_ALGO_NUMPY": [93.9, 103.9, 144.4, 228.3, 260.6, 276.6],
-        "QMATMUL_DIRECT_NUMBA_CUDA": [63.7, 168.1, 330.5, 516.8, 741.1, 831.0],
-        "QMATMUL_ALGO_NUMBA_CUDA": [33.3, 127.6, 305.9, 1053.9, 1412.4, 1608.0]
-        }
-    fontsize_title = 18
-    fontsize_labels = 14
-    fontsize_legend = 11
-    series = series_float32
-    title = "SPEED-UPS OF QMATMUL FUNCTIONS (DATA TYPE: FLOAT32)"
-    plt.figure(figsize=(12, 6))
+        "QMATMUL_NAIVE_NUMBA_ST": [1.7, 1.5, 1.5, 1.5, 1.5, 1.5],  
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": [9.9, 24.5, 47.6, 61.6, 60.8, 59.2],
+        "QMATMUL_DIRECT_NUMPY_ST": [111.0, 134.1, 212.1, 302.1, 329.6, 334.6],
+        "QMATMUL_DIRECT_NUMPY_PARALLEL": [19.9, 151.9, 587.9, 1179.4, 1494.4, 1641.6],
+        "QMATMUL_DIRECT_NUMBA_CUDA": [173.1, 430.5, 587.9, 2105.2, 3299.9, 3799.9],
+        "QMATMUL_ALGO_NUMPY_ST": [123.1, 140.5, 212.4, 478.3, 554.3, 600.7],
+        "QMATMUL_ALGO_NUMPY_PARALLEL": [288.2, 505.7, 489.4, 1112.7, 1544.9, 2109.0],
+        "QMATMUL_ALGO_NUMBA_CUDA": [96.3, 230.6, 499.1, 3672.4, 5544.7, 6563.2]
+    }
+    styles = {
+        "QMATMUL_NAIVE_NUMBA_ST": ("black", "--"),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": ("black", "-"),
+        "QMATMUL_DIRECT_NUMPY_ST": ("limegreen", "--"),
+        "QMATMUL_DIRECT_NUMPY_PARALLEL": ("limegreen", "-"),
+        "QMATMUL_DIRECT_NUMBA_CUDA": ("green", "-"),
+        "QMATMUL_ALGO_NUMPY_ST": ("dodgerblue", "--"),
+        "QMATMUL_ALGO_NUMPY_PARALLEL": ("dodgerblue", "-"),
+        "QMATMUL_ALGO_NUMBA_CUDA": ("blue", "-")
+    }
+    
+    TITLE_FONT_SIZE = 21.0
+    LABEL_FONT_SIZE = 10.0    
+    AXIS_LABEL_SIZE = 19.0
+    LEGEND_FONT_SIZE = 12.0
+    COLUMN_SPACING = 1.28
+    TICK_LABEL_SIZE = 15.0
+    
+    if dtype == np.float32:
+        series = series_float32
+        title = "LOG-LOG PLOT OF SPEED-UPS FOR QMATMUL FUNCTIONS (TYPE: FLOAT32, ENVIRONMENT: 2)"
+    else:
+        series = series_float64
+        title = "LOG-LOG PLOT OF SPEED-UPS FOR QMATMUL FUNCTIONS (TYPE: FLOAT64, ENVIRONMENT: 2)"
+    
+    plt.figure(figsize=(16, 7))
+    linewidth = 2.25
+    markersize = 5.5    
     for label, values in series.items():
-        plt.plot(args, values, marker="o", markersize=4, label=label)
+        color, linestyle = styles.get(label, ("gray", "-"))
+        plt.plot(args, values, marker="o", label=label.lower(), color=color, linestyle=linestyle, linewidth=linewidth, markersize=markersize, zorder=10)
+    
+    last_x = args[-1]
+    first_x = args[0]
+    
+    sorted_series = sorted(series.items(), key=lambda item: item[1][-1], reverse=True)    
+    for idx, (label, values) in enumerate(sorted_series):
+        last_y = values[-1]
+        color, _ = styles.get(label, ("gray", "-"))
+        x_pos = last_x * (COLUMN_SPACING ** (idx + 1.8))    
+        plt.hlines(y=last_y, xmin=last_x, xmax=x_pos, colors="black", linestyle="-", linewidth=0.8, alpha=0.5, zorder=2)        
+        plt.text(x_pos * 1.03, last_y, f"{last_y:.1f}x", color=color, fontsize=LABEL_FONT_SIZE, va="center", ha="left", zorder=11)
+        
     plt.xscale("log")
     plt.yscale("log")
-    plt.grid(True, which="major", linestyle="--", linewidth=0.5, color="lightgray", zorder=0)
-    plt.grid(True, which="minor", linestyle=":", linewidth=0.3, color="lightgray", zorder=0)
-    plt.xlabel(r"$M\cdot N\cdot P$", fontsize=fontsize_labels)
-    plt.ylabel("SPEED-UP", fontsize=fontsize_labels)    
-    plt.title(title, fontsize=fontsize_title)
-    plt.legend(loc="upper left", fontsize=fontsize_legend, labelspacing=0.25)
+    plt.grid(True, which="both", ls="-", color="#F5F5F5", zorder=1)    
+    plt.xlabel(r"$M\cdot N\cdot P$", fontsize=AXIS_LABEL_SIZE)
+    plt.ylabel("SPEED-UP", fontsize=AXIS_LABEL_SIZE)    
+    plt.title(title, fontsize=TITLE_FONT_SIZE)
+    
+    plt.xlim(first_x * 0.85, last_x * (COLUMN_SPACING ** (len(sorted_series) + 3.2)))
+    
+    plt.tick_params(axis="both", which="major", labelsize=TICK_LABEL_SIZE)
+    plt.tick_params(axis="both", which="minor", labelsize=TICK_LABEL_SIZE * 0.8)
+    
+    plt.legend(loc="upper left", fontsize=LEGEND_FONT_SIZE, framealpha=0.9, ncol=1, handlelength=3.0, labelspacing=0.01)
     plt.tight_layout()
     plt.show()
     
 if __name__ == "__main__":
-    speedups_plot()
+    speedups_plot(dtype=np.float64)
+    
