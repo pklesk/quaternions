@@ -65,7 +65,7 @@ RESULT FRAGMENT -> C[:3, :3]:
 QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.209159 s.
 ```
 
-An optional argument `approach_name` of the function `qmm.dot` allows 
+An optional argument `approach` of the function `qmm.dot` allows 
 the user to select one of the following eight computational approaches: 
 `"naive_st"`, `"naive_parallel"`, `"direct_numpy_st"`, 
 `"direct_numpy_parallel"`, `"direct_numpy_st"`, `"direct\_cuda"`,
