@@ -63,7 +63,7 @@ $$
 }
 \end{aligned}
 $$
-</div>div>
+</div>
 
 With `qmatmul` module installed, one can write:
 ```python
