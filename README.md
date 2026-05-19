@@ -54,6 +54,7 @@ $$
 \begin{pmatrix}
 4 -53i -39j +15k & 16 -6i -17j +52k \\
 1 -3i +4j +7k & -30 +3i +30j +56k \\
+44 +23i -16j -38k & 40 -4i -5j +7k \\
 \end{pmatrix}
 }
 $$
