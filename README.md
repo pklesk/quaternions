@@ -9,8 +9,8 @@ with eleven invocations, suitable usage of tiling and shared memory, and few hos
 ## Selected kernels - flows of CUDA computations
 <table>
    <tr>
-     <td><img width="1150" height="1496" alt="had4_flow" src="https://github.com/user-attachments/assets/091bb888-3c58-421a-8165-dff3643dcdbf"/></td>
-     <td><img width="1492" height="2046" alt="matmuldiag_flow" src="https://github.com/user-attachments/assets/302b37ce-58d9-46d5-9b0f-c9d7bf1ab001"/></td>    
+     <td valign="top"><img width="1150" height="1496" alt="had4_flow" src="https://github.com/user-attachments/assets/091bb888-3c58-421a-8165-dff3643dcdbf"/></td>
+     <td valign="top"><img width="1492" height="2046" alt="matmuldiag_flow" src="https://github.com/user-attachments/assets/302b37ce-58d9-46d5-9b0f-c9d7bf1ab001"/></td>    
    </tr>
 </table>
 
