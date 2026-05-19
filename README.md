@@ -32,7 +32,7 @@ Note: for further usage, NVIDIA CUDA drivers must be present in the operating sy
 Suppose one would like to multiply the following matrices of quaternions:
 
 $$
-{\scriptsize
+{\tiny
 \begin{pmatrix}
 2i +j & -1 +i -j + 4k & 5 -i +3j \\
 1 +4i -4j -4k & -5 +3i +3j +4k & 5 +3i +3k \\
@@ -41,8 +41,8 @@ $$
 -2 -i +j -k & 5 -4i -3j -3k & 2 -2i -3k
 \end{pmatrix}
 }
-\cdot
-{\scriptsize
+{\cdot}
+{\tiny
 \begin{pmatrix}
 -3 -4i + 2j -4k & -3 -i +3j -4k \\
 3 - 4i +5j & 5 +i +2j -5k\\
@@ -50,7 +50,7 @@ $$
 \end{pmatrix}
 }
 {\scriptsize =}
-{\scriptsize
+{\tiny
 \begin{pmatrix}
 4 -53i -39j +15k & 16 -6i -17j +52k \\
 1 -3i +4j +7k & -30 +3i +30j +56k \\
