@@ -29,7 +29,7 @@ pip install TODO
 Note: for further usage, NVIDIA CUDA drivers must be present in the operating system.
 
 ## Usage example 1
-Suppose we would like to multiply the following two matrices of quaternions and obtain the result on the right-hand-side:
+Suppose one would like to multiply the following matrices of quaternions:
 
 $$
 {\scriptsize
