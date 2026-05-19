@@ -93,6 +93,7 @@ t2 = time.time()
 print(f"C:")
 print(C)
 print(f"TIME OF qmm.dot: {t2 - t1:.6f} s.")
+```
 results in the following output:
 ```bash
 C:
