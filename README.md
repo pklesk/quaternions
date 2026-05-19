@@ -91,7 +91,7 @@ print(f"RESULT -> C:")
 print(C)
 print(f"QMATMUL EXAMPLE DONE. TIME OF qmm.dot: {t2 - t1:.6f} s.")
 ```
-Running the script above produces the following output:
+Running the code above produces the following output:
 ```bash
 QMATMUL EXAMPLE...
 RESULT -> C:
