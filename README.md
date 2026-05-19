@@ -25,7 +25,7 @@ with eleven invocations, suitable usage of tiling and shared memory, and few hos
 ## Installation
 TODO
 
-## Example usage 
+## Example usage 1
 With `qmatmul` module installed, one can write e.g.:
 ```python
 import qmatmul as qmm
@@ -68,6 +68,47 @@ the user to select one of the following eight computational approaches:
 `"direct_numpy_parallel"`, `"direct_numpy_st"`, `"direct\_cuda"`,
 `"algo_numpy_st"`, `"algo_numpy_parallel"`, `"algo_numba_cuda"`.
 The default setting is `"algo_numba_cuda"`.
+
+## Example usage 2
+Running:
+```python
+A = np.array([
+    [[0, 2, 1, 0], [-1, 1, -1, 4], [5, -1, 3, 0]],
+    [[1, 4, -4, -4], [-5, 3, 3, 4], [5, 3, 0, 3]],
+    [[-4, 1, -4, 4], [0, -1, -2, -3], [0, 1, -5, 1]],
+    [[1, 1, 4, 2], [-1, -1, 2, -4], [2, 2, -3, -4]],
+    [[-2, -1, 1, -1], [5, -4, -3, -3], [2, -2, 0, -3]]
+    ])
+B = np.array([
+    [[-3, -4, 2, -4], [-3, -1, 3, -4]], 
+    [[3, -4, 5, 0], [5, 1, 2, -5]],
+    [[-2, -4, -2, -4], [-2, -1, -4, 2]]
+    ])
+t1 = time.time()
+C = qmm.dot(A, B)
+t2 = time.time()
+print(f"C:")
+print(C)
+print(f"TIME OF qmm.dot: {t2 - t1:.6f} s.")
+results in the following output:
+```bash
+C:
+[[[  4. -53. -39.  15.]
+  [ 16.  -6. -17.  52.]]
+
+ [[  1.  -3.   4.   7.]
+  [-30.   3.  30.  56.]]
+
+ [[ 44.  53.   8. -56.]
+  [ 10.   8. -11. -23.]]
+
+ [[-34. -14.  29. -17.]
+  [-40. -62. -10. -21.]]
+
+ [[-14. -18.  21. -26.]
+  [ 18.   0. -41. -18.]]]
+TIME OF qmm.dot: 0.002100 s.
+```
 
 ## Documentation
 TODO
