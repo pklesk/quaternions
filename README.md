@@ -112,7 +112,7 @@ RESULT -> C:
 QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
 ```
 ## Usage example 2 (large arguments)
-In example below, two large random matrices with quaternions are multiplied.
+In the example below, two large random matrices with quaternions are multiplied.
 ```python
 print("QMATMUL EXAMPLE (LARGE ARGUMENTS)...")
 M, N, P = 1000, 3000, 2000
@@ -146,7 +146,7 @@ QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: 0.151431 s.
 
 ## Choice of approach
 
-An optional argument `approach` of the function `qmm.dot` allows 
+An additional optional argument `approach`, e.g., `qmm.dot(A, B, approach="...")`, allows 
 the user to select one of the following eight computational approaches: 
 `"naive_st"`, `"naive_parallel"`, `"direct_numpy_st"`, 
 `"direct_numpy_parallel"`, `"direct_numpy_st"`, `"direct_cuda"`,
