@@ -23,7 +23,10 @@ with eleven invocations, suitable usage of tiling and shared memory, and few hos
 </table>
 
 ## Installation
-TODO
+```bash
+pip install TODO
+```
+Note: for further usage, NVIDIA CUDA drivers must be present in the operating system.
 
 ## Example usage 1
 With `qmatmul` module installed, one can write e.g.:
