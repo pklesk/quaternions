@@ -111,7 +111,7 @@ RESULT -> C:
   [ 18.   0. -41. -18.]]]
 QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
 ```
-## Usage example 2 (large)
+## Usage example 2 (large arguments)
 With `qmatmul` module installed, one can write e.g.:
 ```python
 import qmatmul as qmm
