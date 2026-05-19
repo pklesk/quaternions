@@ -35,15 +35,15 @@ def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
         A = np.round(A)
     return A
 
-def dot(A, B, approach_name="algo_numba_cuda", extra_args={"verbose": False}):    
+def dot(A, B, approach="algo_numba_cuda", extra_args={"verbose": False}):    
     if (A.dtype != np.float32 and A.dtype != np.float64) or (A.dtype != B.dtype):
         A = A.astype(np.float64)
     if B.dtype != A.dtype:
         B = B.astype(np.float64)
     dtype_suffix = ""
-    if "numba" in approach_name: 
+    if "numba" in approach: 
         dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"  
-    approach_function = globals().get("qmatmul_" + approach_name + dtype_suffix)
+    approach_function = globals().get("qmatmul_" + approach + dtype_suffix)
     if not approach_function:        
         dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"
         approach_function = globals().get("qmatmul_algo_numba_cuda" + dtype_suffix)
