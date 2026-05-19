@@ -1,4 +1,4 @@
-# qmatmul: Fast multiplication of quaternion-valued matrices - algorithm and its implementations for sequential and CUDA computation
+# qmatmul: Fast multiplication of quaternion-valued matrices - algorithm and its implementations for sequential and CUDA computations
 We present an algorithm for fast multiplication of matrices whose elements are *quaternions* - hypercomplex numbers consisting of one real and three imaginary parts.
 The number of elementary floating-point multiplications involved in the algorithm is reduced *twice* with respect to the definition-based formula, 
 regardless of the input matrices. This is owed to a suitable representation and decomposition into two products, one of which takes advantage of certain 
