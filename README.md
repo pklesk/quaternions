@@ -31,6 +31,7 @@ Note: for further usage, NVIDIA CUDA drivers must be present in the operating sy
 ## Usage example 1
 Suppose one would like to multiply the following matrices of quaternions:
 
+<!-- -->
 $$
 \begin{aligned}
 {\tiny
@@ -62,6 +63,7 @@ $$
 }
 \end{aligned}
 $$
+<!-- -->
 
 With `qmatmul` module installed, one can write:
 ```python
