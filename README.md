@@ -14,3 +14,11 @@ with eleven invocations, suitable usage of tiling and shared memory, and few hos
    </tr>
 </table>
 
+# Speed-ups
+<table>
+   <tr>
+     <td valign="top"><img src="extras/speedups_float32_5090.png"/></td>
+     <td valign="top"><img src="extras/speedups_float64_5090.png"/></td>    
+   </tr>
+</table>
+
