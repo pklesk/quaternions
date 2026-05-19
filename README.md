@@ -29,7 +29,39 @@ pip install TODO
 Note: for further usage, NVIDIA CUDA drivers must be present in the operating system.
 
 ## Usage example 1
-With `qmatmul` module installed, one can write e.g.:
+Suppose we would like to multiply the following two matrices of quaternions and obtain the result on the right-hand-side:
+
+$$
+{\scriptsize
+\begin{pmatrix}
+2i +j & -1 +i -j + 4k & 5 -i +3j \\
+1 +4i -4j -4k & -5 +3i +3j +4k & 5 +3i +3k \\
+-4 +i -4j + 4k & -i -2j +3k & i -5j +k \\
+1 +i +4j + 2k& -1 -i +2j -4k & 2 +2i -3j -4k \\
+-2 -i +j -k & 5 -4i -3j -3k & 2 -2i -3k
+\end{pmatrix}
+}
+\cdot
+{\scriptsize
+\begin{pmatrix}
+-3 -4i + 2j -4k & -3 -i +3j -4k \\
+3 - 4i +5j & 5 +i +2j -5k\\
+-2 -4i -2j -4k & -2 -i -4j +2k
+\end{pmatrix}
+}
+{=}
+{\scriptsize
+\begin{pmatrix}
+4 -53i -39j +15k & 16 -6i -17j +52k \\
+1 -3i +4j +7k & -30 +3i +30j +56k \\
+44 +23i -16j -38k & 40 -4i -5j +7k\\
+-34 -14i +29j -17k & -40 -62i -10j -21k \\
+-14 -18i +21j -26k & 18 -41j -18k
+\end{pmatrix}
+}
+$$
+
+With `qmatmul` module installed, one can write:
 ```python
 import qmatmul as qmm
 import numpy as np
