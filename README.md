@@ -126,7 +126,7 @@ print(f"RESULT FRAGMENT -> C[:3, :3]:")
 print(C[:3, :3])
 print(f"QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: {t2 - t1:.6f} s.")
 ```
-The result (computed in less than 200 ms) is:
+The result is computed fast:
 ```bash
 QMATMUL EXAMPLE (LARGE ARGUMENTS)...
 RESULT FRAGMENT -> C[:3, :3]:
