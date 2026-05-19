@@ -49,7 +49,7 @@ $$
 -2 -4i -2j -4k & -2 -i -4j +2k
 \end{pmatrix}
 }
-{=}
+{\scriptsize =}
 {\scriptsize
 \begin{pmatrix}
 4 -53i -39j +15k & 16 -6i -17j +52k \\
