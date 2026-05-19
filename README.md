@@ -59,7 +59,7 @@ $$
 44 +23i -16j -38k & 40 -4i -5j +7k \\
 -34 -14i +29j -17k & -40 -62i -10j -21k \\
 -14 -18i +21j -26k & 18 -41j -18k
-\end{pmatrix}
+\end{pmatrix}.
 }
 \end{aligned}
 $$
