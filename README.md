@@ -112,13 +112,9 @@ RESULT -> C:
 QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
 ```
 ## Usage example 2 (large arguments)
-With `qmatmul` module installed, one can write e.g.:
+In example below, two large random matrices with quaternions are multiplied.
 ```python
-import qmatmul as qmm
-import numpy as np
-import time
-
-print("QMATMUL EXAMPLE...")
+print("QMATMUL EXAMPLE (LARGE ARGUMENTS)...")
 M, N, P = 1000, 3000, 2000
 np.random.seed(0)
 A = np.random.rand(M, N, 4) # M x N matrix of quaternions
@@ -128,11 +124,11 @@ C = qmm.dot(A, B)
 t2 = time.time()
 print(f"RESULT FRAGMENT -> C[:3, :3]:")
 print(C[:3, :3])
-print(f"QMATMUL EXAMPLE DONE. TIME OF qmm.dot: {t2 - t1:.6f} s.")
+print(f"QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: {t2 - t1:.6f} s.")
 ```
-Running the script above produces the following output:
+The result (computed in less than 200 ms) is:
 ```bash
-QMATMUL EXAMPLE...
+QMATMUL EXAMPLE (LARGE ARGUMENTS)...
 RESULT FRAGMENT -> C[:3, :3]:
 [[[-1528.6768062   1482.01579334  1482.64352966  1469.29588132]
   [-1474.39555984  1485.26884228  1485.81638515  1486.03433938]
@@ -145,7 +141,7 @@ RESULT FRAGMENT -> C[:3, :3]:
  [[-1558.07311493  1475.34714296  1475.731701    1495.41197899]
   [-1528.83559572  1476.28138065  1474.62854662  1504.35168932]
   [-1508.66904595  1501.06439708  1459.07714887  1471.97545486]]]
-QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.209159 s.
+QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: 0.151431 s.
 ```
 
 ## Choice of approach
