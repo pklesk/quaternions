@@ -2,9 +2,13 @@
 We present an algorithm for fast multiplication of matrices whose elements are *quaternions* - hypercomplex numbers consisting of one real and three imaginary parts.
 The number of elementary floating-point multiplications involved in the algorithm is reduced *twice* with respect to the definition-based formula, 
 regardless of the input matrices. This is owed to a suitable representation and decomposition into two products, one of which takes advantage of certain 
-diagonal symmetry properties, the other of sparsity. `qmatmul` contains eight implementation variants, covering: CPU-based single-threaded and parallel
-computations, and also GPU/CUDA-based multi-threaded ones. Our design of CUDA computations for the proposed algorithm involves: six kernel functions 
-with eleven invocations, suitable usage of tiling and shared memory, and few host-device memory transfers.
+diagonal symmetry properties, the other of sparsity. 
+
+The `qmatmul` package is suitable for the ecosystem of Python programming language. 
+Altogether, we provide eight implementation variants of matrix-matrix multiplication for quaternion-valued inputs. 
+The variants cover several approaches based on [NumPy](https://numpy.org) library, thus supported by the underlying BLAS, 
+but also several approaches employing [Numba](https://numba.pydata.org) - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). 
+Our design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, suitable usage of tiling and shared memory, and few host-device memory transfers.
 
 ## Selected kernels - flows of CUDA computations
 <table>
@@ -162,4 +166,5 @@ TODO
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ## Acknowledgments and credits
+- [NumPy](https://numpy.org): the fundamental package for scientific computing with Python.
 - [Numba](https://numba.pydata.org): a high-performance just-in-time Python compiler.
