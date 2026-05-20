@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="main module" href="main.html" />
+    <link rel="prev" title="qmatmul: Fast multiplication of quaternion-valued matrices documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            qmatmul: Fast multiplication of quaternion-valued matrices
+          </a>
+              <div class="version">
+                1.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">src</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html">qmatmul module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmatmul: Fast multiplication of quaternion-valued matrices</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">src</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src">
+<h1>src<a class="headerlink" href="#src" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qmatmul.html">qmatmul module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#link-to-project-repository">Link to project repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatrand"><code class="docutils literal notranslate"><span class="pre">qmatrand()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.stack"><code class="docutils literal notranslate"><span class="pre">stack()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.a44"><code class="docutils literal notranslate"><span class="pre">a44()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.a44_ubar"><code class="docutils literal notranslate"><span class="pre">a44_ubar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.a44_lbar"><code class="docutils literal notranslate"><span class="pre">a44_lbar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.a4_lbar"><code class="docutils literal notranslate"><span class="pre">a4_lbar()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.i4_tilde"><code class="docutils literal notranslate"><span class="pre">i4_tilde()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.c4_to_c"><code class="docutils literal notranslate"><span class="pre">c4_to_c()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmul_numba_float64"><code class="docutils literal notranslate"><span class="pre">qmul_numba_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmul_numba_float32"><code class="docutils literal notranslate"><span class="pre">qmul_numba_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmul_numba_int32"><code class="docutils literal notranslate"><span class="pre">qmul_numba_int32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float64_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float64_job()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float64_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float64_job()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float32_job()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float32_job()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_direct_numpy_parallel"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numpy_parallel()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_direct_numpy_st"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numpy_st()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_algolike_numpy"><code class="docutils literal notranslate"><span class="pre">qmatmul_algolike_numpy()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.had4"><code class="docutils literal notranslate"><span class="pre">had4()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matmuldiag"><code class="docutils literal notranslate"><span class="pre">matmuldiag()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.permute"><code class="docutils literal notranslate"><span class="pre">permute()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_algo_numpy_parallel"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numpy_parallel()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_algo_numpy_st"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numpy_st()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_direct_numba_cuda_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numba_cuda_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.stack_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">stack_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.a44_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">a44_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matmul_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">matmul_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.c4_to_c_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">c4_to_c_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_direct_numba_cuda_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numba_cuda_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.stack_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">stack_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.a44_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">a44_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matmul_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">matmul_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.c4_to_c_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">c4_to_c_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_algo_numba_cuda_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.had4_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">had4_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matmuldiag_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">matmuldiag_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.permute_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">permute_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matsub_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">matsub_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.qmatmul_algo_numba_cuda_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.had4_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">had4_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matmuldiag_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">matmuldiag_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.permute_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">permute_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html#qmatmul.matsub_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">matsub_numba_cuda_job_float32()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.dict_to_str"><code class="docutils literal notranslate"><span class="pre">dict_to_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.list_to_str"><code class="docutils literal notranslate"><span class="pre">list_to_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.cpu_and_system_props"><code class="docutils literal notranslate"><span class="pre">cpu_and_system_props()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.gpu_props"><code class="docutils literal notranslate"><span class="pre">gpu_props()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.hash_function"><code class="docutils literal notranslate"><span class="pre">hash_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.hash_str"><code class="docutils literal notranslate"><span class="pre">hash_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.Logger"><code class="docutils literal notranslate"><span class="pre">Logger</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.Logger.__init__"><code class="docutils literal notranslate"><span class="pre">Logger.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.Logger.write"><code class="docutils literal notranslate"><span class="pre">Logger.write()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.Logger.flush"><code class="docutils literal notranslate"><span class="pre">Logger.flush()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.Logger.__module__"><code class="docutils literal notranslate"><span class="pre">Logger.__module__</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.experiment_hash_str"><code class="docutils literal notranslate"><span class="pre">experiment_hash_str()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.speedups_plot"><code class="docutils literal notranslate"><span class="pre">speedups_plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="qmatmul: Fast multiplication of quaternion-valued matrices documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="main.html" class="btn btn-neutral float-right" title="main module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Przemysław Klęsk, Aleksandr Cariow.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
