@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qmatmul: Fast multiplication of quaternion-valued matrices
+          </a>
+              <div class="version">
+                1.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qmatmul: Fast multiplication of quaternion-valued matrices</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cpuinfo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+ 
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Przemysław Klęsk&quot;</span><span class="p">,</span> <span class="s2">&quot;Aleksandr Cariow&quot;</span><span class="p">]</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pklesk@zut.edu.pl&quot;</span><span class="p">,</span> <span class="s2">&quot;alexanddr.tariov@zut.edu.pl&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="dict_to_str">
+<a class="viewcode-back" href="../utils.html#utils.dict_to_str">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dict_to_str</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a vertically formatted string representation of a dictionary.&quot;&quot;&quot;</span>
+    <span class="n">indent_str</span> <span class="o">=</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+    <span class="n">dict_str</span> <span class="o">=</span> <span class="n">indent_str</span> <span class="o">+</span> <span class="s2">&quot;{&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">dict_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">indent_str</span> <span class="o">+</span> <span class="s2">&quot;  &quot;</span>  <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;,&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>    
+    <span class="n">dict_str</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">indent_str</span> <span class="o">+</span> <span class="s2">&quot;}&quot;</span>
+    <span class="k">return</span> <span class="n">dict_str</span></div>
+
+
+<div class="viewcode-block" id="list_to_str">
+<a class="viewcode-back" href="../utils.html#utils.list_to_str">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_to_str</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a vertically formatted string representation of a list.&quot;&quot;&quot;</span>
+    <span class="n">indent_str</span> <span class="o">=</span> <span class="n">indent</span> <span class="o">*</span> <span class="s2">&quot; &quot;</span>
+    <span class="n">list_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+        <span class="n">list_str</span> <span class="o">+=</span> <span class="n">indent_str</span>
+        <span class="n">list_str</span> <span class="o">+=</span> <span class="s2">&quot;[&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot; &quot;</span>  
+        <span class="n">list_str</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;,</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">&quot;]&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">list_str</span> </div>
+
+
+<div class="viewcode-block" id="cpu_and_system_props">
+<a class="viewcode-back" href="../utils.html#utils.cpu_and_system_props">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cpu_and_system_props</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dictionary with properties of CPU and OS.&quot;&quot;&quot;</span>
+    <span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>    
+    <span class="n">info</span> <span class="o">=</span> <span class="n">cpuinfo</span><span class="o">.</span><span class="n">get_cpu_info</span><span class="p">()</span>
+    <span class="n">un</span> <span class="o">=</span> <span class="n">platform</span><span class="o">.</span><span class="n">uname</span><span class="p">()</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;cpu_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;brand_raw&quot;</span><span class="p">]</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;ram_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB&quot;</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;os_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">un</span><span class="o">.</span><span class="n">system</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">un</span><span class="o">.</span><span class="n">release</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;os_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">un</span><span class="o">.</span><span class="n">version</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;os_machine&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">un</span><span class="o">.</span><span class="n">machine</span><span class="si">}</span><span class="s2">&quot;</span>    
+    <span class="k">return</span> <span class="n">props</span>    </div>
+
+
+<div class="viewcode-block" id="gpu_props">
+<a class="viewcode-back" href="../utils.html#utils.gpu_props">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">gpu_props</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a dictionary with properties of GPU device.&quot;&quot;&quot;</span>
+    <span class="n">gpu</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">get_current_device</span><span class="p">()</span>
+    <span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gpu</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">gpu</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ASCII&quot;</span><span class="p">)</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_threads_per_block&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_THREADS_PER_BLOCK</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_block_dim_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_BLOCK_DIM_X</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_block_dim_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_BLOCK_DIM_Y</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_block_dim_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_BLOCK_DIM_Z</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_grid_dim_x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_GRID_DIM_X</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_grid_dim_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_GRID_DIM_Y</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_grid_dim_z&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_GRID_DIM_Z</span>    
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;max_shared_memory_per_block&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MAX_SHARED_MEMORY_PER_BLOCK</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;async_engine_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">ASYNC_ENGINE_COUNT</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;can_map_host_memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">CAN_MAP_HOST_MEMORY</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;multiprocessor_count&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MULTIPROCESSOR_COUNT</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;warp_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">WARP_SIZE</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;unified_addressing&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">UNIFIED_ADDRESSING</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;pci_bus_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">PCI_BUS_ID</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;pci_device_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">PCI_DEVICE_ID</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;compute_capability&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gpu</span><span class="o">.</span><span class="n">compute_capability</span>            
+    <span class="n">CC_CORES_PER_SM_DICT</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">48</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">64</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">128</span><span class="p">,</span>
+        <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">128</span>
+        <span class="p">}</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;cores_per_SM&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CC_CORES_PER_SM_DICT</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">gpu</span><span class="o">.</span><span class="n">compute_capability</span><span class="p">)</span>
+    <span class="n">props</span><span class="p">[</span><span class="s2">&quot;cores_total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="s2">&quot;cores_per_SM&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">gpu</span><span class="o">.</span><span class="n">MULTIPROCESSOR_COUNT</span>
+    <span class="k">return</span> <span class="n">props</span></div>
+
+
+<div class="viewcode-block" id="hash_function">
+<a class="viewcode-back" href="../utils.html#utils.hash_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_function</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a hash code (integer) for given string as a base 31 expansion.&quot;&quot;&quot;</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+        <span class="n">h</span> <span class="o">*=</span> <span class="mi">31</span> 
+        <span class="n">h</span> <span class="o">+=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">h</span></div>
+
+
+<div class="viewcode-block" id="hash_str">
+<a class="viewcode-back" href="../utils.html#utils.hash_str">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hash_str</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">digits</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">((</span><span class="n">hash_function</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">%</span> <span class="mi">10</span><span class="o">**</span><span class="n">digits</span><span class="p">)</span><span class="o">.</span><span class="n">rjust</span><span class="p">(</span><span class="n">digits</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span> </div>
+
+
+<div class="viewcode-block" id="Logger">
+<a class="viewcode-back" href="../utils.html#utils.Logger">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Logger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for simultaneous logging to console and a log file (for purposes of experiments).&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Logger.__init__">
+<a class="viewcode-back" href="../utils.html#utils.Logger.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor of ``MCTSNC`` instances.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  </div>
+
+        
+<div class="viewcode-block" id="Logger.write">
+<a class="viewcode-back" href="../utils.html#utils.Logger.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes a message to console and a log file.&quot;&quot;&quot;</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logfile</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span> 
+        <span class="n">sys</span><span class="o">.</span><span class="n">__stdout__</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Logger.flush">
+<a class="viewcode-back" href="../utils.html#utils.Logger.flush">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empty function required for buffering.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>  </div>
+</div>
+
+    
+<div class="viewcode-block" id="experiment_hash_str">
+<a class="viewcode-back" href="../utils.html#utils.experiment_hash_str">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">experiment_hash_str</span><span class="p">(</span><span class="n">experiment_info</span><span class="p">,</span> <span class="n">c_props</span><span class="p">,</span> <span class="n">g_props</span><span class="p">,</span> <span class="n">all_hs_digits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">experiment_hs_digits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">env_hs_digits</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a hash string for an experiment, based on its settings and properties.&quot;&quot;&quot;</span>
+    <span class="n">experiment_hs</span> <span class="o">=</span>  <span class="n">hash_str</span><span class="p">(</span><span class="n">experiment_info</span><span class="p">,</span> <span class="n">digits</span><span class="o">=</span><span class="n">experiment_hs_digits</span><span class="p">)</span>    
+    <span class="n">env_props</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">c_props</span><span class="p">,</span> <span class="o">**</span><span class="n">g_props</span><span class="p">}</span>    
+    <span class="n">env_hs</span> <span class="o">=</span>  <span class="n">hash_str</span><span class="p">(</span><span class="n">env_props</span><span class="p">,</span> <span class="n">digits</span><span class="o">=</span><span class="n">env_hs_digits</span><span class="p">)</span>
+    <span class="n">all_info</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">experiment_info</span><span class="p">,</span> <span class="o">**</span><span class="n">env_props</span><span class="p">}</span>
+    <span class="n">all_hs</span> <span class="o">=</span> <span class="n">hash_str</span><span class="p">(</span><span class="n">all_info</span><span class="p">,</span> <span class="n">digits</span><span class="o">=</span><span class="n">all_hs_digits</span><span class="p">)</span>
+    <span class="n">approaches_flags_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">experiment_info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;QMATMUL_&quot;</span><span class="p">):</span>
+            <span class="n">approaches_flags_str</span> <span class="o">+=</span> <span class="s2">&quot;T&quot;</span> <span class="k">if</span> <span class="n">experiment_info</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;F&quot;</span> 
+    <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">experiment_info</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">experiment_info</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">experiment_info</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">experiment_info</span><span class="p">[</span><span class="s1">&#39;RANGE&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">experiment_info</span><span class="p">[</span><span class="s1">&#39;DTYPE&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">;&quot;</span> \
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">experiment_info</span><span class="p">[</span><span class="s1">&#39;REPETITIONS&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">;</span><span class="si">{</span><span class="n">approaches_flags_str</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">hs</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">all_hs</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">experiment_hs</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">env_hs</span><span class="si">}</span><span class="s2">_[</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="k">return</span> <span class="n">hs</span></div>
+
+
+<div class="viewcode-block" id="speedups_plot">
+<a class="viewcode-back" href="../utils.html#utils.speedups_plot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">speedups_plot</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e6</span><span class="p">,</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">,</span> <span class="mf">2.7</span> <span class="o">*</span> <span class="mf">1e7</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mf">2.7</span> <span class="o">*</span> <span class="mf">1e10</span><span class="p">]</span>
+    <span class="n">series_float32</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>  
+        <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">10.6</span><span class="p">,</span> <span class="mf">25.5</span><span class="p">,</span> <span class="mf">48.5</span><span class="p">,</span> <span class="mf">60.5</span><span class="p">,</span> <span class="mf">63.1</span><span class="p">,</span> <span class="mf">59.1</span><span class="p">],</span>        
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">145.5</span><span class="p">,</span> <span class="mf">290.9</span><span class="p">,</span> <span class="mf">375.2</span><span class="p">,</span> <span class="mf">665.4</span><span class="p">,</span> <span class="mf">765.2</span><span class="p">,</span> <span class="mf">753.3</span><span class="p">],</span>        
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">18.6</span><span class="p">,</span> <span class="mf">92.4</span><span class="p">,</span> <span class="mf">856.7</span><span class="p">,</span> <span class="mf">2805.3</span><span class="p">,</span> <span class="mf">3946.2</span><span class="p">,</span> <span class="mf">3657.5</span><span class="p">],</span>        
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">199.1</span><span class="p">,</span> <span class="mf">579.2</span><span class="p">,</span> <span class="mf">1346.2</span><span class="p">,</span> <span class="mf">3275.4</span><span class="p">,</span> <span class="mf">6752.9</span><span class="p">,</span> <span class="mf">8130.6</span><span class="p">],</span>        
+        <span class="s2">&quot;QMATMUL_ALGO_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">159.4</span><span class="p">,</span> <span class="mf">345.0</span><span class="p">,</span> <span class="mf">399.4</span><span class="p">,</span> <span class="mf">1009.4</span><span class="p">,</span> <span class="mf">1242.0</span><span class="p">,</span> <span class="mf">1308.4</span><span class="p">],</span>        
+        <span class="s2">&quot;QMATMUL_ALGO_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">490.5</span><span class="p">,</span> <span class="mf">675.2</span><span class="p">,</span> <span class="mf">676.1</span><span class="p">,</span> <span class="mf">2473.1</span><span class="p">,</span> <span class="mf">2943.8</span><span class="p">,</span> <span class="mf">4192.3</span><span class="p">],</span>        
+        <span class="s2">&quot;QMATMUL_ALGO_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">107.4</span><span class="p">,</span> <span class="mf">398.0</span><span class="p">,</span> <span class="mf">746.2</span><span class="p">,</span> <span class="mf">6527.9</span><span class="p">,</span> <span class="mf">12331.5</span><span class="p">,</span> <span class="mf">15291.1</span><span class="p">]</span>
+    <span class="p">}</span>    
+    <span class="n">series_float64</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>  
+        <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">9.9</span><span class="p">,</span> <span class="mf">24.5</span><span class="p">,</span> <span class="mf">47.6</span><span class="p">,</span> <span class="mf">61.6</span><span class="p">,</span> <span class="mf">60.8</span><span class="p">,</span> <span class="mf">59.2</span><span class="p">],</span>
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">111.0</span><span class="p">,</span> <span class="mf">134.1</span><span class="p">,</span> <span class="mf">212.1</span><span class="p">,</span> <span class="mf">302.1</span><span class="p">,</span> <span class="mf">329.6</span><span class="p">,</span> <span class="mf">334.6</span><span class="p">],</span>
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">19.9</span><span class="p">,</span> <span class="mf">151.9</span><span class="p">,</span> <span class="mf">587.9</span><span class="p">,</span> <span class="mf">1179.4</span><span class="p">,</span> <span class="mf">1494.4</span><span class="p">,</span> <span class="mf">1641.6</span><span class="p">],</span>
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">173.1</span><span class="p">,</span> <span class="mf">430.5</span><span class="p">,</span> <span class="mf">587.9</span><span class="p">,</span> <span class="mf">2105.2</span><span class="p">,</span> <span class="mf">3299.9</span><span class="p">,</span> <span class="mf">3799.9</span><span class="p">],</span>
+        <span class="s2">&quot;QMATMUL_ALGO_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">123.1</span><span class="p">,</span> <span class="mf">140.5</span><span class="p">,</span> <span class="mf">212.4</span><span class="p">,</span> <span class="mf">478.3</span><span class="p">,</span> <span class="mf">554.3</span><span class="p">,</span> <span class="mf">600.7</span><span class="p">],</span>
+        <span class="s2">&quot;QMATMUL_ALGO_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">288.2</span><span class="p">,</span> <span class="mf">505.7</span><span class="p">,</span> <span class="mf">489.4</span><span class="p">,</span> <span class="mf">1112.7</span><span class="p">,</span> <span class="mf">1544.9</span><span class="p">,</span> <span class="mf">2109.0</span><span class="p">],</span>
+        <span class="s2">&quot;QMATMUL_ALGO_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">96.3</span><span class="p">,</span> <span class="mf">230.6</span><span class="p">,</span> <span class="mf">499.1</span><span class="p">,</span> <span class="mf">3672.4</span><span class="p">,</span> <span class="mf">5544.7</span><span class="p">,</span> <span class="mf">6563.2</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="n">styles</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;limegreen&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;limegreen&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_DIRECT_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_ALGO_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;dodgerblue&quot;</span><span class="p">,</span> <span class="s2">&quot;--&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_ALGO_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;dodgerblue&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;QMATMUL_ALGO_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="n">TITLE_FONT_SIZE</span> <span class="o">=</span> <span class="mf">21.0</span>
+    <span class="n">LABEL_FONT_SIZE</span> <span class="o">=</span> <span class="mf">10.0</span>    
+    <span class="n">AXIS_LABEL_SIZE</span> <span class="o">=</span> <span class="mf">19.0</span>
+    <span class="n">LEGEND_FONT_SIZE</span> <span class="o">=</span> <span class="mf">12.0</span>
+    <span class="n">COLUMN_SPACING</span> <span class="o">=</span> <span class="mf">1.28</span>
+    <span class="n">TICK_LABEL_SIZE</span> <span class="o">=</span> <span class="mf">15.0</span>
+    
+    <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series_float32</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;LOG-LOG PLOT OF SPEED-UPS FOR QMATMUL FUNCTIONS (TYPE: FLOAT32, ENVIRONMENT: 2)&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">series_float64</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;LOG-LOG PLOT OF SPEED-UPS FOR QMATMUL FUNCTIONS (TYPE: FLOAT64, ENVIRONMENT: 2)&quot;</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+    <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">2.25</span>
+    <span class="n">markersize</span> <span class="o">=</span> <span class="mf">5.5</span>    
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">series</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">color</span><span class="p">,</span> <span class="n">linestyle</span> <span class="o">=</span> <span class="n">styles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyle</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    
+    <span class="n">last_x</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">first_x</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="n">sorted_series</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">item</span><span class="p">:</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>    
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_series</span><span class="p">):</span>
+        <span class="n">last_y</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">color</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">styles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">))</span>
+        <span class="n">x_pos</span> <span class="o">=</span> <span class="n">last_x</span> <span class="o">*</span> <span class="p">(</span><span class="n">COLUMN_SPACING</span> <span class="o">**</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mf">1.8</span><span class="p">))</span>    
+        <span class="n">plt</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">last_y</span><span class="p">,</span> <span class="n">xmin</span><span class="o">=</span><span class="n">last_x</span><span class="p">,</span> <span class="n">xmax</span><span class="o">=</span><span class="n">x_pos</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>        
+        <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x_pos</span> <span class="o">*</span> <span class="mf">1.03</span><span class="p">,</span> <span class="n">last_y</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_y</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">LABEL_FONT_SIZE</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+        
+    <span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#F5F5F5&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$M\cdot N\cdot P$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">AXIS_LABEL_SIZE</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;SPEED-UP&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">AXIS_LABEL_SIZE</span><span class="p">)</span>    
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">TITLE_FONT_SIZE</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">first_x</span> <span class="o">*</span> <span class="mf">0.85</span><span class="p">,</span> <span class="n">last_x</span> <span class="o">*</span> <span class="p">(</span><span class="n">COLUMN_SPACING</span> <span class="o">**</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sorted_series</span><span class="p">)</span> <span class="o">+</span> <span class="mf">3.2</span><span class="p">)))</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">TICK_LABEL_SIZE</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">TICK_LABEL_SIZE</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">LEGEND_FONT_SIZE</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">handlelength</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+    
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">speedups_plot</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Przemysław Klęsk, Aleksandr Cariow.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

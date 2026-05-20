@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qmatmul module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils module" href="utils.html" />
+    <link rel="prev" title="main module" href="main.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            qmatmul: Fast multiplication of quaternion-valued matrices
+          </a>
+              <div class="version">
+                1.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">qmatmul module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#link-to-project-repository">Link to project repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatrand"><code class="docutils literal notranslate"><span class="pre">qmatrand()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.stack"><code class="docutils literal notranslate"><span class="pre">stack()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44"><code class="docutils literal notranslate"><span class="pre">a44()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44_ubar"><code class="docutils literal notranslate"><span class="pre">a44_ubar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44_lbar"><code class="docutils literal notranslate"><span class="pre">a44_lbar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a4_lbar"><code class="docutils literal notranslate"><span class="pre">a4_lbar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.i4_tilde"><code class="docutils literal notranslate"><span class="pre">i4_tilde()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.c4_to_c"><code class="docutils literal notranslate"><span class="pre">c4_to_c()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmul_numba_float64"><code class="docutils literal notranslate"><span class="pre">qmul_numba_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmul_numba_float32"><code class="docutils literal notranslate"><span class="pre">qmul_numba_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmul_numba_int32"><code class="docutils literal notranslate"><span class="pre">qmul_numba_int32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_st_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_st_float64_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float64_job()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_parallel_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_parallel_float64_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float64_job()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_st_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_st_float32_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float32_job()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_parallel_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_parallel_float32_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float32_job()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_direct_numpy_parallel"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numpy_parallel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_direct_numpy_st"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numpy_st()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algolike_numpy"><code class="docutils literal notranslate"><span class="pre">qmatmul_algolike_numpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.had4"><code class="docutils literal notranslate"><span class="pre">had4()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matmuldiag"><code class="docutils literal notranslate"><span class="pre">matmuldiag()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.permute"><code class="docutils literal notranslate"><span class="pre">permute()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algo_numpy_parallel"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numpy_parallel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algo_numpy_st"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numpy_st()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_direct_numba_cuda_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numba_cuda_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.stack_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">stack_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">a44_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matmul_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">matmul_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.c4_to_c_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">c4_to_c_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_direct_numba_cuda_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numba_cuda_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.stack_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">stack_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">a44_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matmul_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">matmul_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.c4_to_c_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">c4_to_c_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algo_numba_cuda_float64"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.had4_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">had4_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matmuldiag_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">matmuldiag_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.permute_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">permute_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matsub_numba_cuda_job_float64"><code class="docutils literal notranslate"><span class="pre">matsub_numba_cuda_job_float64()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algo_numba_cuda_float32"><code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.had4_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">had4_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matmuldiag_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">matmuldiag_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.permute_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">permute_numba_cuda_job_float32()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.matsub_numba_cuda_job_float32"><code class="docutils literal notranslate"><span class="pre">matsub_numba_cuda_job_float32()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmatmul: Fast multiplication of quaternion-valued matrices</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">qmatmul module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/qmatmul.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-qmatmul">
+<span id="qmatmul-module"></span><h1>qmatmul module<a class="headerlink" href="#module-qmatmul" title="Link to this heading"></a></h1>
+<p>This module contains eight computational approaches for multiplication of <cite>quaternion</cite>-valued matrices.
+The default approach <code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda</span></code> is based on the fast algorithm proposed by authors. 
+The number of elementary floating-point multiplications involved in the algorithm is reduced <cite>twice</cite> 
+with respect to the definition-based formula, regardless of the input matrices. This is owed to a 
+suitable representation and decomposition into two products, one of which takes advantage of certain 
+diagonal symmetry properties, the other of sparsity.</p>
+<p>Altogether, eight approaches (implementation variants) are provided. 
+They cover several approaches based on NumPy library, thus supported by the underlying BLAS, but 
+also several approaches employing Numba - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). 
+The design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, 
+suitable usage of tiling and shared memory, and few host-device memory transfers.</p>
+<section id="link-to-project-repository">
+<h2>Link to project repository<a class="headerlink" href="#link-to-project-repository" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/pklesk/quaternions">https://github.com/pklesk/quaternions</a></p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatrand">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatrand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatrand" title="Link to this definition"></a></dt>
+<dd><p>Generates a random three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">M``x``N``x``4</span></code>, meant to represent a matrix of quaternions (the last dimension stores one real and three imaginary parts).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.dot">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'algo_numba_cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'verbose':</span> <span class="pre">False}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.dot" title="Link to this definition"></a></dt>
+<dd><p>Main function of <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code> module allowing to multiply two quaternion-valued matrices.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>A (ndarray):</dt><dd><p>first factor (matrix of quaternions).</p>
+</dd>
+<dt>B (ndarray):</dt><dd><p>second factor (matrix of quaternions).</p>
+</dd>
+<dt>approach (str):</dt><dd><p>choice of computational approach from {<code class="docutils literal notranslate"><span class="pre">&quot;naive_numba_st&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;naive_numba_parallel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;direct_numpy_st&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;direct_numpy_parallel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;direct_numba_cuda&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algo_numpy_st&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algo_numpy_parallel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algo_numba_cudal&quot;</span></code>}, defaults to <code class="docutils literal notranslate"><span class="pre">&quot;algo_numba_cuda&quot;</span></code>.</p>
+</dd>
+<dt>extra_args (dict):</dt><dd><p>dictionary of extra arguments to be passed to the invoked function with the chosen computational approach.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.stack">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.stack" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.a44">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_blocks_signs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[1,</span> <span class="pre">-1,</span> <span class="pre">-1,</span> <span class="pre">-1],</span> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">-1,</span> <span class="pre">1],</span> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">-1],</span> <span class="pre">[1,</span> <span class="pre">-1,</span> <span class="pre">1,</span> <span class="pre">1]],</span> <span class="pre">dtype=int8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_blocks_parts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3],</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">3,</span> <span class="pre">2],</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">0,</span> <span class="pre">1],</span> <span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">1,</span> <span class="pre">0]],</span> <span class="pre">dtype=int8)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.a44_ubar">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44_ubar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_blocks_parts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3],</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">3,</span> <span class="pre">2],</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">0,</span> <span class="pre">1],</span> <span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">1,</span> <span class="pre">0]],</span> <span class="pre">dtype=int8)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44_ubar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44_ubar" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.a44_lbar">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44_lbar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44_lbar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44_lbar" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.a4_lbar">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a4_lbar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a4_lbar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a4_lbar" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.i4_tilde">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">i4_tilde</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#i4_tilde"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.i4_tilde" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.c4_to_c">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">c4_to_c</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#c4_to_c"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.c4_to_c" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmul_numba_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmul_numba_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmul_numba_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmul_numba_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmul_numba_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmul_numba_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmul_numba_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmul_numba_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmul_numba_int32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmul_numba_int32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmul_numba_int32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmul_numba_int32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_st_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_st_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_st_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float64_job">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_st_float64_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_st_float64_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_st_float64_job" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_parallel_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_parallel_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_parallel_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_parallel_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_parallel_float64_job">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_parallel_float64_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_parallel_float64_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_parallel_float64_job" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_st_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_st_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_st_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float32_job">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_st_float32_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_st_float32_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_st_float32_job" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_parallel_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_parallel_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_parallel_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_parallel_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_parallel_float32_job">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_parallel_float32_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_parallel_float32_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_parallel_float32_job" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_direct_numpy_parallel">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_direct_numpy_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_direct_numpy_parallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_direct_numpy_parallel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_direct_numpy_st">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_direct_numpy_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_direct_numpy_st"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_direct_numpy_st" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_algolike_numpy">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algolike_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algolike_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algolike_numpy" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.had4">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">had4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#had4"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.had4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matmuldiag">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matmuldiag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matmuldiag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matmuldiag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.permute">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">permute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#permute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.permute" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_algo_numpy_parallel">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algo_numpy_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algo_numpy_parallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algo_numpy_parallel" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_algo_numpy_st">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algo_numpy_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algo_numpy_st"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algo_numpy_st" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_direct_numba_cuda_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_direct_numba_cuda_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_direct_numba_cuda_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_direct_numba_cuda_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.stack_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">stack_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#stack_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.stack_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.a44_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matmul_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matmul_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A44</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matmul_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matmul_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.c4_to_c_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">c4_to_c_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#c4_to_c_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.c4_to_c_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_direct_numba_cuda_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_direct_numba_cuda_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_direct_numba_cuda_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_direct_numba_cuda_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.stack_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">stack_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#stack_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.stack_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.a44_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matmul_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matmul_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A44</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matmul_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matmul_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.c4_to_c_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">c4_to_c_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#c4_to_c_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.c4_to_c_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_algo_numba_cuda_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algo_numba_cuda_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algo_numba_cuda_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algo_numba_cuda_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.had4_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">had4_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H4E4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#had4_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.had4_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matmuldiag_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matmuldiag_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matmuldiag_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matmuldiag_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.permute_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">permute_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E4_permuted</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#permute_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.permute_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matsub_numba_cuda_job_float64">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matsub_numba_cuda_job_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C4_left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C4_right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matsub_numba_cuda_job_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matsub_numba_cuda_job_float64" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_algo_numba_cuda_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algo_numba_cuda_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algo_numba_cuda_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algo_numba_cuda_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.had4_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">had4_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H4E4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#had4_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.had4_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matmuldiag_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matmuldiag_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matmuldiag_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matmuldiag_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.permute_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">permute_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E4_permuted</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#permute_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.permute_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.matsub_numba_cuda_job_float32">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">matsub_numba_cuda_job_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C4_left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C4_right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#matsub_numba_cuda_job_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.matsub_numba_cuda_job_float32" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="main.html" class="btn btn-neutral float-left" title="main module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="utils module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Przemysław Klęsk, Aleksandr Cariow.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,3 +1,22 @@
+"""
+This module contains eight computational approaches for multiplication of `quaternion`-valued matrices.
+The default approach ``qmatmul_algo_numba_cuda`` is based on the fast algorithm proposed by authors. 
+The number of elementary floating-point multiplications involved in the algorithm is reduced `twice` 
+with respect to the definition-based formula, regardless of the input matrices. This is owed to a 
+suitable representation and decomposition into two products, one of which takes advantage of certain 
+diagonal symmetry properties, the other of sparsity.
+
+Altogether, eight approaches (implementation variants) are provided. 
+They cover several approaches based on NumPy library, thus supported by the underlying BLAS, but 
+also several approaches employing Numba - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). 
+The design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, 
+suitable usage of tiling and shared memory, and few host-device memory transfers.
+
+Link to project repository
+--------------------------
+`https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
+"""
+
 from numba import jit, prange, cuda
 from numba import void, float32, float64, int8, int32
 from numba.core.errors import NumbaPerformanceWarning
@@ -9,6 +28,7 @@ import numpy as np
 import time
 from threadpoolctl import threadpool_limits
 
+__version__ = "1.0.0"
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 
@@ -30,12 +50,26 @@ A_BLOCKS_PARTS = np.array([
 ], dtype=np.int8)
 
 def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
+    """Generates a random three-dimensional ``numpy.ndarray`` of shape ``M``x``N``x``4``, meant to represent a matrix of quaternions (the last dimension stores one real and three imaginary parts)."""
     A = (np.random.rand(M, N, 4) * (range_max - range_min) + range_min).astype(dtype)
     if rounding:
         A = np.round(A)
     return A
 
-def dot(A, B, approach="algo_numba_cuda", extra_args={"verbose": False}):    
+def dot(A, B, approach="algo_numba_cuda", extra_args={"verbose": False}):   
+    """
+    Main function of ``qmatmul`` module allowing to multiply two quaternion-valued matrices.
+         
+    Args:
+        A (ndarray):
+            first factor (matrix of quaternions).
+        B (ndarray):
+            second factor (matrix of quaternions).
+        approach (str):
+            choice of computational approach from {``"naive_numba_st"``, ``"naive_numba_parallel"``, ``"direct_numpy_st"``, ``"direct_numpy_parallel"``, ``"direct_numba_cuda"``, ``"algo_numpy_st"``, ``"algo_numpy_parallel"``, ``"algo_numba_cudal"``}, defaults to ``"algo_numba_cuda"``.
+        extra_args (dict):
+            dictionary of extra arguments to be passed to the invoked function with the chosen computational approach.
+        """     
     if (A.dtype != np.float32 and A.dtype != np.float64) or (A.dtype != B.dtype):
         A = A.astype(np.float64)
     if B.dtype != A.dtype:
