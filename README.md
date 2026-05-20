@@ -160,7 +160,7 @@ The default setting is `"algo_numba_cuda"`.
 TODO
 
 ## Documentation
-TODO
+Developer documentation of the project is accessible at: [https://pklesk.github.io/quaternions](https://pklesk.github.io/quaternions). <br/>
 
 ## License
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
