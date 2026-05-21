@@ -92,7 +92,7 @@ Running the code above produces the following output:
     
      [[-14. -18.  21. -26.]
       [ 18.   0. -41. -18.]]]
-    QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
+    QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.001703 s.
     
 Usage example 2 (large arguments)
 ---------------------------------
@@ -180,27 +180,35 @@ A_BLOCKS_PARTS = np.array([
     [3, 2, 1, 0]
 ], dtype=np.int8)
 
-def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
-    """Generates a random three-dimensional ``numpy.ndarray`` of shape ``M``x``N``x``4``, meant to represent a matrix of quaternions (the last dimension stores one real and three imaginary parts)."""
-    A = (np.random.rand(M, N, 4) * (range_max - range_min) + range_min).astype(dtype)
-    if rounding:
-        A = np.round(A)
-    return A
-
+# functions
 def dot(A, B, approach="algo_numba_cuda", extra_args={"verbose": False}):   
     """
     Main function of ``qmatmul`` module allowing to multiply two quaternion-valued matrices.
          
     Args:
-        A (ndarray):
+        A (numpy.ndarray[:, :, :]):
             first factor (matrix of quaternions).
-        B (ndarray):
+        B (numpy.ndarray[:, :, :]):
             second factor (matrix of quaternions).
         approach (str):
             choice of computational approach from {``"naive_numba_st"``, ``"naive_numba_parallel"``, ``"direct_numpy_st"``, ``"direct_numpy_parallel"``, ``"direct_numba_cuda"``, ``"algo_numpy_st"``, ``"algo_numpy_parallel"``, ``"algo_numba_cudal"``}, defaults to ``"algo_numba_cuda"``.
         extra_args (dict):
             dictionary of extra arguments to be passed to the invoked function with the chosen computational approach.
-        """     
+
+    Returns:
+        numpy.ndarray[:, :, :]: 
+            result of A times B multiplication.
+            
+    Raises:
+        ValueError:
+            If input matrices are not 3-dimensional, their last dimension is not 4, or if their inner matrix dimensions do not match for multiplication.            
+    """     
+    if A.ndim != 3 or B.ndim != 3:
+        raise ValueError(f"Input matrices must be 3-dimensional (got A.ndim: {A.ndim}, B.ndim: {B.ndim}).")        
+    if A.shape[2] != 4 or B.shape[2] != 4:
+        raise ValueError(f"The last dimension of quaternion-valued matrices must be exactly 4 (got A.shape[2]: {A.shape[2]}, B.shape[2]: {B.shape[2]}).")        
+    if A.shape[1] != B.shape[0]:
+        raise ValueError(f"Incompatible matrix dimensions for multiplication: A columns ({A.shape[1]}) must match B rows ({B.shape[0]}).")    
     if (A.dtype != np.float32 and A.dtype != np.float64) or (A.dtype != B.dtype):
         A = A.astype(np.float64)
     if B.dtype != A.dtype:
@@ -214,7 +222,15 @@ def dot(A, B, approach="algo_numba_cuda", extra_args={"verbose": False}):
         approach_function = globals().get("qmatmul_algo_numba_cuda" + dtype_suffix)
     return approach_function(A, B, **extra_args)
 
+def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
+    """Helper function that generates a random three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)``, meant to represent a matrix of quaternions (the last dimension stores one real and three imaginary parts)."""
+    A = (np.random.rand(M, N, 4) * (range_max - range_min) + range_min).astype(dtype)
+    if rounding:
+        A = np.round(A)
+    return A
+
 def stack(E):
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions) returns its stacked representation - the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows."""  
     R, S, _ = E.shape
     R2 = R << 1
     R3 = R2 + R
@@ -227,6 +243,7 @@ def stack(E):
     return E4  
 
 def a44(A, a_blocks_signs=A_BLOCKS_SIGNS, a_blocks_parts=A_BLOCKS_PARTS):
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts."""
     M, N, _ = A.shape
     A44 = np.empty((M << 2, N << 2), dtype=A.dtype)
     for i in range(4):
@@ -237,6 +254,7 @@ def a44(A, a_blocks_signs=A_BLOCKS_SIGNS, a_blocks_parts=A_BLOCKS_PARTS):
     return A44
 
 def a44_ubar(A, a_blocks_parts=A_BLOCKS_PARTS):
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the two-dimensional transformation matrix with double diagonal block-symmetry - a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts."""    
     M, N, _ = A.shape
     A44_ubar = np.empty((M << 2, N << 2), dtype=A.dtype)
     for i in range(4):
@@ -247,6 +265,7 @@ def a44_ubar(A, a_blocks_parts=A_BLOCKS_PARTS):
     return A44_ubar
 
 def a44_lbar(A):
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts."""    
     M, N, _ = A.shape
     M2 = M << 1
     M3 = M2 + M
@@ -261,25 +280,26 @@ def a44_lbar(A):
     A44_lbar[M3:, N:N2] = A[:, :, 2]
     return A44_lbar 
 
-def a4_lbar(A):
-    M, N, _ = A.shape
-    M2 = M << 1
-    M3 = M2 + M
-    M4 = M << 2
-    A4_lbar = np.zeros((M4, N), dtype=A.dtype)
-    A4_lbar[:M] = A[:, :, 0]
-    A4_lbar[M:M2] = A[:, :, 3]
-    A4_lbar[M2:M3] = A[:, :, 1]
-    A4_lbar[M3:] = A[:, :, 2]
-    return A4_lbar
-
 def i4_tilde(M, dtype):
+    """(`for internal use by` ``qmatmul``) For a given size ``M`` returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs."""
     I4_tilde = np.eye(M << 2, dtype=dtype)
     diag_quarter = I4_tilde[np.arange(M), np.arange(M)]
     I4_tilde[np.arange(M), np.arange(M)] = -diag_quarter
     return I4_tilde
 
+
+def qmatmul_algolike_numpy(A, B): # only to check correctness (compliance) of computational outcomes
+    """(`for internal use by` ``qmatmul``) Function provided only to check the compliance of computational outcomes of the algorithm (main expression with decomposition into two products)."""
+    I4_tilde = i4_tilde(A.shape[0], A.dtype)
+    A44_ubar = a44_ubar(A)
+    A44_lbar = a44_lbar(A)
+    B4 = stack(B)        
+    C4 = np.dot(I4_tilde, np.dot(A44_ubar, B4) - (2 * A44_lbar).dot(B4))
+    C = c4_to_c(C4)
+    return C
+
 def c4_to_c(C4):
+    """(`for internal use by` ``qmatmul``) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` (a result of matrix-matrix product) returns its unstacked version - the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions."""
     M4, P = C4.shape
     M = M4 >> 2
     M2 = M << 1
@@ -293,6 +313,7 @@ def c4_to_c(C4):
 
 @jit(float64[:](float64[:], float64[:]), nopython=True, cache=True)
 def qmul_numba_float64(q1, q2):
+    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float64``."""    
     result = np.zeros(4, dtype=np.float64)
     result[0] = q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3]
     result[1] = q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2]
@@ -302,6 +323,7 @@ def qmul_numba_float64(q1, q2):
 
 @jit(float32[:](float32[:], float32[:]), nopython=True, cache=True)
 def qmul_numba_float32(q1, q2):
+    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float32``."""    
     result = np.zeros(4, dtype=np.float32)
     result[0] = q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3]
     result[1] = q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2]
@@ -311,6 +333,7 @@ def qmul_numba_float32(q1, q2):
 
 @jit(int32[:](int32[:], int32[:]), nopython=True, cache=True)
 def qmul_numba_int32(q1, q2):
+    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``int32``."""
     result = np.zeros(4, dtype=np.int32)
     result[0] = q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3]
     result[1] = q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2]
@@ -319,6 +342,7 @@ def qmul_numba_int32(q1, q2):
     return result
 
 def qmatmul_naive_numba_st_float64(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="naive_numba_st")`` for inputs of type ``float64``."""
     if verbose:
         print(f"QMATMUL_NAIVE_NUMBA_ST_FLOAT64...")
         t1 = time.time()
@@ -330,6 +354,7 @@ def qmatmul_naive_numba_st_float64(A, B, verbose=False):
 
 @jit(float64[:, :, :](float64[:, :, :], float64[:, :, :]), nopython=True, cache=True, parallel=False)
 def qmatmul_naive_numba_st_float64_job(A, B):
+    """(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_st_float64`` - returns the result of ``dot(A, B, approach="naive_numba_st")``."""
     M, N, _ = A.shape    
     P = B.shape[1]
     C = np.zeros((M, P, 4), dtype=np.float64)
@@ -340,6 +365,7 @@ def qmatmul_naive_numba_st_float64_job(A, B):
     return C
 
 def qmatmul_naive_numba_parallel_float64(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="naive_numba_parallel")`` for inputs of type ``float64``."""
     if verbose:
         print(f"QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT64...")
         t1 = time.time()
@@ -351,6 +377,7 @@ def qmatmul_naive_numba_parallel_float64(A, B, verbose=False):
 
 @jit(float64[:, :, :](float64[:, :, :], float64[:, :, :]), nopython=True, cache=True, parallel=True)
 def qmatmul_naive_numba_parallel_float64_job(A, B):
+    """(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_parallel_float64`` - returns the result of ``dot(A, B, approach="naive_numba_parallel")``."""
     M, N, _ = A.shape    
     P = B.shape[1]
     C = np.zeros((M, P, 4), dtype=np.float64)
@@ -425,15 +452,6 @@ def qmatmul_direct_numpy_st(A, B, verbose=False):
     if verbose:
         t2 = time.time()
         print(f"QMATMUL_DIRECT_NUMPY_ST DONE. [time: {t2 - t1} s]")        
-    return C
-
-def qmatmul_algolike_numpy(A, B): # only to check correctness (compliance) of computational outcomes
-    I4_tilde = i4_tilde(A.shape[0], A.dtype)
-    A44_ubar = a44_ubar(A)
-    A44_lbar = a44_lbar(A)
-    B4 = stack(B)        
-    C4 = np.dot(I4_tilde, np.dot(A44_ubar, B4) - (2 * A44_lbar).dot(B4))
-    C = c4_to_c(C4)
     return C
 
 def had4(E4):
