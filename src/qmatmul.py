@@ -137,7 +137,7 @@ Dependencies
 ------------
 - ``numpy``: required for algebraic numerical computations.
 
-- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of CUDA kernels (decorated by ``@cuda.jit``) and LLVM-targeted functions (decorated by ``@jit``).
+- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of LLVM-targeted functions (decorated by ``@jit``) and of CUDA kernels (decorated by ``@cuda.jit``).
 
 - ``threadpoolctl``: required for managing single- vs multi-threaded modes for CPU-based approaches.   
 
@@ -230,7 +230,7 @@ def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
     return A
 
 def stack(E):
-    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions) returns its stacked representation - the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows."""  
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions), returns its stacked representation - the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows."""  
     R, S, _ = E.shape
     R2 = R << 1
     R3 = R2 + R
@@ -243,7 +243,7 @@ def stack(E):
     return E4  
 
 def a44(A, a_blocks_signs=A_BLOCKS_SIGNS, a_blocks_parts=A_BLOCKS_PARTS):
-    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts."""
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts."""
     M, N, _ = A.shape
     A44 = np.empty((M << 2, N << 2), dtype=A.dtype)
     for i in range(4):
@@ -254,7 +254,7 @@ def a44(A, a_blocks_signs=A_BLOCKS_SIGNS, a_blocks_parts=A_BLOCKS_PARTS):
     return A44
 
 def a44_ubar(A, a_blocks_parts=A_BLOCKS_PARTS):
-    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the two-dimensional transformation matrix with double diagonal block-symmetry - a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts."""    
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the two-dimensional transformation matrix with double diagonal block-symmetry - a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts."""    
     M, N, _ = A.shape
     A44_ubar = np.empty((M << 2, N << 2), dtype=A.dtype)
     for i in range(4):
@@ -265,7 +265,7 @@ def a44_ubar(A, a_blocks_parts=A_BLOCKS_PARTS):
     return A44_ubar
 
 def a44_lbar(A):
-    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts."""    
+    """(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts."""    
     M, N, _ = A.shape
     M2 = M << 1
     M3 = M2 + M
@@ -281,7 +281,7 @@ def a44_lbar(A):
     return A44_lbar 
 
 def i4_tilde(M, dtype):
-    """(`for internal use by` ``qmatmul``) For a given size ``M`` returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs."""
+    """(`for internal use by` ``qmatmul``) For a given size ``M``, returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs."""
     I4_tilde = np.eye(M << 2, dtype=dtype)
     diag_quarter = I4_tilde[np.arange(M), np.arange(M)]
     I4_tilde[np.arange(M), np.arange(M)] = -diag_quarter
@@ -299,7 +299,7 @@ def qmatmul_algolike_numpy(A, B): # only to check correctness (compliance) of co
     return C
 
 def c4_to_c(C4):
-    """(`for internal use by` ``qmatmul``) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` (a result of matrix-matrix product) returns its unstacked version - the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions."""
+    """(`for internal use by` ``qmatmul``) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` (a result of matrix-matrix product), returns its unstacked version - the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions."""
     M4, P = C4.shape
     M = M4 >> 2
     M2 = M << 1
@@ -313,7 +313,7 @@ def c4_to_c(C4):
 
 @jit(float64[:](float64[:], float64[:]), nopython=True, cache=True)
 def qmul_numba_float64(q1, q2):
-    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float64``."""    
+    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float64``."""
     result = np.zeros(4, dtype=np.float64)
     result[0] = q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3]
     result[1] = q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2]
@@ -323,7 +323,7 @@ def qmul_numba_float64(q1, q2):
 
 @jit(float32[:](float32[:], float32[:]), nopython=True, cache=True)
 def qmul_numba_float32(q1, q2):
-    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float32``."""    
+    """Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float32``."""
     result = np.zeros(4, dtype=np.float32)
     result[0] = q1[0] * q2[0] - q1[1] * q2[1] - q1[2] * q2[2] - q1[3] * q2[3]
     result[1] = q1[0] * q2[1] + q1[1] * q2[0] + q1[2] * q2[3] - q1[3] * q2[2]
@@ -373,7 +373,7 @@ def qmatmul_naive_numba_parallel_float64(A, B, verbose=False):
     if verbose:
         t2 = time.time()
         print(f"QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT64 DONE. [time: {t2 - t1} s]")    
-    return C
+    return C    
 
 @jit(float64[:, :, :](float64[:, :, :], float64[:, :, :]), nopython=True, cache=True, parallel=True)
 def qmatmul_naive_numba_parallel_float64_job(A, B):
@@ -388,6 +388,7 @@ def qmatmul_naive_numba_parallel_float64_job(A, B):
     return C
 
 def qmatmul_naive_numba_st_float32(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="naive_numba_st")`` for inputs of type ``float63``."""
     if verbose:
         print(f"QMATMUL_NAIVE_NUMBA_ST_FLOAT32...")
         t1 = time.time()
@@ -399,6 +400,7 @@ def qmatmul_naive_numba_st_float32(A, B, verbose=False):
 
 @jit(float32[:, :, :](float32[:, :, :], float32[:, :, :]), nopython=True, cache=True, parallel=False)
 def qmatmul_naive_numba_st_float32_job(A, B):
+    """(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_st_float32`` - returns the result of ``dot(A, B, approach="naive_numba_st")``."""    
     M, N, _ = A.shape    
     P = B.shape[1]
     C = np.zeros((M, P, 4), dtype=np.float32)
@@ -407,8 +409,9 @@ def qmatmul_naive_numba_st_float32_job(A, B):
             for n in range(N):
                 C[m, p] += qmul_numba_float32(A[m, n], B[n, p])
     return C
-
+    
 def qmatmul_naive_numba_parallel_float32(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="naive_numba_parallel")`` for inputs of type ``float32``."""
     if verbose:
         print(f"QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT32...")
         t1 = time.time()
@@ -421,6 +424,7 @@ def qmatmul_naive_numba_parallel_float32(A, B, verbose=False):
 
 @jit(float32[:, :, :](float32[:, :, :], float32[:, :, :]), nopython=True, cache=True, parallel=True)
 def qmatmul_naive_numba_parallel_float32_job(A, B):
+    """(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_parallel_float32`` - returns the result of ``dot(A, B, approach="naive_numba_parallel")``."""    
     M, N, _ = A.shape    
     P = B.shape[1]
     C = np.zeros((M, P, 4), dtype=np.float32)
@@ -431,6 +435,7 @@ def qmatmul_naive_numba_parallel_float32_job(A, B):
     return C
 
 def qmatmul_direct_numpy_parallel(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="direct_numpy_parallel")`` for inputs of type either ``float64`` or ``float32``."""    
     if verbose:
         print(f"QMATMUL_DIRECT_NUMPY_PARALLEL...")
         t1 = time.time()    
@@ -443,6 +448,7 @@ def qmatmul_direct_numpy_parallel(A, B, verbose=False):
 
 
 def qmatmul_direct_numpy_st(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="direct_numpy_st")`` for inputs of type either ``float64`` or ``float32``."""    
     if verbose:
         print(f"QMATMUL_DIRECT_NUMPY_ST...")
         t1 = time.time()
@@ -455,6 +461,7 @@ def qmatmul_direct_numpy_st(A, B, verbose=False):
     return C
 
 def had4(E4):
+    """(`for internal use by` ``qmatmul``) For a stacked matrix of shape ``(4 * R, S)``, returns the result (same shape) of Hadamard transform applied to it, with successive blocks representing: sum of sums, sum of differences, difference of sums, difference of differences."""    
     R4 = E4.shape[0]
     R2 = R4 >> 1
     R = R2 >> 1
@@ -471,6 +478,7 @@ def had4(E4):
     return H4E4     
 
 def matmuldiag(E4, F4, factor):
+    """(`for internal use by` ``qmatmul``) For two stacked matrices of shape ``(4 * R, S)`` each, returns their `diagonal` product (same shape), with successive blocks being standard products of corresponding real and imaginary slices."""    
     R4, S = E4.shape
     R2 = R4 >> 1
     R = R2 >> 1
@@ -486,6 +494,7 @@ def matmuldiag(E4, F4, factor):
     return D4
 
 def permute(E4, permutation):
+    """(`for internal use by` ``qmatmul``) For a stacked matrix of shape ``(4 * R, S)``, returns its block-wise permuted version with order specified by argument ``permutation``."""    
     R4 = E4.shape[0]
     R = R4 >> 2
     E4p = np.empty_like(E4)
@@ -495,6 +504,7 @@ def permute(E4, permutation):
     return E4p
 
 def qmatmul_algo_numpy_parallel(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="algo_numpy_parallel")`` for inputs of type either ``float64`` or ``float32``."""    
     if verbose:
         print(f"QMATMUL_ALGO_NUMPY_PARALLEL...")
         t1 = time.time()    
@@ -517,6 +527,7 @@ def qmatmul_algo_numpy_parallel(A, B, verbose=False):
     return C
 
 def qmatmul_algo_numpy_st(A, B, verbose=False):
+    """(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach="algo_numpy_st")`` for inputs of type either ``float64`` or ``float32``."""
     if verbose:
         print(f"QMATMUL_ALGO_NUMPY_ST...")
         t1 = time.time()

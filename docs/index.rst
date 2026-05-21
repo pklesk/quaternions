@@ -9,7 +9,8 @@ qmatmul: Fast multiplication of quaternion-valued matrices (P. Klęsk, A. Cariow
 Welcome to qmatmul's documentation!
 -----------------------------------
 
-The core functionalities of this project are embodied in the module :doc:`qmatmul`.
+The core functionalities of this project are embodied in the :doc:`qmatmul`.
+
 We suggest to import it in the following way: ``import qmatmul as qmm``, and then perform multiplications of `quaternion`-valued matrices using function ``qmm.dot``.
 Other modules involved in the project play the role of auxiliary utilities.
 
