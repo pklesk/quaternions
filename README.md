@@ -114,7 +114,7 @@ RESULT -> C:
 
  [[-14. -18.  21. -26.]
   [ 18.   0. -41. -18.]]]
-QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
+QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.001703 s.
 ```
 
 ## Usage example 2 (large arguments)
