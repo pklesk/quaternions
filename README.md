@@ -8,7 +8,7 @@ The `qmatmul` package is suitable for Python's ecosystem.
 Altogether, we provide 8 implementation variants of matrix-matrix multiplication for quaternion-valued inputs.
 The variants cover several approaches based on [NumPy](https://numpy.org), thus supported by BLAS, 
 but also several approaches employing [Numba](https://numba.pydata.org) - a just-in-time compiler targeting both CPU and GPU (CUDA). 
-Our design of CUDA computations for the proposed algorithm involves: 6 kernel functions with 11 invocations, suitable usage of tiling and shared memory, 
+Our design of CUDA computations for the proposed algorithm involves: 6 kernel functions with 11 invocations, tiling and shared memory, 
 and few host-device memory transfers.
 
 ## Selected kernels - flows of CUDA computations
