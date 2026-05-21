@@ -164,7 +164,7 @@ the user to select one of the following eight computational approaches:
 | `"direct_numba_cuda"`          | GPU, multi-threaded  | direct implementation of formula based on the transformation matrix and stacked representation (followed by unstack), using CUDA, compiled via Numba and LLVM to PTX/SASS     |
 | `"algo_numpy_st"`              | CPU, single-threaded | implementation of the proposed fast algorithm, using NumPy/BLAS                                                                                                               |
 | `"algo_numpy_parallel"`        | CPU, multi-threaded  | as above, but allowing for CPU parallelization supported by NumPy/BLAS                                                                                                        |
-| `"algo_numba_cuda"`            | CPU, multi-threaded  | implementation of the proposed fast algorithm, using CUDA, compiled via Numba and LLVM to PTX/SASS                                                                            |
+| `"algo_numba_cuda"`            | GPU, multi-threaded  | implementation of the proposed fast algorithm, using CUDA, compiled via Numba and LLVM to PTX/SASS                                                                            |
 
 The default setting is `"algo_numba_cuda"`.
 
