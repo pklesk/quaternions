@@ -4,11 +4,12 @@ The number of elementary floating-point multiplications involved in the algorith
 regardless of the input matrices. This is owed to a suitable representation and decomposition into two products, one of which takes advantage of certain 
 diagonal symmetry properties, the other of sparsity. 
 
-The `qmatmul` package is suitable for the ecosystem of Python programming language. 
+The `qmatmul` package is suitable for Python's ecosystem.
 Altogether, we provide eight implementation variants of matrix-matrix multiplication for quaternion-valued inputs. 
 The variants cover several approaches based on [NumPy](https://numpy.org) library, thus supported by the underlying BLAS, 
 but also several approaches employing [Numba](https://numba.pydata.org) - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). 
-Our design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, suitable usage of tiling and shared memory, and few host-device memory transfers.
+Our design of CUDA computations for the proposed algorithm involves: 6 kernel functions with 11 invocations, suitable usage of tiling and shared memory, 
+and few host-device memory transfers.
 
 ## Selected kernels - flows of CUDA computations
 <table>
