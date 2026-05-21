@@ -116,6 +116,7 @@ RESULT -> C:
   [ 18.   0. -41. -18.]]]
 QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
 ```
+
 ## Usage example 2 (large arguments)
 In the example below, two large random matrices with quaternions are multiplied.
 ```python
