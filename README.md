@@ -155,17 +155,18 @@ QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: 0.151431 s.
 An additional optional argument `approach`, e.g., `qmm.dot(A, B, approach="...")`, allows 
 the user to select one of the following eight computational approaches: 
 
-| approach                       | target, mode         | description                                                                                                                                                |
-|:-------------------------------|:---------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `"naive_numba_st"`             | CPU, single-threaded | naive single-threaded implementation of definition-based formula consisting of three nested loops, low-level compiled via Numba and LLVM                   |
-| `"naive_numba_parallel"`       | CPU, multi-threaded  | as above, but parallelized over CPU cores                                                                                                                  |
+| approach                       | target, mode         | description                                                                                                                                                                   |
+|:-------------------------------|:---------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `"naive_numba_st"`             | CPU, single-threaded | naive single-threaded implementation of definition-based formula consisting of three nested loops, low-level compiled via Numba and LLVM                                      |
+| `"naive_numba_parallel"`       | CPU, multi-threaded  | as above, but parallelized over CPU cores                                                                                                                                     |
+| `"direct_numpy_st"`            | CPU, single-threaded | direct implementation of formula based on the transformation matrix and stacked representation (followed by unstack), using NumPy/BLAS                                        |
+| `"direct_numpy_parallel"`      | CPU, multi-threaded  | as above, but allowing for CPU parallelization supported by NumPy/BLAS                                                                                                        |
+| `"direct_numba_cuda"`          | GPU, multi-threaded  | direct implementation of formula based on the transformation matrix and stacked representation (followed by unstack), using CUDA, compiled via Numba and LLVM to PTX/SASS     |
+| `"algo_numpy_st"`              | CPU, single-threaded | implementation of the proposed fast algorithm, using NumPy/BLAS                                                                                                               |
+| `"algo_numpy_parallel"`        | CPU, multi-threaded  | as above, but allowing for CPU parallelization supported by NumPy/BLAS                                                                                                        |
+| `"algo_numba_cuda"`            | CPU, multi-threaded  | implementation of the proposed fast algorithm, using CUDA, compiled via Numba and LLVM to PTX/SASS                                                                            |
 
-`"naive_numba_st"`, `"naive_numba_parallel"`, `"direct_numpy_st"`, 
-`"direct_numpy_parallel"`, `"direct_numpy_st"`, `"direct_cuda"`,
-`"algo_numpy_st"`, `"algo_numpy_parallel"`, `"algo_numba_cuda"`.
 The default setting is `"algo_numba_cuda"`.
-
-TODO
 
 ## Documentation
 Developer documentation of the project is accessible at: [https://pklesk.github.io/quaternions](https://pklesk.github.io/quaternions). <br/>
