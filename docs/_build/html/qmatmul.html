@@ -18,6 +18,7 @@
         <script src="_static/documentation_options.js?v=8d563738"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -52,6 +53,9 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">qmatmul module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#usage-example-1">Usage example 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-example-2-large-arguments">Usage example 2 (large arguments)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#link-to-project-repository">Link to project repository</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatrand"><code class="docutils literal notranslate"><span class="pre">qmatrand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
@@ -136,7 +140,7 @@
   <section id="module-qmatmul">
 <span id="qmatmul-module"></span><h1>qmatmul module<a class="headerlink" href="#module-qmatmul" title="Link to this heading"></a></h1>
 <p>This module contains eight computational approaches for multiplication of <cite>quaternion</cite>-valued matrices.
-The default approach <code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda</span></code> is based on the fast algorithm proposed by authors. 
+The default approach <code class="docutils literal notranslate"><span class="pre">qmatmul_algo_numba_cuda</span></code> is based on the fast algorithm proposed by authors (P. Klęsk, A. Cariow). 
 The number of elementary floating-point multiplications involved in the algorithm is reduced <cite>twice</cite> 
 with respect to the definition-based formula, regardless of the input matrices. This is owed to a 
 suitable representation and decomposition into two products, one of which takes advantage of certain 
@@ -146,6 +150,125 @@ They cover several approaches based on NumPy library, thus supported by the unde
 also several approaches employing Numba - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). 
 The design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, 
 suitable usage of tiling and shared memory, and few host-device memory transfers.</p>
+<section id="usage-example-1">
+<h2>Usage example 1<a class="headerlink" href="#usage-example-1" title="Link to this heading"></a></h2>
+<p>Suppose one would like to multiply the following matrices of quaternions:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}{\scriptsize
+\begin{split}
+\begin{pmatrix}
+2i +j &amp; -1 +i -j + 4k &amp; 5 -i +3j \\
+1 +4i -4j -4k &amp; -5 +3i +3j +4k &amp; 5 +3i +3k \\
+-4 +i -4j + 4k &amp; -i -2j +3k &amp; i -5j +k \\
+1 +i +4j + 2k&amp; -1 -i +2j -4k &amp; 2 +2i -3j -4k \\
+-2 -i +j -k &amp; 5 -4i -3j -3k &amp; 2 -2i -3k
+\end{pmatrix}
+&amp; \cdot
+\begin{pmatrix}
+-3 -4i + 2j -4k &amp; -3 -i +3j -4k \\
+3 - 4i +5j &amp; 5 +i +2j -5k\\
+-2 -4i -2j -4k &amp; -2 -i -4j +2k
+\end{pmatrix} \\    
+&amp;=
+\begin{pmatrix}
+4 -53i -39j +15k &amp; 16 -6i -17j +52k \\
+1 -3i +4j +7k &amp; -30 +3i +30j +56k \\
+44 +23i -16j -38k &amp; 40 -4i -5j +7k \\
+-34 -14i +29j -17k &amp; -40 -62i -10j -21k \\
+-14 -18i +21j -26k &amp; 18 -41j -18k
+\end{pmatrix}.
+\end{split}
+}\end{split}\]</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code> module installed, one can write:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">qmatmul</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qmm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL EXAMPLE...&quot;</span><span class="p">)</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">4</span><span class="p">],</span> <span class="p">[</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">0</span><span class="p">]],</span>
+    <span class="p">[[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">4</span><span class="p">],</span> <span class="p">[</span> <span class="mi">5</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">3</span><span class="p">]],</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">4</span><span class="p">],</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>  <span class="mi">1</span><span class="p">]],</span>
+    <span class="p">[[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">4</span><span class="p">,</span>  <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span> <span class="mi">2</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]],</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">]]</span>
+    <span class="p">])</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]],</span> 
+    <span class="p">[[</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">5</span><span class="p">,</span>  <span class="mi">0</span><span class="p">],</span> <span class="p">[</span> <span class="mi">5</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span>  <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]],</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">,</span>  <span class="mi">2</span><span class="p">]]</span>
+    <span class="p">])</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">qmm</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RESULT -&gt; C:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL EXAMPLE DONE. TIME OF qmm.dot: </span><span class="si">{</span><span class="n">t2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t1</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> s.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Running the code above produces the following output:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">QMATMUL EXAMPLE...</span>
+<span class="go">RESULT -&gt; C:</span>
+<span class="go">[[[  4. -53. -39.  15.]</span>
+<span class="go">  [ 16.  -6. -17.  52.]]</span>
+
+<span class="go"> [[  1.  -3.   4.   7.]</span>
+<span class="go">  [-30.   3.  30.  56.]]</span>
+
+<span class="go"> [[ 44.  53.   8. -56.]</span>
+<span class="go">  [ 10.   8. -11. -23.]]</span>
+
+<span class="go"> [[-34. -14.  29. -17.]</span>
+<span class="go">  [-40. -62. -10. -21.]]</span>
+
+<span class="go"> [[-14. -18.  21. -26.]</span>
+<span class="go">  [ 18.   0. -41. -18.]]]</span>
+<span class="go">QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.</span>
+</pre></div>
+</div>
+</section>
+<section id="usage-example-2-large-arguments">
+<h2>Usage example 2 (large arguments)<a class="headerlink" href="#usage-example-2-large-arguments" title="Link to this heading"></a></h2>
+<p>In the example below, two large random matrices with quaternions are multiplied.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;QMATMUL EXAMPLE (LARGE ARGUMENTS)...&quot;</span><span class="p">)</span>
+<span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="c1"># M x N matrix of quaternions</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="c1"># N x P matrix of quaternions</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">qmm</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RESULT FRAGMENT -&gt; C[:3, :3]:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">C</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: </span><span class="si">{</span><span class="n">t2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t1</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> s.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The result is computed fast:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">QMATMUL EXAMPLE (LARGE ARGUMENTS)...</span>
+<span class="go">RESULT FRAGMENT -&gt; C[:3, :3]:</span>
+<span class="go">[[[-1528.6768062   1482.01579334  1482.64352966  1469.29588132]</span>
+<span class="go">  [-1474.39555984  1485.26884228  1485.81638515  1486.03433938]</span>
+<span class="go">  [-1459.21558118  1487.12054919  1468.20437822  1461.65795584]]</span>
+
+<span class="go"> [[-1502.50516591  1465.24326325  1494.5907814   1503.74503685]</span>
+<span class="go">  [-1472.32677282  1493.41728185  1487.01751106  1506.41597882]</span>
+<span class="go">  [-1460.42240679  1488.1077977   1474.34164258  1504.36179871]]</span>
+
+<span class="go"> [[-1558.07311493  1475.34714296  1475.731701    1495.41197899]</span>
+<span class="go">  [-1528.83559572  1476.28138065  1474.62854662  1504.35168932]</span>
+<span class="go">  [-1508.66904595  1501.06439708  1459.07714887  1471.97545486]]]</span>
+<span class="go">QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: 0.151431 s.</span>
+</pre></div>
+</div>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code>: required for algebraic numerical computations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">numba-cuda[cu13]</span></code>: required for just-in-time compilation of CUDA kernels (decorated by <code class="docutils literal notranslate"><span class="pre">&#64;cuda.jit</span></code>) and LLVM-targeted functions (decorated by <code class="docutils literal notranslate"><span class="pre">&#64;jit</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">threadpoolctl</span></code>: required for managing single- vs multi-threaded modes for CPU-based approaches.</p></li>
+<li><p>For usage of <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code> modul, NVIDIA CUDA drivers must be present in the operating system.</p></li>
+</ul>
+</section>
 <section id="link-to-project-repository">
 <h2>Link to project repository<a class="headerlink" href="#link-to-project-repository" title="Link to this heading"></a></h2>
 <p><a class="reference external" href="https://github.com/pklesk/quaternions">https://github.com/pklesk/quaternions</a></p>

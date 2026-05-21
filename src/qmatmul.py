@@ -1,6 +1,6 @@
-"""
+r"""
 This module contains eight computational approaches for multiplication of `quaternion`-valued matrices.
-The default approach ``qmatmul_algo_numba_cuda`` is based on the fast algorithm proposed by authors. 
+The default approach ``qmatmul_algo_numba_cuda`` is based on the fast algorithm proposed by authors (P. Klęsk, A. Cariow). 
 The number of elementary floating-point multiplications involved in the algorithm is reduced `twice` 
 with respect to the definition-based formula, regardless of the input matrices. This is owed to a 
 suitable representation and decomposition into two products, one of which takes advantage of certain 
@@ -11,6 +11,137 @@ They cover several approaches based on NumPy library, thus supported by the unde
 also several approaches employing Numba - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). 
 The design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, 
 suitable usage of tiling and shared memory, and few host-device memory transfers.
+
+Usage example 1
+---------------
+Suppose one would like to multiply the following matrices of quaternions:
+
+.. math::
+    
+    {\scriptsize
+    \begin{split}
+    \begin{pmatrix}
+    2i +j & -1 +i -j + 4k & 5 -i +3j \\
+    1 +4i -4j -4k & -5 +3i +3j +4k & 5 +3i +3k \\
+    -4 +i -4j + 4k & -i -2j +3k & i -5j +k \\
+    1 +i +4j + 2k& -1 -i +2j -4k & 2 +2i -3j -4k \\
+    -2 -i +j -k & 5 -4i -3j -3k & 2 -2i -3k
+    \end{pmatrix}
+    & \cdot
+    \begin{pmatrix}
+    -3 -4i + 2j -4k & -3 -i +3j -4k \\
+    3 - 4i +5j & 5 +i +2j -5k\\
+    -2 -4i -2j -4k & -2 -i -4j +2k
+    \end{pmatrix} \\    
+    &=
+    \begin{pmatrix}
+    4 -53i -39j +15k & 16 -6i -17j +52k \\
+    1 -3i +4j +7k & -30 +3i +30j +56k \\
+    44 +23i -16j -38k & 40 -4i -5j +7k \\
+    -34 -14i +29j -17k & -40 -62i -10j -21k \\
+    -14 -18i +21j -26k & 18 -41j -18k
+    \end{pmatrix}.
+    \end{split}
+    }
+
+With ``qmatmul`` module installed, one can write:
+
+.. code-block:: python
+
+    import qmatmul as qmm
+    import numpy as np
+    import time
+
+    print(f"QMATMUL EXAMPLE...")
+    A = np.array([
+        [[ 0,  2,  1,  0], [-1,  1, -1,  4], [ 5, -1,  3,  0]],
+        [[ 1,  4, -4, -4], [-5,  3,  3,  4], [ 5,  3,  0,  3]],
+        [[-4,  1, -4,  4], [ 0, -1, -2, -3], [ 0,  1, -5,  1]],
+        [[ 1,  1,  4,  2], [-1, -1,  2, -4], [ 2,  2, -3, -4]],
+        [[-2, -1,  1, -1], [ 5, -4, -3, -3], [ 2, -2,  0, -3]]
+        ])
+    B = np.array([
+        [[-3, -4,  2, -4], [-3, -1,  3, -4]], 
+        [[ 3, -4,  5,  0], [ 5,  1,  2, -5]],
+        [[-2, -4, -2, -4], [-2, -1, -4,  2]]
+        ])
+    t1 = time.time()
+    C = qmm.dot(A, B)
+    t2 = time.time()
+    print(f"RESULT -> C:")
+    print(C)
+    print(f"QMATMUL EXAMPLE DONE. TIME OF qmm.dot: {t2 - t1:.6f} s.")
+
+Running the code above produces the following output:
+
+.. code-block:: console
+
+    QMATMUL EXAMPLE...
+    RESULT -> C:
+    [[[  4. -53. -39.  15.]
+      [ 16.  -6. -17.  52.]]
+    
+     [[  1.  -3.   4.   7.]
+      [-30.   3.  30.  56.]]
+    
+     [[ 44.  53.   8. -56.]
+      [ 10.   8. -11. -23.]]
+    
+     [[-34. -14.  29. -17.]
+      [-40. -62. -10. -21.]]
+    
+     [[-14. -18.  21. -26.]
+      [ 18.   0. -41. -18.]]]
+    QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.
+    
+Usage example 2 (large arguments)
+---------------------------------
+
+In the example below, two large random matrices with quaternions are multiplied.
+
+.. code-block:: python
+
+    print("QMATMUL EXAMPLE (LARGE ARGUMENTS)...")
+    M, N, P = 1000, 3000, 2000
+    np.random.seed(0)
+    A = np.random.rand(M, N, 4) # M x N matrix of quaternions
+    B = np.random.rand(N, P, 4) # N x P matrix of quaternions
+    t1 = time.time()
+    C = qmm.dot(A, B)
+    t2 = time.time()
+    print(f"RESULT FRAGMENT -> C[:3, :3]:")
+    print(C[:3, :3])
+    print(f"QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: {t2 - t1:.6f} s.")
+
+The result is computed fast:
+
+.. code-block:: console
+
+    QMATMUL EXAMPLE (LARGE ARGUMENTS)...
+    RESULT FRAGMENT -> C[:3, :3]:
+    [[[-1528.6768062   1482.01579334  1482.64352966  1469.29588132]
+      [-1474.39555984  1485.26884228  1485.81638515  1486.03433938]
+      [-1459.21558118  1487.12054919  1468.20437822  1461.65795584]]
+    
+     [[-1502.50516591  1465.24326325  1494.5907814   1503.74503685]
+      [-1472.32677282  1493.41728185  1487.01751106  1506.41597882]
+      [-1460.42240679  1488.1077977   1474.34164258  1504.36179871]]
+    
+     [[-1558.07311493  1475.34714296  1475.731701    1495.41197899]
+      [-1528.83559572  1476.28138065  1474.62854662  1504.35168932]
+      [-1508.66904595  1501.06439708  1459.07714887  1471.97545486]]]
+    QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: 0.151431 s.
+    
+
+Dependencies
+------------
+- ``numpy``: required for algebraic numerical computations.
+
+- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of CUDA kernels (decorated by ``@cuda.jit``) and LLVM-targeted functions (decorated by ``@jit``).
+
+- ``threadpoolctl``: required for managing single- vs multi-threaded modes for CPU-based approaches.   
+
+- For usage of ``qmatmul`` modul, NVIDIA CUDA drivers must be present in the operating system.  
 
 Link to project repository
 --------------------------

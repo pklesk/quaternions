@@ -3,18 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-qmatmul: Fast multiplication of quaternion-valued matrices documentation
-========================================================================
+qmatmul: Fast multiplication of quaternion-valued matrices (P. Klęsk, A. Cariow)
+================================================================================
 
 Welcome to qmatmul's documentation!
 -----------------------------------
 
-The core functionalities of this project are embodied in the module `qmatmal` present in :doc:`qmatmul`.
-We recommend to import this module as: `import qmatmul as qmm` and then to perform multiplications
-of quaternion-valued matrices using function `qmm.dot`.
-Other modules play the role of auxiliary utilities.
+The core functionalities of this project are embodied in the module :doc:`qmatmul`.
+We suggest to import it in the following way: ``import qmatmul as qmm``, and then perform multiplications of `quaternion`-valued matrices using function ``qmm.dot``.
+Other modules involved in the project play the role of auxiliary utilities.
 
-For additional information on the project (and for examples) please see also the README.md file in project's repository: `<https://github.com/pklesk/quaternions>`_.
+For additional information and examples please see also the README.md file in project's repository: `<https://github.com/pklesk/quaternions>`_.
 
 
 .. toctree::
