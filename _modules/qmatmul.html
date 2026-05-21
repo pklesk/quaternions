@@ -213,7 +213,7 @@
 <span class="sd">------------</span>
 <span class="sd">- ``numpy``: required for algebraic numerical computations.</span>
 
-<span class="sd">- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of CUDA kernels (decorated by ``@cuda.jit``) and LLVM-targeted functions (decorated by ``@jit``).</span>
+<span class="sd">- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of LLVM-targeted functions (decorated by ``@jit``) and of CUDA kernels (decorated by ``@cuda.jit``).</span>
 
 <span class="sd">- ``threadpoolctl``: required for managing single- vs multi-threaded modes for CPU-based approaches.   </span>
 
@@ -314,7 +314,7 @@
 <div class="viewcode-block" id="stack">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.stack">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions) returns its stacked representation - the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows.&quot;&quot;&quot;</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions), returns its stacked representation - the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows.&quot;&quot;&quot;</span>  
     <span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="n">R3</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">+</span> <span class="n">R</span>
@@ -330,7 +330,7 @@
 <div class="viewcode-block" id="a44">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">a_blocks_signs</span><span class="o">=</span><span class="n">A_BLOCKS_SIGNS</span><span class="p">,</span> <span class="n">a_blocks_parts</span><span class="o">=</span><span class="n">A_BLOCKS_PARTS</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts.&quot;&quot;&quot;</span>
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">A44</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -344,7 +344,7 @@
 <div class="viewcode-block" id="a44_ubar">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44_ubar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_ubar</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">a_blocks_parts</span><span class="o">=</span><span class="n">A_BLOCKS_PARTS</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the two-dimensional transformation matrix with double diagonal block-symmetry - a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the two-dimensional transformation matrix with double diagonal block-symmetry - a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">A44_ubar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -358,7 +358,7 @@
 <div class="viewcode-block" id="a44_lbar">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44_lbar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_lbar</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions) returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">M2</span> <span class="o">=</span> <span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="n">M3</span> <span class="o">=</span> <span class="n">M2</span> <span class="o">+</span> <span class="n">M</span>
@@ -377,7 +377,7 @@
 <div class="viewcode-block" id="i4_tilde">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.i4_tilde">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">i4_tilde</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a given size ``M`` returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a given size ``M``, returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs.&quot;&quot;&quot;</span>
     <span class="n">I4_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">diag_quarter</span> <span class="o">=</span> <span class="n">I4_tilde</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">)]</span>
     <span class="n">I4_tilde</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">diag_quarter</span>
@@ -401,7 +401,7 @@
 <div class="viewcode-block" id="c4_to_c">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.c4_to_c">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">c4_to_c</span><span class="p">(</span><span class="n">C4</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` (a result of matrix-matrix product) returns its unstacked version - the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` (a result of matrix-matrix product), returns its unstacked version - the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions.&quot;&quot;&quot;</span>
     <span class="n">M4</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">C4</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">M4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
     <span class="n">M2</span> <span class="o">=</span> <span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
@@ -418,7 +418,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmul_numba_float64">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:](</span><span class="n">float64</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmul_numba_float64</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float64``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float64``.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
     <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">q1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">q1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -431,7 +431,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmul_numba_float32">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float32</span><span class="p">[:](</span><span class="n">float32</span><span class="p">[:],</span> <span class="n">float32</span><span class="p">[:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmul_numba_float32</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float32``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the product of two single quaternions, each stored a 4-element long one-dimensional ``numpy.array`` of type ``float32``.&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
     <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">q1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">q1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">q1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">q1</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">q2</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -493,7 +493,7 @@
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="n">t2</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT64 DONE. [time: </span><span class="si">{</span><span class="n">t2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t1</span><span class="si">}</span><span class="s2"> s]&quot;</span><span class="p">)</span>    
-    <span class="k">return</span> <span class="n">C</span></div>
+    <span class="k">return</span> <span class="n">C</span>    </div>
 
 
 <div class="viewcode-block" id="qmatmul_naive_numba_parallel_float64_job">
@@ -514,6 +514,7 @@
 <div class="viewcode-block" id="qmatmul_naive_numba_st_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_st_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)`` for inputs of type ``float63``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST_FLOAT32...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -528,6 +529,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32_job">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:](</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_st_float32_job</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_st_float32`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)``.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>    
     <span class="n">P</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -537,10 +539,11 @@
                 <span class="n">C</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">+=</span> <span class="n">qmul_numba_float32</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">],</span> <span class="n">B</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">C</span></div>
 
-
+    
 <div class="viewcode-block" id="qmatmul_naive_numba_parallel_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_parallel_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)`` for inputs of type ``float32``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT32...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -556,6 +559,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32_job">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:](</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_parallel_float32_job</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_parallel_float32`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)``.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>    
     <span class="n">P</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -569,6 +573,7 @@
 <div class="viewcode-block" id="qmatmul_direct_numpy_parallel">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_direct_numpy_parallel">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_direct_numpy_parallel</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numpy_parallel&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_DIRECT_NUMPY_PARALLEL...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>    
@@ -584,6 +589,7 @@
 <div class="viewcode-block" id="qmatmul_direct_numpy_st">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_direct_numpy_st">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_direct_numpy_st</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numpy_st&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_DIRECT_NUMPY_ST...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -599,6 +605,7 @@
 <div class="viewcode-block" id="had4">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.had4">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">had4</span><span class="p">(</span><span class="n">E4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a stacked matrix of shape ``(4 * R, S)``, returns the result (same shape) of Hadamard transform applied to it, with successive blocks representing: sum of sums, sum of differences, difference of sums, difference of differences.&quot;&quot;&quot;</span>    
     <span class="n">R4</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
@@ -618,6 +625,7 @@
 <div class="viewcode-block" id="matmuldiag">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matmuldiag">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For two stacked matrices of shape ``(4 * R, S)`` each, returns their `diagonal` product (same shape), with successive blocks being standard products of corresponding real and imaginary slices.&quot;&quot;&quot;</span>    
     <span class="n">R4</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
@@ -636,6 +644,7 @@
 <div class="viewcode-block" id="permute">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.permute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">permute</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a stacked matrix of shape ``(4 * R, S)``, returns its block-wise permuted version with order specified by argument ``permutation``.&quot;&quot;&quot;</span>    
     <span class="n">R4</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
     <span class="n">E4p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">E4</span><span class="p">)</span>
@@ -648,6 +657,7 @@
 <div class="viewcode-block" id="qmatmul_algo_numpy_parallel">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algo_numpy_parallel">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algo_numpy_parallel</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numpy_parallel&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_ALGO_NUMPY_PARALLEL...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>    
@@ -673,6 +683,7 @@
 <div class="viewcode-block" id="qmatmul_algo_numpy_st">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algo_numpy_st">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algo_numpy_st</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numpy_st&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_ALGO_NUMPY_ST...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
