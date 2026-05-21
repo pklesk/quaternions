@@ -57,14 +57,14 @@
 <li class="toctree-l3"><a class="reference internal" href="#usage-example-2-large-arguments">Usage example 2 (large arguments)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#link-to-project-repository">Link to project repository</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatrand"><code class="docutils literal notranslate"><span class="pre">qmatrand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatrand"><code class="docutils literal notranslate"><span class="pre">qmatrand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.stack"><code class="docutils literal notranslate"><span class="pre">stack()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44"><code class="docutils literal notranslate"><span class="pre">a44()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44_ubar"><code class="docutils literal notranslate"><span class="pre">a44_ubar()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.a44_lbar"><code class="docutils literal notranslate"><span class="pre">a44_lbar()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#qmatmul.a4_lbar"><code class="docutils literal notranslate"><span class="pre">a4_lbar()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.i4_tilde"><code class="docutils literal notranslate"><span class="pre">i4_tilde()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algolike_numpy"><code class="docutils literal notranslate"><span class="pre">qmatmul_algolike_numpy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.c4_to_c"><code class="docutils literal notranslate"><span class="pre">c4_to_c()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmul_numba_float64"><code class="docutils literal notranslate"><span class="pre">qmul_numba_float64()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmul_numba_float32"><code class="docutils literal notranslate"><span class="pre">qmul_numba_float32()</span></code></a></li>
@@ -79,7 +79,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_naive_numba_parallel_float32_job"><code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float32_job()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_direct_numpy_parallel"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numpy_parallel()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_direct_numpy_st"><code class="docutils literal notranslate"><span class="pre">qmatmul_direct_numpy_st()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatmul_algolike_numpy"><code class="docutils literal notranslate"><span class="pre">qmatmul_algolike_numpy()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.had4"><code class="docutils literal notranslate"><span class="pre">had4()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.matmuldiag"><code class="docutils literal notranslate"><span class="pre">matmuldiag()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.permute"><code class="docutils literal notranslate"><span class="pre">permute()</span></code></a></li>
@@ -222,7 +221,7 @@ suitable usage of tiling and shared memory, and few host-device memory transfers
 
 <span class="go"> [[-14. -18.  21. -26.]</span>
 <span class="go">  [ 18.   0. -41. -18.]]]</span>
-<span class="go">QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.002028 s.</span>
+<span class="go">QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.001703 s.</span>
 </pre></div>
 </div>
 </section>
@@ -274,20 +273,14 @@ suitable usage of tiling and shared memory, and few host-device memory transfers
 <p><a class="reference external" href="https://github.com/pklesk/quaternions">https://github.com/pklesk/quaternions</a></p>
 </section>
 <dl class="py function">
-<dt class="sig sig-object py" id="qmatmul.qmatrand">
-<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatrand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatrand" title="Link to this definition"></a></dt>
-<dd><p>Generates a random three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">M``x``N``x``4</span></code>, meant to represent a matrix of quaternions (the last dimension stores one real and three imaginary parts).</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.dot">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'algo_numba_cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'verbose':</span> <span class="pre">False}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.dot" title="Link to this definition"></a></dt>
 <dd><p>Main function of <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code> module allowing to multiply two quaternion-valued matrices.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><dl class="simple">
-<dt>A (ndarray):</dt><dd><p>first factor (matrix of quaternions).</p>
+<dt>A (numpy.ndarray[:, :, :]):</dt><dd><p>first factor (matrix of quaternions).</p>
 </dd>
-<dt>B (ndarray):</dt><dd><p>second factor (matrix of quaternions).</p>
+<dt>B (numpy.ndarray[:, :, :]):</dt><dd><p>second factor (matrix of quaternions).</p>
 </dd>
 <dt>approach (str):</dt><dd><p>choice of computational approach from {<code class="docutils literal notranslate"><span class="pre">&quot;naive_numba_st&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;naive_numba_parallel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;direct_numpy_st&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;direct_numpy_parallel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;direct_numba_cuda&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algo_numpy_st&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algo_numpy_parallel&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;algo_numba_cudal&quot;</span></code>}, defaults to <code class="docutils literal notranslate"><span class="pre">&quot;algo_numba_cuda&quot;</span></code>.</p>
 </dd>
@@ -295,78 +288,108 @@ suitable usage of tiling and shared memory, and few host-device memory transfers
 </dd>
 </dl>
 </dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>numpy.ndarray[:, :, :]: </dt><dd><p>result of A times B multiplication.</p>
+</dd>
 </dl>
+</dd>
+<dt>Raises:</dt><dd><dl class="simple">
+<dt>ValueError:</dt><dd><p>If input matrices are not 3-dimensional, their last dimension is not 4, or if their inner matrix dimensions do not match for multiplication.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatrand">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatrand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=&lt;class</span> <span class="pre">'numpy.float32'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rounding=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatrand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatrand" title="Link to this definition"></a></dt>
+<dd><p>Helper function that generates a random three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">N,</span> <span class="pre">4)</span></code>, meant to represent a matrix of quaternions (the last dimension stores one real and three imaginary parts).</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.stack">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#stack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.stack" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) For a three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(R,</span> <span class="pre">S,</span> <span class="pre">4)</span></code> (matrix of quaternions) returns its stacked representation - the two-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4</span> <span class="pre">*</span> <span class="pre">R,</span> <span class="pre">S)</span></code> with slices of imaginary parts stored as blocks of additional rows.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.a44">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_blocks_signs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[1,</span> <span class="pre">-1,</span> <span class="pre">-1,</span> <span class="pre">-1],</span> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">-1,</span> <span class="pre">1],</span> <span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">-1],</span> <span class="pre">[1,</span> <span class="pre">-1,</span> <span class="pre">1,</span> <span class="pre">1]],</span> <span class="pre">dtype=int8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_blocks_parts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3],</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">3,</span> <span class="pre">2],</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">0,</span> <span class="pre">1],</span> <span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">1,</span> <span class="pre">0]],</span> <span class="pre">dtype=int8)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) For a three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">N,</span> <span class="pre">4)</span></code> (matrix of quaternions) returns the two-dimensional transformation matrix <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">4</span> <span class="pre">*</span> <span class="pre">N)</span></code> made of suitably permuted and signed blocks of real/imaginary parts.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.a44_ubar">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44_ubar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a_blocks_parts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">array([[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3],</span> <span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">3,</span> <span class="pre">2],</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">0,</span> <span class="pre">1],</span> <span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">1,</span> <span class="pre">0]],</span> <span class="pre">dtype=int8)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44_ubar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44_ubar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) For a three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">N,</span> <span class="pre">4)</span></code> (matrix of quaternions) returns the two-dimensional transformation matrix with double diagonal block-symmetry - a <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">4</span> <span class="pre">*</span> <span class="pre">N)</span></code> made of suitably permuted blocks of real/imaginary parts.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.a44_lbar">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a44_lbar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a44_lbar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a44_lbar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="qmatmul.a4_lbar">
-<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">a4_lbar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#a4_lbar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.a4_lbar" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) For a three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">N,</span> <span class="pre">4)</span></code> (matrix of quaternions) returns the sparse transformation matrix <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">4</span> <span class="pre">*</span> <span class="pre">N)</span></code> made of suitably placed blocks of real/imaginary parts.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.i4_tilde">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">i4_tilde</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#i4_tilde"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.i4_tilde" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) For a given size <code class="docutils literal notranslate"><span class="pre">M</span></code> returns the block-like identity matrix <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">4</span> <span class="pre">*</span> <span class="pre">M)</span></code> where the top-left block has negative signs.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.qmatmul_algolike_numpy">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algolike_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algolike_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algolike_numpy" title="Link to this definition"></a></dt>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) Function provided only to check the compliance of computational outcomes of the algorithm (main expression with decomposition into two products).</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.c4_to_c">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">c4_to_c</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#c4_to_c"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.c4_to_c" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) For a two-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(4</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">P)</span></code> (a result of matrix-matrix product) returns its unstacked version - the three-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code> of shape <code class="docutils literal notranslate"><span class="pre">(M,</span> <span class="pre">P,</span> <span class="pre">4)</span></code>, i.e., a matrix of quaternions.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmul_numba_float64">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmul_numba_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmul_numba_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmul_numba_float64" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the product of two single quaternions, each stored a 4-element long one-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.array</span></code> of type <code class="docutils literal notranslate"><span class="pre">float64</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmul_numba_float32">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmul_numba_float32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmul_numba_float32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmul_numba_float32" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the product of two single quaternions, each stored a 4-element long one-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.array</span></code> of type <code class="docutils literal notranslate"><span class="pre">float32</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmul_numba_int32">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmul_numba_int32</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmul_numba_int32"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmul_numba_int32" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Returns the product of two single quaternions, each stored a 4-element long one-dimensional <code class="docutils literal notranslate"><span class="pre">numpy.array</span></code> of type <code class="docutils literal notranslate"><span class="pre">int32</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float64">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_st_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_st_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_st_float64" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>to be invoked by the main function</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul.dot</span></code>) Returns the result of <code class="docutils literal notranslate"><span class="pre">dot(A,</span> <span class="pre">B,</span> <span class="pre">approach=&quot;naive_numba_st&quot;)</span></code> for inputs of type <code class="docutils literal notranslate"><span class="pre">float64</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float64_job">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_st_float64_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_st_float64_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_st_float64_job" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) Actual computational job function for <code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_st_float64</span></code> - returns the result of <code class="docutils literal notranslate"><span class="pre">dot(A,</span> <span class="pre">B,</span> <span class="pre">approach=&quot;naive_numba_st&quot;)</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_parallel_float64">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_parallel_float64</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_parallel_float64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_parallel_float64" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>to be invoked by the main function</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul.dot</span></code>) Returns the result of <code class="docutils literal notranslate"><span class="pre">dot(A,</span> <span class="pre">B,</span> <span class="pre">approach=&quot;naive_numba_parallel&quot;)</span></code> for inputs of type <code class="docutils literal notranslate"><span class="pre">float64</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_parallel_float64_job">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_naive_numba_parallel_float64_job</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_naive_numba_parallel_float64_job"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_naive_numba_parallel_float64_job" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>(<cite>for internal use by</cite> <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code>) Actual computational job function for <code class="docutils literal notranslate"><span class="pre">qmatmul_naive_numba_parallel_float64</span></code> - returns the result of <code class="docutils literal notranslate"><span class="pre">dot(A,</span> <span class="pre">B,</span> <span class="pre">approach=&quot;naive_numba_parallel&quot;)</span></code>.</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmatmul_naive_numba_st_float32">
@@ -396,11 +419,6 @@ suitable usage of tiling and shared memory, and few host-device memory transfers
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.qmatmul_direct_numpy_st">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_direct_numpy_st</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_direct_numpy_st"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_direct_numpy_st" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="qmatmul.qmatmul_algolike_numpy">
-<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">qmatmul_algolike_numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#qmatmul_algolike_numpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.qmatmul_algolike_numpy" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
