@@ -1,3 +1,11 @@
+"""
+Auxiliary module with simple utility and informative functions.
+
+Link to project repository
+--------------------------
+`https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
+"""
+
 import cpuinfo
 import platform
 import psutil
@@ -130,6 +138,7 @@ def experiment_hash_str(experiment_info, c_props, g_props, all_hs_digits=10, exp
     return hs
 
 def speedups_plot(dtype):
+    """Generates a log-log plot of speed-ups registered for all approaches on computational environment 2 (see research paper).""" 
     args = [1e6, 6.0 * 1e6, 2.7 * 1e7, 1e9, 6.0 * 1e9, 2.7 * 1e10]
     series_float32 = {
         "QMATMUL_NAIVE_NUMBA_ST": [1.7, 1.5, 1.5, 1.5, 1.6, 1.5],  
@@ -209,7 +218,4 @@ def speedups_plot(dtype):
     plt.legend(loc="upper left", fontsize=LEGEND_FONT_SIZE, framealpha=0.9, ncol=1, handlelength=3.0, labelspacing=0.01)
     plt.tight_layout()
     plt.show()
-    
-if __name__ == "__main__":
-    speedups_plot(dtype=np.float64)
     

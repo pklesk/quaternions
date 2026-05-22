@@ -50,7 +50,10 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">main module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#link-to-project-repository">Link to project repository</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="qmatmul.html">qmatmul module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
 </ul>
@@ -84,6 +87,38 @@
              
   <section id="module-main">
 <span id="main-module"></span><h1>main module<a class="headerlink" href="#module-main" title="Link to this heading"></a></h1>
+<p>Main script to carry out efficiency experiments on <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code> module.
+An experiment consists of: 
+generation of input quaternion-valued matrices (for given sizes, data type, randomization seed and range), 
+execution with repetitions of selected computational approaches for multiplying the matrices, 
+and finally reporting the obtained time measurements (averages and standard deviations) and speed-ups relative to the first approach treated as the baseline.
+An individual hashcode is assigned to each executed experiment (computed from experimental settings and hardware/OS properties)
+and the console printout becomes saved as a log file in the folder <code class="docutils literal notranslate"><span class="pre">experiments/</span></code> with the hashcode used as the filename prefix.</p>
+<p>The following variables allow to define the settings of an experiment:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># experiment settings</span>
+<span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">200</span> <span class="c1"># M x N and N x P matrices to be multiplied</span>
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">0</span>    
+<span class="n">RANGE</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="c1"># each random real/imaginary part drawn uniformly from (-RANGE, RANGE) </span>
+<span class="n">DTYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span> <span class="c1"># {np.float32, np.float64}</span>
+<span class="n">REPETITIONS</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">VERBOSE</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">APPROACHES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS</span><span class="p">[</span><span class="n">DTYPE</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS</span><span class="p">[</span><span class="n">DTYPE</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">qmatmul_direct_numpy_st</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="s2">&quot;QMATMUL_DIRECT_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">qmatmul_direct_numpy_parallel</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="s2">&quot;QMATMUL_DIRECT_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS</span><span class="p">[</span><span class="n">DTYPE</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;tile_size&quot;</span><span class="p">:</span> <span class="n">qmm</span><span class="o">.</span><span class="n">DEFAULT_TILE_SIZE</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>        
+    <span class="s2">&quot;QMATMUL_ALGO_NUMPY_ST&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">qmatmul_algo_numpy_st</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>
+    <span class="s2">&quot;QMATMUL_ALGO_NUMPY_PARALLEL&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">qmatmul_algo_numpy_parallel</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}),</span>        
+    <span class="s2">&quot;QMATMUL_ALGO_NUMBA_CUDA&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS</span><span class="p">[</span><span class="n">DTYPE</span><span class="p">],</span> <span class="p">{</span><span class="s2">&quot;tile_size&quot;</span><span class="p">:</span> <span class="n">qmm</span><span class="o">.</span><span class="n">DEFAULT_TILE_SIZE</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>        
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">APPROACHES</span></code> dictionary, the first element of each tuple is a boolean flag allowing one to turn on/off a particular approach.</p>
+<section id="link-to-project-repository">
+<h2>Link to project repository<a class="headerlink" href="#link-to-project-repository" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/pklesk/quaternions">https://github.com/pklesk/quaternions</a></p>
+</section>
 </section>
 
 

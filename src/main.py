@@ -1,3 +1,41 @@
+"""
+Main script to carry out efficiency experiments on ``qmatmul`` module.
+An experiment consists of: 
+generation of input quaternion-valued matrices (for given sizes, data type, randomization seed and range), 
+execution with repetitions of selected computational approaches for multiplying the matrices, 
+and finally reporting the obtained time measurements (averages and standard deviations) and speed-ups relative to the first approach treated as the baseline.
+An individual hashcode is assigned to each executed experiment (computed from experimental settings and hardware/OS properties)
+and the console printout becomes saved as a log file in the folder ``experiments/`` with the hashcode used as the filename prefix. 
+
+The following variables allow to define the settings of an experiment:
+
+.. code-block:: python
+    
+    # experiment settings
+    M, N, P = 100, 300, 200 # M x N and N x P matrices to be multiplied
+    SEED = 0    
+    RANGE = 2.0 # each random real/imaginary part drawn uniformly from (-RANGE, RANGE) 
+    DTYPE = np.float64 # {np.float32, np.float64}
+    REPETITIONS = 100
+    VERBOSE = False
+    APPROACHES = {
+        "QMATMUL_NAIVE_NUMBA_ST": (True, QMATMUL_NAIVE_NUMBA_ST_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_NAIVE_NUMBA_PARALLEL": (True, QMATMUL_NAIVE_NUMBA_PARALLEL_FUNCTIONS[DTYPE], {"verbose": False}),
+        "QMATMUL_DIRECT_NUMPY_ST": (True, qmatmul_direct_numpy_st, {"verbose": False}),
+        "QMATMUL_DIRECT_NUMPY_PARALLEL": (True, qmatmul_direct_numpy_parallel, {"verbose": False}),
+        "QMATMUL_DIRECT_NUMBA_CUDA": (True, QMATMUL_DIRECT_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False}),        
+        "QMATMUL_ALGO_NUMPY_ST": (True, qmatmul_algo_numpy_st, {"verbose": False}),
+        "QMATMUL_ALGO_NUMPY_PARALLEL": (True, qmatmul_algo_numpy_parallel, {"verbose": False}),        
+        "QMATMUL_ALGO_NUMBA_CUDA": (True, QMATMUL_ALGO_NUMBA_CUDA_FUNCTIONS[DTYPE], {"tile_size": qmm.DEFAULT_TILE_SIZE, "verbose": False})        
+        }
+
+In ``APPROACHES`` dictionary, the first element of each tuple is a boolean flag allowing one to turn on/off a particular approach.
+
+Link to project repository
+--------------------------
+`https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
+"""
+
 from numba.core.errors import NumbaPerformanceWarning
 import warnings
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
@@ -53,9 +91,9 @@ if __name__ == "__main__":
     t1_main = time.time()
          
     # experiment settings
-    M, N, P = 300, 300, 300
+    M, N, P = 100, 300, 200 # M x N and N x P matrices to be multiplied
     SEED = 0    
-    RANGE = 2.0
+    RANGE = 2.0 # each random real/imaginary part drawn uniformly from (-RANGE, RANGE)  
     DTYPE = np.float64 # {np.float32, np.float64}
     REPETITIONS = 100
     VERBOSE = False
