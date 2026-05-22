@@ -162,7 +162,7 @@ import numpy as np
 import time
 from threadpoolctl import threadpool_limits
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 
