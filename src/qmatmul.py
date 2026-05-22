@@ -140,7 +140,7 @@ Dependencies
 ------------
 - ``numpy``: required for algebraic numerical computations.
 
-- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of LLVM-targeted functions (decorated by ``@jit``) and of CUDA kernels (decorated by ``@cuda.jit``).
+- ``numba`` and ``numba-cuda``: required for just-in-time compilation of LLVM-targeted functions (decorated by ``@jit``) and of CUDA kernels (decorated by ``@cuda.jit``).
 
 - ``threadpoolctl``: required for managing single- vs multi-threaded modes for NumPy-based CPU approaches.   
 

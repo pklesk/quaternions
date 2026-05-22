@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qmatmul module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.2 documentation</title>
+  <title>qmatmul module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=1ed6394b"></script>
+        <script src="_static/documentation_options.js?v=baaebd52"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -38,7 +38,7 @@
             qmatmul: Fast multiplication of quaternion-valued matrices
           </a>
               <div class="version">
-                1.0.2
+                1.0.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -267,7 +267,7 @@ suitable usage of tiling and shared memory, and few host-device memory transfers
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">numpy</span></code>: required for algebraic numerical computations.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">numba-cuda[cu13]</span></code>: required for just-in-time compilation of LLVM-targeted functions (decorated by <code class="docutils literal notranslate"><span class="pre">&#64;jit</span></code>) and of CUDA kernels (decorated by <code class="docutils literal notranslate"><span class="pre">&#64;cuda.jit</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">numba-cuda</span></code>: required for just-in-time compilation of LLVM-targeted functions (decorated by <code class="docutils literal notranslate"><span class="pre">&#64;jit</span></code>) and of CUDA kernels (decorated by <code class="docutils literal notranslate"><span class="pre">&#64;cuda.jit</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">threadpoolctl</span></code>: required for managing single- vs multi-threaded modes for NumPy-based CPU approaches.</p></li>
 <li><p>To use the <code class="docutils literal notranslate"><span class="pre">qmatmul</span></code> module, NVIDIA CUDA drivers must be present in the operating system.</p></li>
 </ul>
