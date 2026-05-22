@@ -120,6 +120,10 @@ QMATMUL EXAMPLE DONE. TIME OF qmm.dot: 0.001703 s.
 ## Usage example 2 (large arguments)
 In the example below, two large random matrices with quaternions are multiplied.
 ```python
+import qmatmul as qmm
+import numpy as np
+import time
+
 print("QMATMUL EXAMPLE (LARGE ARGUMENTS)...")
 M, N, P = 1000, 3000, 2000
 np.random.seed(0)
