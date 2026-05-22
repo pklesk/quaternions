@@ -74,7 +74,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cpuinfo</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Auxiliary module with simple utility and informative functions.</span>
+
+<span class="sd">Link to project repository</span>
+<span class="sd">--------------------------</span>
+<span class="sd">`https://github.com/pklesk/quaternions &lt;https://github.com/pklesk/quaternions&gt;`_ </span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cpuinfo</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda</span>
@@ -241,6 +249,7 @@
 <div class="viewcode-block" id="speedups_plot">
 <a class="viewcode-back" href="../utils.html#utils.speedups_plot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">speedups_plot</span><span class="p">(</span><span class="n">dtype</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a log-log plot of speed-ups registered for all approaches on computational environment 2 (see research paper).&quot;&quot;&quot;</span> 
     <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1e6</span><span class="p">,</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">,</span> <span class="mf">2.7</span> <span class="o">*</span> <span class="mf">1e7</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">,</span> <span class="mf">2.7</span> <span class="o">*</span> <span class="mf">1e10</span><span class="p">]</span>
     <span class="n">series_float32</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.7</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span>  
@@ -321,9 +330,6 @@
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-    
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">speedups_plot</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
     
 </pre></div>
 

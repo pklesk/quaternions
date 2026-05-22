@@ -75,16 +75,16 @@
              
   <h1>Source code for qmatmul</h1><div class="highlight"><pre>
 <span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module contains eight computational approaches for multiplication of `quaternion`-valued matrices.</span>
+<span class="sd">This module contains computational approaches for multiplication of `quaternion`-valued matrices.</span>
 <span class="sd">The default approach ``qmatmul_algo_numba_cuda`` is based on the fast algorithm proposed by authors (P. Klęsk, A. Cariow). </span>
 <span class="sd">The number of elementary floating-point multiplications involved in the algorithm is reduced `twice` </span>
-<span class="sd">with respect to the definition-based formula, regardless of the input matrices. This is owed to a </span>
-<span class="sd">suitable representation and decomposition into two products, one of which takes advantage of certain </span>
-<span class="sd">diagonal symmetry properties, the other of sparsity.</span>
+<span class="sd">with respect to the definition-based formula, regardless of the input matrices. </span>
+<span class="sd">This is owed to a suitable representation and decomposition into two products, one of which takes </span>
+<span class="sd">advantage of certain diagonal symmetry properties, the other of sparsity.</span>
 
 <span class="sd">Altogether, eight approaches (implementation variants) are provided. </span>
 <span class="sd">They cover several approaches based on NumPy library, thus supported by the underlying BLAS, but </span>
-<span class="sd">also several approaches employing Numba - a just-in-time compiler for Python targeting both CPU and GPU (CUDA). </span>
+<span class="sd">also several approaches employing Numba --- a just-in-time compiler for Python targeting both CPU and GPU (CUDA). </span>
 <span class="sd">The design of CUDA computations for the proposed algorithm involves: six kernel functions with eleven invocations, </span>
 <span class="sd">suitable usage of tiling and shared memory, and few host-device memory transfers.</span>
 
@@ -128,7 +128,7 @@
 <span class="sd">    import numpy as np</span>
 <span class="sd">    import time</span>
 
-<span class="sd">    print(f&quot;QMATMUL EXAMPLE...&quot;)</span>
+<span class="sd">    print(&quot;QMATMUL EXAMPLE...&quot;)</span>
 <span class="sd">    A = np.array([</span>
 <span class="sd">        [[ 0,  2,  1,  0], [-1,  1, -1,  4], [ 5, -1,  3,  0]],</span>
 <span class="sd">        [[ 1,  4, -4, -4], [-5,  3,  3,  4], [ 5,  3,  0,  3]],</span>
@@ -177,6 +177,10 @@
 
 <span class="sd">.. code-block:: python</span>
 
+<span class="sd">    import qmatmul as qmm</span>
+<span class="sd">    import numpy as np</span>
+<span class="sd">    import time</span>
+
 <span class="sd">    print(&quot;QMATMUL EXAMPLE (LARGE ARGUMENTS)...&quot;)</span>
 <span class="sd">    M, N, P = 1000, 3000, 2000</span>
 <span class="sd">    np.random.seed(0)</span>
@@ -208,16 +212,15 @@
 <span class="sd">      [-1508.66904595  1501.06439708  1459.07714887  1471.97545486]]]</span>
 <span class="sd">    QMATMUL EXAMPLE (LARGE ARGUMENTS) DONE. TIME OF qmm.dot: 0.151431 s.</span>
 <span class="sd">    </span>
-
 <span class="sd">Dependencies</span>
 <span class="sd">------------</span>
 <span class="sd">- ``numpy``: required for algebraic numerical computations.</span>
 
 <span class="sd">- ``numba`` and ``numba-cuda[cu13]``: required for just-in-time compilation of LLVM-targeted functions (decorated by ``@jit``) and of CUDA kernels (decorated by ``@cuda.jit``).</span>
 
-<span class="sd">- ``threadpoolctl``: required for managing single- vs multi-threaded modes for CPU-based approaches.   </span>
+<span class="sd">- ``threadpoolctl``: required for managing single- vs multi-threaded modes for NumPy-based CPU approaches.   </span>
 
-<span class="sd">- For usage of ``qmatmul`` modul, NVIDIA CUDA drivers must be present in the operating system.  </span>
+<span class="sd">- To use the ``qmatmul`` module, NVIDIA CUDA drivers must be present in the operating system.  </span>
 
 <span class="sd">Link to project repository</span>
 <span class="sd">--------------------------</span>
@@ -256,26 +259,28 @@
     <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
 <span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
 
-<span class="c1"># functions</span>
+<span class="c1"># --------------------------------------------------------------------------------------------------------------------------------</span>
+<span class="c1"># FUNCTIONS</span>
+<span class="c1"># --------------------------------------------------------------------------------------------------------------------------------</span>
 <div class="viewcode-block" id="dot">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.dot">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;algo_numba_cuda&quot;</span><span class="p">,</span> <span class="n">extra_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}):</span>   
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Main function of ``qmatmul`` module allowing to multiply two quaternion-valued matrices.</span>
+<span class="sd">    The main function of ``qmatmul`` module --- multiplies two quaternion-valued matrices.</span>
 <span class="sd">         </span>
 <span class="sd">    Args:</span>
 <span class="sd">        A (numpy.ndarray[:, :, :]):</span>
-<span class="sd">            first factor (matrix of quaternions).</span>
+<span class="sd">            first factor --- a matrix of quaternions.</span>
 <span class="sd">        B (numpy.ndarray[:, :, :]):</span>
-<span class="sd">            second factor (matrix of quaternions).</span>
+<span class="sd">            second factor --- a matrix of quaternions.</span>
 <span class="sd">        approach (str):</span>
-<span class="sd">            choice of computational approach from {``&quot;naive_numba_st&quot;``, ``&quot;naive_numba_parallel&quot;``, ``&quot;direct_numpy_st&quot;``, ``&quot;direct_numpy_parallel&quot;``, ``&quot;direct_numba_cuda&quot;``, ``&quot;algo_numpy_st&quot;``, ``&quot;algo_numpy_parallel&quot;``, ``&quot;algo_numba_cudal&quot;``}, defaults to ``&quot;algo_numba_cuda&quot;``.</span>
+<span class="sd">            choice of computational approach from {``&quot;naive_numba_st&quot;``, ``&quot;naive_numba_parallel&quot;``, ``&quot;direct_numpy_st&quot;``, ``&quot;direct_numpy_parallel&quot;``, ``&quot;direct_numba_cuda&quot;``, ``&quot;algo_numpy_st&quot;``, ``&quot;algo_numpy_parallel&quot;``, ``&quot;algo_numba_cuda&quot;``}, defaults to ``&quot;algo_numba_cuda&quot;``.</span>
 <span class="sd">        extra_args (dict):</span>
-<span class="sd">            dictionary of extra arguments to be passed to the invoked function with the chosen computational approach.</span>
+<span class="sd">            dictionary of extra arguments to be passed to the invoked function that performs the chosen computational approach.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        numpy.ndarray[:, :, :]: </span>
-<span class="sd">            result of A times B multiplication.</span>
+<span class="sd">            matrix-matrix product (quaternion-valued) of A and B.</span>
 <span class="sd">            </span>
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError:</span>
@@ -314,7 +319,8 @@
 <div class="viewcode-block" id="stack">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.stack">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">(</span><span class="n">E</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions), returns its stacked representation - the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows.&quot;&quot;&quot;</span>  
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a three-dimensional ``numpy.ndarray`` of shape ``(R, S, 4)`` (matrix of quaternions), </span>
+<span class="sd">    returns its stacked representation --- the two-dimensional ``numpy.ndarray`` of shape ``(4 * R, S)`` with slices of imaginary parts stored as blocks of additional rows.&quot;&quot;&quot;</span>  
     <span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="n">R3</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">+</span> <span class="n">R</span>
@@ -330,7 +336,8 @@
 <div class="viewcode-block" id="a44">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">a_blocks_signs</span><span class="o">=</span><span class="n">A_BLOCKS_SIGNS</span><span class="p">,</span> <span class="n">a_blocks_parts</span><span class="o">=</span><span class="n">A_BLOCKS_PARTS</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), </span>
+<span class="sd">    returns the two-dimensional transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts.&quot;&quot;&quot;</span>
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">A44</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -344,7 +351,8 @@
 <div class="viewcode-block" id="a44_ubar">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44_ubar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_ubar</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">a_blocks_parts</span><span class="o">=</span><span class="n">A_BLOCKS_PARTS</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the two-dimensional transformation matrix with double diagonal block-symmetry - a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), </span>
+<span class="sd">    returns the two-dimensional transformation matrix with double diagonal block-symmetry --- a ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably permuted blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">A44_ubar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">N</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -358,7 +366,8 @@
 <div class="viewcode-block" id="a44_lbar">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44_lbar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_lbar</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a three-dimensional ``numpy.ndarray`` of shape ``(M, N, 4)`` (matrix of quaternions), </span>
+<span class="sd">    returns the sparse transformation matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * N)`` made of suitably placed blocks of real/imaginary parts.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">M2</span> <span class="o">=</span> <span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="n">M3</span> <span class="o">=</span> <span class="n">M2</span> <span class="o">+</span> <span class="n">M</span>
@@ -377,18 +386,18 @@
 <div class="viewcode-block" id="i4_tilde">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.i4_tilde">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">i4_tilde</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">dtype</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a given size ``M``, returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a given size ``M``, </span>
+<span class="sd">    returns the block-like identity matrix ``numpy.ndarray`` of shape ``(4 * M, 4 * M)`` where the top-left block has negative signs.&quot;&quot;&quot;</span>
     <span class="n">I4_tilde</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">diag_quarter</span> <span class="o">=</span> <span class="n">I4_tilde</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">)]</span>
     <span class="n">I4_tilde</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">M</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="n">diag_quarter</span>
     <span class="k">return</span> <span class="n">I4_tilde</span></div>
 
 
-
 <div class="viewcode-block" id="qmatmul_algolike_numpy">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algolike_numpy">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algolike_numpy</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span> <span class="c1"># only to check correctness (compliance) of computational outcomes</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Function provided only to check the compliance of computational outcomes of the algorithm (main expression with decomposition into two products).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) Function provided only to check the compliance of computational outcomes of the algorithm (main expression with decomposition into two products).&quot;&quot;&quot;</span>
     <span class="n">I4_tilde</span> <span class="o">=</span> <span class="n">i4_tilde</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">A</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
     <span class="n">A44_ubar</span> <span class="o">=</span> <span class="n">a44_ubar</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
     <span class="n">A44_lbar</span> <span class="o">=</span> <span class="n">a44_lbar</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
@@ -401,7 +410,8 @@
 <div class="viewcode-block" id="c4_to_c">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.c4_to_c">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">c4_to_c</span><span class="p">(</span><span class="n">C4</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` (a result of matrix-matrix product), returns its unstacked version - the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a two-dimensional ``numpy.ndarray`` of shape ``(4 * M, P)`` being a result of a matrix-matrix product, </span>
+<span class="sd">    returns its unstacked version --- the three-dimensional ``numpy.ndarray`` of shape ``(M, P, 4)``, i.e., a matrix of quaternions.&quot;&quot;&quot;</span>
     <span class="n">M4</span><span class="p">,</span> <span class="n">P</span> <span class="o">=</span> <span class="n">C4</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">M4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
     <span class="n">M2</span> <span class="o">=</span> <span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
@@ -456,7 +466,7 @@
 <div class="viewcode-block" id="qmatmul_naive_numba_st_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_st_float64">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_st_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)`` for inputs of type ``float64``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)`` for input matrices of type ``float64``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST_FLOAT64...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -471,7 +481,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_st_float64_job">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:](</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_st_float64_job</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_st_float64`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) Actual computational job function for ``qmatmul_naive_numba_st_float64`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)``.&quot;&quot;&quot;</span>
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>    
     <span class="n">P</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -485,7 +495,7 @@
 <div class="viewcode-block" id="qmatmul_naive_numba_parallel_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float64">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_parallel_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)`` for inputs of type ``float64``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)`` for input matrices of type ``float64``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT64...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -500,7 +510,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float64_job">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:](</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_parallel_float64_job</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_parallel_float64`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) Actual computational job function for ``qmatmul_naive_numba_parallel_float64`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)``.&quot;&quot;&quot;</span>
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>    
     <span class="n">P</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
@@ -514,7 +524,7 @@
 <div class="viewcode-block" id="qmatmul_naive_numba_st_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_st_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)`` for inputs of type ``float63``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)`` for input matrices of type ``float32``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_ST_FLOAT32...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -529,7 +539,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32_job">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:](</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_st_float32_job</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_st_float32`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) Actual computational job function for ``qmatmul_naive_numba_st_float32`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_st&quot;)``.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>    
     <span class="n">P</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -543,7 +553,7 @@
 <div class="viewcode-block" id="qmatmul_naive_numba_parallel_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_parallel_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)`` for inputs of type ``float32``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)`` for input matrices of type ``float32``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_NAIVE_NUMBA_PARALLEL_FLOAT32...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -559,7 +569,7 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32_job">[docs]</a>
 <span class="nd">@jit</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:](</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]),</span> <span class="n">nopython</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_naive_numba_parallel_float32_job</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) Actual computational job function for ``qmatmul_naive_numba_parallel_float32`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) Actual computational job function for ``qmatmul_naive_numba_parallel_float32`` - returns the result of ``dot(A, B, approach=&quot;naive_numba_parallel&quot;)``.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>    
     <span class="n">P</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -573,7 +583,7 @@
 <div class="viewcode-block" id="qmatmul_direct_numpy_parallel">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_direct_numpy_parallel">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_direct_numpy_parallel</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numpy_parallel&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numpy_parallel&quot;)`` for input matrices of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_DIRECT_NUMPY_PARALLEL...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>    
@@ -585,11 +595,10 @@
     <span class="k">return</span> <span class="n">C</span></div>
 
 
-
 <div class="viewcode-block" id="qmatmul_direct_numpy_st">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_direct_numpy_st">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_direct_numpy_st</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numpy_st&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numpy_st&quot;)`` for input matrices of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_DIRECT_NUMPY_ST...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -605,7 +614,8 @@
 <div class="viewcode-block" id="had4">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.had4">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">had4</span><span class="p">(</span><span class="n">E4</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a stacked matrix of shape ``(4 * R, S)``, returns the result (same shape) of Hadamard transform applied to it, with successive blocks representing: sum of sums, sum of differences, difference of sums, difference of differences.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a stacked matrix of shape ``(4 * R, S)``, </span>
+<span class="sd">    returns the result (of same shape) of Hadamard transform applied to it, with successive blocks representing: sum of sums, sum of differences, difference of sums, difference of differences.&quot;&quot;&quot;</span>    
     <span class="n">R4</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
@@ -625,7 +635,8 @@
 <div class="viewcode-block" id="matmuldiag">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matmuldiag">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For two stacked matrices of shape ``(4 * R, S)`` each, returns their `diagonal` product (same shape), with successive blocks being standard products of corresponding real and imaginary slices.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For two stacked matrices of shape ``(4 * R, S)`` each, </span>
+<span class="sd">    returns their `diagonal` product (same shape), with successive blocks being standard products of corresponding real and imaginary slices.&quot;&quot;&quot;</span>    
     <span class="n">R4</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
@@ -644,7 +655,8 @@
 <div class="viewcode-block" id="permute">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.permute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">permute</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use by` ``qmatmul``) For a stacked matrix of shape ``(4 * R, S)``, returns its block-wise permuted version with order specified by argument ``permutation``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`for internal use`) For a stacked matrix of shape ``(4 * R, S)``, </span>
+<span class="sd">    returns its block-wise permuted version with order of blocks specified by the argument ``permutation``.&quot;&quot;&quot;</span>    
     <span class="n">R4</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
     <span class="n">E4p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">E4</span><span class="p">)</span>
@@ -657,7 +669,7 @@
 <div class="viewcode-block" id="qmatmul_algo_numpy_parallel">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algo_numpy_parallel">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algo_numpy_parallel</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numpy_parallel&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numpy_parallel&quot;)`` for input matrices of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_ALGO_NUMPY_PARALLEL...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>    
@@ -683,7 +695,7 @@
 <div class="viewcode-block" id="qmatmul_algo_numpy_st">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algo_numpy_st">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algo_numpy_st</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numpy_st&quot;)`` for inputs of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numpy_st&quot;)`` for input matrices of type either ``float64`` or ``float32``.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_ALGO_NUMPY_ST...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -710,6 +722,7 @@
 <div class="viewcode-block" id="qmatmul_direct_numba_cuda_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_direct_numba_cuda_float64">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_direct_numba_cuda_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="n">DEFAULT_TILE_SIZE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numba_cuda_float64&quot;)`` for matrices of type ``float64``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_DIRECT_NUMBA_CUDA_FLOAT64...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -770,31 +783,40 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.stack_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">stack_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">E4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float64[:, :, :]`` of shape ``(R, S, 4)`` named ``E`` (matrix of quaternions), </span>
+<span class="sd">    prepares its stacked representation --- the two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4`` with slices of imaginary parts stored as blocks of additional rows, </span>
+<span class="sd">    by making each thread write a single entry of ``E4``.&quot;&quot;&quot;</span>
     <span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">i_global</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">i_rs</span><span class="p">,</span> <span class="n">i_im</span> <span class="o">=</span> <span class="n">i_global</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i_global</span> <span class="o">%</span> <span class="mi">4</span>    
     <span class="k">if</span> <span class="n">i_rs</span> <span class="o">&lt;</span> <span class="n">R</span> <span class="o">*</span> <span class="n">S</span><span class="p">:</span>
         <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">i_rs</span> <span class="o">//</span> <span class="n">S</span><span class="p">,</span> <span class="n">i_rs</span> <span class="o">%</span> <span class="n">S</span>
-        <span class="n">E4</span><span class="p">[</span><span class="n">i_im</span> <span class="o">*</span> <span class="n">R</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i_im</span><span class="p">]</span>                </div>
+        <span class="n">E4</span><span class="p">[</span><span class="n">i_im</span> <span class="o">*</span> <span class="n">R</span> <span class="o">+</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">E</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i_im</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="a44_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">a44_numba_cuda_job_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">A4</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">a44_numba_cuda_job_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">A44</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float64[:, :, :]`` of shape ``(M, N, 4)`` named ``A`` (matrix of quaternions), </span>
+<span class="sd">    prepares the two-dimensional transformation matrix ``float64[:, :]`` named ``A44`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts, </span>
+<span class="sd">    by making each thread write a single entry of ``A44``.&quot;&quot;&quot;</span>            
     <span class="n">const_a_blocks_signs</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">const</span><span class="o">.</span><span class="n">array_like</span><span class="p">(</span><span class="n">A_BLOCKS_SIGNS</span><span class="p">)</span>
     <span class="n">const_a_blocks_parts</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">const</span><span class="o">.</span><span class="n">array_like</span><span class="p">(</span><span class="n">A_BLOCKS_PARTS</span><span class="p">)</span>
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">i_mn</span><span class="p">,</span> <span class="n">block_row</span><span class="p">,</span> <span class="n">block_col</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>        
     <span class="k">if</span> <span class="n">i_mn</span> <span class="o">&lt;</span> <span class="n">M</span> <span class="o">*</span> <span class="n">N</span><span class="p">:</span>
         <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">i_mn</span> <span class="o">//</span> <span class="n">N</span><span class="p">,</span> <span class="n">i_mn</span> <span class="o">%</span> <span class="n">N</span>
-        <span class="n">A4</span><span class="p">[</span><span class="n">block_row</span> <span class="o">*</span> <span class="n">M</span> <span class="o">+</span> <span class="n">m</span><span class="p">,</span> <span class="n">block_col</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">const_a_blocks_signs</span><span class="p">[</span><span class="n">block_row</span><span class="p">,</span> <span class="n">block_col</span><span class="p">]</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_a_blocks_parts</span><span class="p">[</span><span class="n">block_row</span><span class="p">,</span> <span class="n">block_col</span><span class="p">]]</span></div>
+        <span class="n">A44</span><span class="p">[</span><span class="n">block_row</span> <span class="o">*</span> <span class="n">M</span> <span class="o">+</span> <span class="n">m</span><span class="p">,</span> <span class="n">block_col</span> <span class="o">*</span> <span class="n">N</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">const_a_blocks_signs</span><span class="p">[</span><span class="n">block_row</span><span class="p">,</span> <span class="n">block_col</span><span class="p">]</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">const_a_blocks_parts</span><span class="p">[</span><span class="n">block_row</span><span class="p">,</span> <span class="n">block_col</span><span class="p">]]</span></div>
 
         
 <div class="viewcode-block" id="matmul_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matmul_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">matmul_numba_cuda_job_float64</span><span class="p">(</span><span class="n">A44</span><span class="p">,</span> <span class="n">B4</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>    
+<span class="k">def</span><span class="w"> </span><span class="nf">matmul_numba_cuda_job_float64</span><span class="p">(</span><span class="n">A44</span><span class="p">,</span> <span class="n">B4</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, 4 * N)`` named ``A44`` (transformation matrix) and a two-dimensional device array ``float64[:, :]`` of shape ``(4 * N, P)`` named ``B4``,</span>
+<span class="sd">    computes their matrix-matrix product named ``C4`` being a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, P)``, using shared memory and tiling, </span>
+<span class="sd">    with each thread responsible for computing a single row-column inner product being an entry in ``C4``.&quot;&quot;&quot;</span>
     <span class="n">shared_A</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">shared_B</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
@@ -821,11 +843,14 @@
     <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">M4</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">P</span><span class="p">:</span>
         <span class="n">C4</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span></div>
 
-        
+         
 <div class="viewcode-block" id="c4_to_c_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.c4_to_c_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">c4_to_c_numba_cuda_job_float64</span><span class="p">(</span><span class="n">C4</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, P)`` named `C4` being a result of a matrix-matrix product, </span>
+<span class="sd">    prepares its unstacked version --- the three-dimensional device array ``float64[:, :, :]`` of shape ``(M, P, 4)`` named `C`,</span>
+<span class="sd">    by making each thread write a single entry of ``C4``.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">i_global</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">i_mp</span><span class="p">,</span> <span class="n">i_im</span> <span class="o">=</span> <span class="n">i_global</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i_global</span> <span class="o">%</span> <span class="mi">4</span>    
@@ -837,6 +862,7 @@
 <div class="viewcode-block" id="qmatmul_direct_numba_cuda_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_direct_numba_cuda_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_direct_numba_cuda_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="n">DEFAULT_TILE_SIZE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;direct_numba_cuda_float32&quot;)`` for matrices of type ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_DIRECT_NUMBA_CUDA_FLOAT32...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -895,7 +921,10 @@
 <div class="viewcode-block" id="stack_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.stack_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">stack_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">E4</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stack_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">E4</span><span class="p">):</span>    
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float32[:, :, :]`` of shape ``(R, S, 4)`` named ``E`` (matrix of quaternions), </span>
+<span class="sd">    prepares its stacked representation --- the two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4`` with slices of imaginary parts stored as blocks of additional rows, </span>
+<span class="sd">    by making each thread write a single entry of ``E4``.&quot;&quot;&quot;</span>        
     <span class="n">R</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">E</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">i_global</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">i_rs</span><span class="p">,</span> <span class="n">i_im</span> <span class="o">=</span> <span class="n">i_global</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i_global</span> <span class="o">%</span> <span class="mi">4</span>    
@@ -908,6 +937,9 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.a44_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_numba_cuda_job_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">A4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float32[:, :, :]`` of shape ``(M, N, 4)`` named ``A`` (matrix of quaternions), </span>
+<span class="sd">    prepares the two-dimensional transformation matrix ``float32[:, :]`` named ``A44`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts, </span>
+<span class="sd">    by making each thread write a single entry of ``A44``.&quot;&quot;&quot;</span>    
     <span class="n">const_a_blocks_signs</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">const</span><span class="o">.</span><span class="n">array_like</span><span class="p">(</span><span class="n">A_BLOCKS_SIGNS</span><span class="p">)</span>
     <span class="n">const_a_blocks_parts</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">const</span><span class="o">.</span><span class="n">array_like</span><span class="p">(</span><span class="n">A_BLOCKS_PARTS</span><span class="p">)</span>
     <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
@@ -920,7 +952,10 @@
 <div class="viewcode-block" id="matmul_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matmul_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">matmul_numba_cuda_job_float32</span><span class="p">(</span><span class="n">A44</span><span class="p">,</span> <span class="n">B4</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>    
+<span class="k">def</span><span class="w"> </span><span class="nf">matmul_numba_cuda_job_float32</span><span class="p">(</span><span class="n">A44</span><span class="p">,</span> <span class="n">B4</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, 4 * N)`` named ``A44`` (transformation matrix) and a two-dimensional device array ``float32[:, :]`` of shape ``(4 * N, P)`` named ``B4``,</span>
+<span class="sd">    computes their matrix-matrix product named ``C4`` being a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, P)``, using shared memory and tiling, </span>
+<span class="sd">    with each thread responsible for computing a single row-column inner product being an entry in ``C4``.&quot;&quot;&quot;</span>    
     <span class="n">shared_A</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">shared_B</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
@@ -952,6 +987,9 @@
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.c4_to_c_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">c4_to_c_numba_cuda_job_float32</span><span class="p">(</span><span class="n">C4</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, P)`` named `C4` being a result of a matrix-matrix product, </span>
+<span class="sd">    prepares its unstacked version --- the three-dimensional device array ``float32[:, :, :]`` of shape ``(M, P, 4)`` named `C`,</span>
+<span class="sd">    by making each thread write a single entry of ``C4``.&quot;&quot;&quot;</span>    
     <span class="n">M</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">i_global</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">i_mp</span><span class="p">,</span> <span class="n">i_im</span> <span class="o">=</span> <span class="n">i_global</span> <span class="o">//</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i_global</span> <span class="o">%</span> <span class="mi">4</span>    
@@ -963,6 +1001,7 @@
 <div class="viewcode-block" id="qmatmul_algo_numba_cuda_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algo_numba_cuda_float64">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algo_numba_cuda_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="n">DEFAULT_TILE_SIZE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numba_cuda&quot;)`` for input matrices of type ``float64``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_ALGO_NUMBA_CUDA_FLOAT64...&quot;</span><span class="p">)</span>
         <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -1070,7 +1109,10 @@
 <div class="viewcode-block" id="had4_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.had4_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">had4_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">H4E4</span><span class="p">):</span>      
+<span class="k">def</span><span class="w"> </span><span class="nf">had4_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">H4E4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)``, </span>
+<span class="sd">    computes the Hadamard transform applied to it, resulting in a two-dimensional device array ``float64[:, :]`` named ``H4E4``, </span>
+<span class="sd">    with each thread responsible for computing four entries of ``H4E4`` representing: a sum of sums, a sum of differences, a difference of sums, a difference of differences (for suitable block pairs).&quot;&quot;&quot;</span>    
     <span class="n">R4</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
@@ -1096,7 +1138,11 @@
 <div class="viewcode-block" id="matmuldiag_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matmuldiag_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">,</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">G4</span><span class="p">):</span> <span class="c1"># E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">G4</span><span class="p">):</span> <span class="c1"># E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4`` and a two-dimensional device array ``float64[:, :]`` of shape ``(4 * S, T)`` named ``F4``,</span>
+<span class="sd">    computes their `diagonal` matrix-matrix product named ``G4`` (successive blocks being standard products of corresponding real and imaginary slices) </span>
+<span class="sd">    being a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, T)``, using shared memory and tiling, </span>
+<span class="sd">    with each thread responsible for computing a single row-column inner product being an entry in ``G4``.&quot;&quot;&quot;</span>    
     <span class="n">shared_E</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">shared_F</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
@@ -1131,32 +1177,38 @@
 <div class="viewcode-block" id="permute_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.permute_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">int8</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">permute_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">E4_permuted</span><span class="p">):</span>    
+<span class="k">def</span><span class="w"> </span><span class="nf">permute_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">E4_permuted</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4``,</span>
+<span class="sd">    prepares its block-wise permuted version named ``E4_permuted`` (of same shape and type) with order of blocks specified by the argument ``permutation`` given as ``int8[:]``, using shared memory and tiling,</span>
+<span class="sd">    with each thread responsible for writing four entries of ``E4_permuted``.&quot;&quot;&quot;</span>
     <span class="n">shared_E4</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
-    <span class="n">M4</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">M</span> <span class="o">=</span> <span class="n">M4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
-    <span class="n">M2</span> <span class="o">=</span> <span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
-    <span class="n">M3</span> <span class="o">=</span> <span class="n">M2</span> <span class="o">+</span> <span class="n">M</span>
+    <span class="n">R4</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
+    <span class="n">R2</span> <span class="o">=</span> <span class="n">R</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+    <span class="n">R3</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">+</span> <span class="n">R</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
     <span class="n">bx</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockIdx</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockIdx</span><span class="o">.</span><span class="n">y</span>
     <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">tile_size</span> <span class="o">+</span> <span class="n">tx</span>
     <span class="n">col</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">tile_size</span> <span class="o">+</span> <span class="n">ty</span>
-    <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">M</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">R</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">S</span><span class="p">:</span>
         <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>     
+        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>     
         <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
-        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span></div>
+        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span></div>
 
         
 <div class="viewcode-block" id="matsub_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matsub_numba_cuda_job_float64">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">matsub_numba_cuda_job_float64</span><span class="p">(</span><span class="n">C4_left</span><span class="p">,</span> <span class="n">C4_right</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>    
+<span class="k">def</span><span class="w"> </span><span class="nf">matsub_numba_cuda_job_float64</span><span class="p">(</span><span class="n">C4_left</span><span class="p">,</span> <span class="n">C4_right</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For two two-dimensional device arrays ``float64[:, :]`` named ``C4_left`` and ``C4_right``, of shape ``(4 * M, P)`` each,</span>
+<span class="sd">    computes their difference named ``C4`` (of same shape and type), using shared memory and tiling, </span>
+<span class="sd">    with each thread responsible for computing and writing a single entry in ``C4``.&quot;&quot;&quot;</span>            
     <span class="n">shared_L</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">shared_R</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
@@ -1176,6 +1228,7 @@
 <div class="viewcode-block" id="qmatmul_algo_numba_cuda_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.qmatmul_algo_numba_cuda_float32">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">qmatmul_algo_numba_cuda_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="n">DEFAULT_TILE_SIZE</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`to be invoked by the main function` ``qmatmul.dot``) Returns the result of ``dot(A, B, approach=&quot;algo_numba_cuda&quot;)`` for input matrices of type ``float32``.&quot;&quot;&quot;</span>    
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QMATMUL_ALGO_NUMBA_CUDA_FLOAT32...&quot;</span><span class="p">)</span>
     <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
@@ -1282,7 +1335,10 @@
 <div class="viewcode-block" id="had4_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.had4_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">had4_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">H4E4</span><span class="p">):</span>      
+<span class="k">def</span><span class="w"> </span><span class="nf">had4_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">H4E4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)``, </span>
+<span class="sd">    computes the Hadamard transform applied to it, resulting in a two-dimensional device array ``float32[:, :]`` named ``H4E4``, </span>
+<span class="sd">    with each thread responsible for computing four entries of ``H4E4`` representing: a sum of sums, a sum of differences, a difference of sums, a difference of differences (for suitable block pairs).&quot;&quot;&quot;</span>
     <span class="n">R4</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">R</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">R</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
@@ -1308,7 +1364,11 @@
 <div class="viewcode-block" id="matmuldiag_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matmuldiag_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">,</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">G4</span><span class="p">):</span> <span class="c1"># E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)     </span>
+<span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">G4</span><span class="p">):</span> <span class="c1"># E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4`` and a two-dimensional device array ``float32[:, :]`` of shape ``(4 * S, T)`` named ``F4``,</span>
+<span class="sd">    computes their `diagonal` matrix-matrix product named ``G4`` (successive blocks being standard products of corresponding real and imaginary slices) </span>
+<span class="sd">    being a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, T)``, using shared memory and tiling, </span>
+<span class="sd">    with each thread responsible for computing a single row-column inner product being an entry in ``G4``.&quot;&quot;&quot;</span>         
     <span class="n">shared_E</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">shared_F</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
@@ -1343,32 +1403,38 @@
 <div class="viewcode-block" id="permute_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.permute_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">int8</span><span class="p">[:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">permute_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">E4_permuted</span><span class="p">):</span>    
+<span class="k">def</span><span class="w"> </span><span class="nf">permute_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">E4_permuted</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4``,</span>
+<span class="sd">    prepares its block-wise permuted version named ``E4_permuted`` (of same shape and type) with order of blocks specified by the argument ``permutation`` given as ``int8[:]``, using shared memory and tiling,</span>
+<span class="sd">    with each thread responsible for writing four entries of ``E4_permuted``.&quot;&quot;&quot;</span>        
     <span class="n">shared_E4</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
-    <span class="n">M4</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">M</span> <span class="o">=</span> <span class="n">M4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
-    <span class="n">M2</span> <span class="o">=</span> <span class="n">M</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
-    <span class="n">M3</span> <span class="o">=</span> <span class="n">M2</span> <span class="o">+</span> <span class="n">M</span>
+    <span class="n">R4</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">E4</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">R4</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>
+    <span class="n">R2</span> <span class="o">=</span> <span class="n">R</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+    <span class="n">R3</span> <span class="o">=</span> <span class="n">R2</span> <span class="o">+</span> <span class="n">R</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
     <span class="n">bx</span><span class="p">,</span> <span class="n">by</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockIdx</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockIdx</span><span class="o">.</span><span class="n">y</span>
     <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span>
     <span class="n">row</span> <span class="o">=</span> <span class="n">bx</span> <span class="o">*</span> <span class="n">tile_size</span> <span class="o">+</span> <span class="n">tx</span>
     <span class="n">col</span> <span class="o">=</span> <span class="n">by</span> <span class="o">*</span> <span class="n">tile_size</span> <span class="o">+</span> <span class="n">ty</span>
-    <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">M</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">R</span> <span class="ow">and</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="n">S</span><span class="p">:</span>
         <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
-        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>     
+        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>
+        <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">E4</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span>     
         <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
-        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">M3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span></div>
+        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R2</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="n">E4_permuted</span><span class="p">[</span><span class="n">row</span> <span class="o">+</span> <span class="n">R3</span><span class="p">,</span> <span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared_E4</span><span class="p">[</span><span class="n">tx</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">permutation</span><span class="p">[</span><span class="mi">3</span><span class="p">]]</span>            </div>
 
         
 <div class="viewcode-block" id="matsub_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul.html#qmatmul.matsub_numba_cuda_job_float32">[docs]</a>
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">matsub_numba_cuda_job_float32</span><span class="p">(</span><span class="n">C4_left</span><span class="p">,</span> <span class="n">C4_right</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>    
+<span class="k">def</span><span class="w"> </span><span class="nf">matsub_numba_cuda_job_float32</span><span class="p">(</span><span class="n">C4_left</span><span class="p">,</span> <span class="n">C4_right</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For two two-dimensional device arrays ``float32[:, :]`` named ``C4_left`` and ``C4_right``, of shape ``(4 * M, P)`` each,</span>
+<span class="sd">    computes their difference named ``C4`` (of same shape and type), using shared memory and tiling, </span>
+<span class="sd">    with each thread responsible for computing and writing a single entry in ``C4``.&quot;&quot;&quot;</span>                    
     <span class="n">shared_L</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">shared_R</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float32</span><span class="p">)</span> <span class="c1"># assumed max tile size: 16</span>
     <span class="n">tile_size</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">blockDim</span><span class="o">.</span><span class="n">x</span>
