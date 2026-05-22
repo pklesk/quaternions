@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qmatmul"
-version = "1.0.0"
+version = "1.0.1"
 authors = [
 	{ name = "Przemysław Klęsk", email = "pklesk@zut.edu.pl" },
 	{ name = "Aleksandr Cariov", email = "alexandr.tariov@zut.edu.pl" }
 ]
 description = "Fast multiplications of quaternion-valued matrices."
-readme = "README.md"
+readme = "README_PYPI.md"
 requires-python = ">=3.12"
 classifiers = [
 	"Programming Language :: Python :: 3",
@@ -31,5 +31,6 @@ dependencies = [
 "Bug Tracker" = "https://github.com/pklesk/quaternions/issues"
 "Documentation" = "https://pklesk.github.io/quaternions/"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+package-dir = {"" = "src"}
+py-modules = ["qmatmul"]

@@ -29,7 +29,7 @@ and few host-device memory transfers.
 
 ## Installation
 ```bash
-pip install TODO
+pip install qmatmul
 ```
 Note: for further usage, NVIDIA CUDA drivers must be present in the operating system.
 
