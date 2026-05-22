@@ -76,7 +76,7 @@ import qmatmul as qmm
 import numpy as np
 import time
 
-print(f"QMATMUL EXAMPLE...")
+print("QMATMUL EXAMPLE...")
 A = np.array([
     [[ 0,  2,  1,  0], [-1,  1, -1,  4], [ 5, -1,  3,  0]],
     [[ 1,  4, -4, -4], [-5,  3,  3,  4], [ 5,  3,  0,  3]],
