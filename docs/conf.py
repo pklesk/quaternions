@@ -15,8 +15,8 @@ project = 'qmatmul: Fast multiplication of quaternion-valued matrices'
 copyright = '2026, Przemysław Klęsk, Aleksandr Cariow'
 author = 'Przemysław Klęsk, Aleksandr Cariow'
 
-version = '1.0.3'
-release = '1.0.3'
+version = '1.0.4'
+release = '1.0.4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
