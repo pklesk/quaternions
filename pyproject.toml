@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qmatmul"
-version = "1.0.1"
+version = "1.0.2"
 authors = [
 	{ name = "Przemysław Klęsk", email = "pklesk@zut.edu.pl" },
 	{ name = "Aleksandr Cariov", email = "alexandr.tariov@zut.edu.pl" }
@@ -22,7 +22,9 @@ classifiers = [
 dependencies = [
 	"numpy>=2.3",
     	"numba>=0.62",
-	"numba-cuda[cu13]>=0.30",
+	"numba-cuda>=0.30",
+	"nvidia-nvjitlink",
+	"nvidia-nvvm",
     	"threadpoolctl>=3.6"
 ]
 
