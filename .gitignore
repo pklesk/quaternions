@@ -325,4 +325,5 @@ sympy-plots-for-*.tex/
 .project
 .pydevproject
 src/__pycache__
+.settings/
 
