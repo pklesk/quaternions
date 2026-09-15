@@ -719,7 +719,7 @@ def qmatmul_direct_numba_cuda_float32(A, B, tile_size=DEFAULT_TILE_SIZE, verbose
         t2_a44 = time.time()        
         print(f"[time a44: {t2_a44 - t1_a44} s, bpg: {bpg}, tpb: {tpb}]")
         t1_c4 = time.time()    
-    dev_C4 = cuda.device_array((M4, P), dtype=np.float64)
+    dev_C4 = cuda.device_array((M4, P), dtype=np.float32)
     bpg_y = (M4 + tile_size - 1) // tile_size
     bpg_x = (P + tile_size - 1) // tile_size
     bpg = (bpg_x, bpg_y)
