@@ -151,6 +151,10 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
 """
 
+__version__ = "1.0.5"
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
+
 from numba import jit, prange
 try:
     from numba import cuda
@@ -179,10 +183,6 @@ os.environ["NUMBA_DISABLE_PERFORMANCE_WARNINGS"] = "1"
 import numpy as np
 import time
 from threadpoolctl import threadpool_limits
-
-__version__ = "1.0.4"
-__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
-__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 
 # defaults
 DEFAULT_TILE_SIZE = 8

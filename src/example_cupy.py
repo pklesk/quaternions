@@ -10,6 +10,9 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_
 """
 
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
+
 import numpy as np
 import time
 import qmatmul as qmm

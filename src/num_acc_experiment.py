@@ -17,6 +17,9 @@ Link to project repository
 https://github.com/pklesk/quaternions
 """
 
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
+
 import numpy as np
 from qmatmul import (
     qmatrand,

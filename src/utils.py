@@ -6,6 +6,9 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
 """
 
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
+
 import cpuinfo
 import platform
 import psutil
@@ -14,9 +17,6 @@ import sys
 import numpy as np
 from matplotlib import pyplot as plt
  
-__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
-__email__ = ["pklesk@zut.edu.pl", "alexanddr.tariov@zut.edu.pl"]
-
 def dict_to_str(d, indent=0):
     """Returns a vertically formatted string representation of a dictionary."""
     indent_str = indent * " "

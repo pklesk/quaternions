@@ -36,6 +36,9 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
 """
 
+__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
+__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
+
 from numba.core.errors import NumbaPerformanceWarning
 import warnings
 warnings.simplefilter("ignore", category=NumbaPerformanceWarning)
@@ -60,9 +63,6 @@ from qmatmul import (
     qmatmul_direct_numba_cuda_float32, 
     qmatmul_algo_numba_cuda_float64,
     qmatmul_algo_numba_cuda_float32)
-
-__author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
-__email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 
 # global settings                
 FOLDER_EXPERIMENTS = "../experiments/"

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qmatmul"
-version = "1.0.4"
+version = "1.0.5"
 authors = [
 	{ name = "Przemysław Klęsk", email = "pklesk@zut.edu.pl" },
 	{ name = "Aleksandr Cariow", email = "alexandr.tariov@zut.edu.pl" }
