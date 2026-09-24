@@ -1,4 +1,4 @@
-"""
+r"""
 Main script to carry out efficiency experiments on ``qmatmul`` module.
 An experiment consists of: 
 generation of input quaternion-valued matrices (for given sizes, data type, randomization seed and range), 
