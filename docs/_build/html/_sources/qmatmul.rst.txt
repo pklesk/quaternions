@@ -1,7 +1,7 @@
-qmatmul module
-==============
+qmatmul_cupy module
+====================
 
-.. automodule:: qmatmul
+.. automodule:: qmatmul_cupy
    :members:
    :undoc-members:
    :show-inheritance:
