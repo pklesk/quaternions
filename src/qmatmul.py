@@ -151,7 +151,25 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
 """
 
-from numba import jit, prange, cuda
+from numba import jit, prange
+try:
+    from numba import cuda
+    try:
+        CUDA_AVAILABLE = cuda.is_available()
+    except Exception:
+        CUDA_AVAILABLE = False
+except Exception:
+    CUDA_AVAILABLE = False
+    class _CudaStub:
+        """Stand-in for `numba.cuda`, used only when CUDA/numba-cuda cannot be imported (no GPU, missing CUDA runtime libraries, etc.)."""
+        def jit(self, *args, **kwargs):
+            def decorator(func):
+                return func
+            return decorator
+        def __getattr__(self, name):
+            raise RuntimeError("CUDA is not available in this environment (numba-cuda import failed); GPU-based approaches such as 'algo_numba_cuda' cannot run.")        
+    cuda = _CudaStub()
+    
 from numba import void, float32, float64, int8, int32
 from numba.core.errors import NumbaPerformanceWarning
 import warnings
@@ -218,13 +236,20 @@ def dot(A, B, approach="algo_numba_cuda", extra_args={"verbose": False}):
         A = A.astype(np.float64)
     if B.dtype != A.dtype:
         B = B.astype(np.float64)
+    if approach in ("algo_numba_cuda", "direct_numba_cuda") and not CUDA_AVAILABLE:        
+        fallback_approach = approach.replace("numba_cuda", "numpy_parallel")
+        warnings.warn(f"CUDA is not available in this environment; falling back from approach='{approach}' to approach='{fallback_approach}'.", RuntimeWarning)
+        approach = fallback_approach        
     dtype_suffix = ""
     if "numba" in approach: 
         dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"  
     approach_function = globals().get("qmatmul_" + approach + dtype_suffix)
     if not approach_function:        
-        dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"
-        approach_function = globals().get("qmatmul_algo_numba_cuda" + dtype_suffix)
+        if CUDA_AVAILABLE:
+            dtype_suffix = "_float32" if (A.dtype == np.float32) and (B.dtype == np.float32) else "_float64"
+            approach_function = globals().get("qmatmul_algo_numba_cuda" + dtype_suffix)
+        else:
+            approach_function = globals().get("qmatmul_algo_numpy_parallel")        
     return approach_function(A, B, **extra_args)
 
 def qmatrand(M, N, range_min, range_max, dtype=np.float32, rounding=False):
@@ -1233,3 +1258,4 @@ def matsub_numba_cuda_job_float32(C4_left, C4_right, C4):
         shared_R[tx, ty] = C4_right[row, col]
         result = shared_R[tx, ty] - shared_L[tx, ty] if row < M else shared_L[tx, ty] - shared_R[tx, ty]        
         C4[row, col] = result
+

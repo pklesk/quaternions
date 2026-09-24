@@ -7,26 +7,29 @@ name = "qmatmul"
 version = "1.0.4"
 authors = [
 	{ name = "Przemysław Klęsk", email = "pklesk@zut.edu.pl" },
-	{ name = "Aleksandr Cariov", email = "alexandr.tariov@zut.edu.pl" }
+	{ name = "Aleksandr Cariow", email = "alexandr.tariov@zut.edu.pl" }
 ]
 description = "Fast multiplications of quaternion-valued matrices."
 readme = "README_PYPI.md"
 requires-python = ">=3.12"
 classifiers = [
 	"Programming Language :: Python :: 3",
-    	"License :: OSI Approved :: MIT License",
-    	"Operating System :: POSIX :: Linux",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: POSIX :: Linux",
 	"Operating System :: Microsoft :: Windows",
-    	"Topic :: Scientific/Engineering :: Mathematics",
+	"Topic :: Scientific/Engineering :: Mathematics",
 ]
 dependencies = [
 	"numpy>=2.3",
-    	"numba>=0.62",
+	"numba>=0.62",
 	"numba-cuda>=0.30",
 	"nvidia-nvjitlink",
 	"nvidia-nvvm",
-    	"threadpoolctl>=3.6"
+	"threadpoolctl>=3.6"
 ]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/pklesk/quaternions"
