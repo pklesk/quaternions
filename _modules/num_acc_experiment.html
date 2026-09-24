@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>num_acc_experiment &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=d55fa986"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qmatmul: Fast multiplication of quaternion-valued matrices
+          </a>
+              <div class="version">
+                1.0.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">src</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qmatmul: Fast multiplication of quaternion-valued matrices</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">num_acc_experiment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for num_acc_experiment</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Numerical accuracy experiment for the qmatmul package.</span>
+
+<span class="sd">Measures the relative error of float32 computations against a float64 reference,</span>
+<span class="sd">for both the direct (definition-based) and algo (proposed fast algorithm)</span>
+<span class="sd">approaches, CUDA backend. A single deterministic run per problem size is used</span>
+<span class="sd">(no repetitions or warm-up, as this is an accuracy study, not a timing study).</span>
+
+<span class="sd">Primary metrics: relative_frobenius_error (global accuracy), and max_abs_error</span>
+<span class="sd">together with max_combined_error (worst-case accuracy; max_combined_error uses</span>
+<span class="sd">the same atol/rtol tolerance already used for the np.allclose correctness checks</span>
+<span class="sd">in main.py). max_relative_error, rms_error and min_abs_ref are auxiliary metrics</span>
+<span class="sd">characterizing the element-wise error distribution.</span>
+
+<span class="sd">Link to project repository</span>
+<span class="sd">--------------------------</span>
+<span class="sd">https://github.com/pklesk/quaternions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Przemysław Klęsk&quot;</span><span class="p">,</span> <span class="s2">&quot;Aleksandr Cariow&quot;</span><span class="p">]</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pklesk@zut.edu.pl&quot;</span><span class="p">,</span> <span class="s2">&quot;alexandr.tariov@zut.edu.pl&quot;</span><span class="p">]</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qmatmul</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">qmatrand</span><span class="p">,</span>
+    <span class="n">qmatmul_direct_numpy_st</span><span class="p">,</span>
+    <span class="n">qmatmul_direct_numba_cuda_float32</span><span class="p">,</span>
+    <span class="n">qmatmul_direct_numba_cuda_float64</span><span class="p">,</span>
+    <span class="n">qmatmul_algo_numba_cuda_float32</span><span class="p">,</span>
+    <span class="n">qmatmul_algo_numba_cuda_float64</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># experiment settings</span>
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">1</span>    <span class="c1"># intentionally different from SEED = 0 used in main.py</span>
+<span class="n">RANGE</span> <span class="o">=</span> <span class="mf">2.0</span>   <span class="c1"># same value range as the main efficiency experiments</span>
+<span class="n">ATOL</span> <span class="o">=</span> <span class="mf">1e-2</span>   <span class="c1"># same atol already used for np.allclose(rtol=1e-5, atol=1e-2) in main.py</span>
+<span class="n">RTOL</span> <span class="o">=</span> <span class="mf">1e-5</span>   <span class="c1"># same rtol already used for np.allclose(rtol=1e-5, atol=1e-2) in main.py</span>
+<span class="n">SIZES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">2000</span><span class="p">),</span>
+    <span class="p">(</span><span class="mi">3000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">LINE_SEPARATOR</span> <span class="o">=</span> <span class="mi">256</span> <span class="o">*</span> <span class="s2">&quot;=&quot;</span>
+
+<div class="viewcode-block" id="relative_frobenius_error">
+<a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.relative_frobenius_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">relative_frobenius_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Relative error in Frobenius norm: ||C_approx - C_ref|| / ||C_ref||.&quot;&quot;&quot;</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="max_relative_error">
+<a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.max_relative_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_relative_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Element-wise relative error: max_i |approx_i - ref_i| / (|ref_i| + eps).&quot;&quot;&quot;</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span><span class="p">)</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="rms_error">
+<a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.rms_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rms_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Root-mean-square absolute error: ||C_approx - C_ref||_F / sqrt(n).&quot;&quot;&quot;</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="min_abs_ref">
+<a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.min_abs_ref">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">min_abs_ref</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smallest |reference value| present in this run.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="max_abs_error">
+<a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.max_abs_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_abs_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum absolute error: max_i |approx_i - ref_i|.&quot;&quot;&quot;</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="max_combined_error">
+<a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.max_combined_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">max_combined_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">ATOL</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">RTOL</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum elementwise error relative to the np.allclose tolerance boundary:</span>
+<span class="sd">    max_i |approx_i - ref_i| / (atol + rtol * |ref_i|). A value &lt;= 1 means every</span>
+<span class="sd">    element would pass np.allclose(rtol=rtol, atol=atol).&quot;&quot;&quot;</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span><span class="p">)</span>
+    <span class="n">denom</span> <span class="o">=</span> <span class="n">atol</span> <span class="o">+</span> <span class="n">rtol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NUMERICAL ACCURACY EXPERIMENT [seed: </span><span class="si">{</span><span class="n">SEED</span><span class="si">}</span><span class="s2">, range: </span><span class="si">{</span><span class="n">RANGE</span><span class="si">}</span><span class="s2">, atol: </span><span class="si">{</span><span class="n">ATOL</span><span class="si">}</span><span class="s2">, rtol: </span><span class="si">{</span><span class="n">RTOL</span><span class="si">}</span><span class="s2">]...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">LINE_SEPARATOR</span><span class="p">)</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SIZES</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;M: </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2">, N: </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s2">, P: </span><span class="si">{</span><span class="n">P</span><span class="si">}</span><span class="s2"> (M * N * P = </span><span class="si">{</span><span class="n">M</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">P</span><span class="si">:</span><span class="s2">.1e</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
+        <span class="n">A64</span> <span class="o">=</span> <span class="n">qmatrand</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="o">-</span><span class="n">RANGE</span><span class="p">,</span> <span class="n">RANGE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">B64</span> <span class="o">=</span> <span class="n">qmatrand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="o">-</span><span class="n">RANGE</span><span class="p">,</span> <span class="n">RANGE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">A32</span> <span class="o">=</span> <span class="n">A64</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">B32</span> <span class="o">=</span> <span class="n">B64</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="c1"># ground-truth reference: direct formula, float64, numpy</span>
+        <span class="n">C_ref</span> <span class="o">=</span> <span class="n">qmatmul_direct_numpy_st</span><span class="p">(</span><span class="n">A64</span><span class="p">,</span> <span class="n">B64</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># float32 runs (CUDA backend) - the ones of interest</span>
+        <span class="n">C_direct_f32</span> <span class="o">=</span> <span class="n">qmatmul_direct_numba_cuda_float32</span><span class="p">(</span><span class="n">A32</span><span class="p">,</span> <span class="n">B32</span><span class="p">)</span>
+        <span class="n">C_algo_f32</span> <span class="o">=</span> <span class="n">qmatmul_algo_numba_cuda_float32</span><span class="p">(</span><span class="n">A32</span><span class="p">,</span> <span class="n">B32</span><span class="p">)</span>
+
+        <span class="c1"># float64 CUDA runs - sanity check (should be close to machine epsilon)</span>
+        <span class="n">C_direct_f64</span> <span class="o">=</span> <span class="n">qmatmul_direct_numba_cuda_float64</span><span class="p">(</span><span class="n">A64</span><span class="p">,</span> <span class="n">B64</span><span class="p">)</span>
+        <span class="n">C_algo_f64</span> <span class="o">=</span> <span class="n">qmatmul_algo_numba_cuda_float64</span><span class="p">(</span><span class="n">A64</span><span class="p">,</span> <span class="n">B64</span><span class="p">)</span>
+
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;M&quot;</span><span class="p">:</span> <span class="n">M</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="n">N</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="n">P</span><span class="p">,</span>
+            <span class="s2">&quot;MIN_ABS_REF&quot;</span><span class="p">:</span> <span class="n">min_abs_ref</span><span class="p">(</span><span class="n">C_ref</span><span class="p">),</span>
+
+            <span class="s2">&quot;DIRECT_F32_REL_FROB&quot;</span><span class="p">:</span> <span class="n">relative_frobenius_error</span><span class="p">(</span><span class="n">C_direct_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;DIRECT_F32_RMS&quot;</span><span class="p">:</span> <span class="n">rms_error</span><span class="p">(</span><span class="n">C_direct_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;DIRECT_F32_MAXABS&quot;</span><span class="p">:</span> <span class="n">max_abs_error</span><span class="p">(</span><span class="n">C_direct_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;DIRECT_F32_MAXCOMB&quot;</span><span class="p">:</span> <span class="n">max_combined_error</span><span class="p">(</span><span class="n">C_direct_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;DIRECT_F32_REL_MAX_ABS&quot;</span><span class="p">:</span> <span class="n">max_relative_error</span><span class="p">(</span><span class="n">C_direct_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+
+            <span class="s2">&quot;ALGO_F32_REL_FROB&quot;</span><span class="p">:</span> <span class="n">relative_frobenius_error</span><span class="p">(</span><span class="n">C_algo_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;ALGO_F32_RMS&quot;</span><span class="p">:</span> <span class="n">rms_error</span><span class="p">(</span><span class="n">C_algo_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;ALGO_F32_MAXABS&quot;</span><span class="p">:</span> <span class="n">max_abs_error</span><span class="p">(</span><span class="n">C_algo_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;ALGO_F32_MAXCOMB&quot;</span><span class="p">:</span> <span class="n">max_combined_error</span><span class="p">(</span><span class="n">C_algo_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;ALGO_F32_REL_MAX_ABS&quot;</span><span class="p">:</span> <span class="n">max_relative_error</span><span class="p">(</span><span class="n">C_algo_f32</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+
+            <span class="s2">&quot;DIRECT_F64_REL_FROB&quot;</span><span class="p">:</span> <span class="n">relative_frobenius_error</span><span class="p">(</span><span class="n">C_direct_f64</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+            <span class="s2">&quot;ALGO_F64_REL_FROB&quot;</span><span class="p">:</span> <span class="n">relative_frobenius_error</span><span class="p">(</span><span class="n">C_algo_f64</span><span class="p">,</span> <span class="n">C_ref</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;MIN |C_REF| (THIS RUN): </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;MIN_ABS_REF&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DIRECT, FLOAT32 -&gt; REL_FROB: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;RMS: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_RMS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;MAX_ABS: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_MAXABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;MAX_COMBINED: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_MAXCOMB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;REL_MAX_ABS [naive]: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_REL_MAX_ABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALGO,   FLOAT32 -&gt; REL_FROB: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;RMS: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_RMS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;MAX_ABS: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_MAXABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;MAX_COMBINED: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_MAXCOMB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;REL_MAX_ABS [naive]: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_REL_MAX_ABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DIRECT, FLOAT64 -&gt; REL_FROB: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F64_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2"> (SANITY CHECK)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ALGO,   FLOAT64 -&gt; REL_FROB: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F64_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2"> (SANITY CHECK)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">LINE_SEPARATOR</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SUMMARY - RELATIVE FROBENIUS ERROR:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;M,N,P&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}{</span><span class="s1">&#39;DIRECT_F32_REL_FROB&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;ALGO_F32_REL_FROB&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;DIRECT_F64_REL_FROB&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;ALGO_F64_REL_FROB&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">size_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">size_str</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F64_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F64_REL_FROB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SUMMARY - WORST-CASE ERROR (FLOAT32):&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;M,N,P&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}{</span><span class="s1">&#39;DIRECT_F32_MAXABS&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;ALGO_F32_MAXABS&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;DIRECT_F32_MAXCOMB&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;ALGO_F32_MAXCOMB&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">size_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">size_str</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_MAXABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_MAXABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_MAXCOMB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_MAXCOMB&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SUMMARY - AUXILIARY (ELEMENT-WISE RELATIVE ERROR MECHANISM):&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;M,N,P&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}{</span><span class="s1">&#39;MIN_ABS_REF&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;DIRECT_F32_REL_MAX_ABS&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}{</span><span class="s1">&#39;ALGO_F32_REL_MAX_ABS&#39;</span><span class="si">:</span><span class="s2">&gt;28</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+        <span class="n">size_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;M&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;N&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;P&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">size_str</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;MIN_ABS_REF&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;DIRECT_F32_REL_MAX_ABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;ALGO_F32_REL_MAX_ABS&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">&gt;28.3e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">LINE_SEPARATOR</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NUMERICAL ACCURACY EXPERIMENT DONE.&quot;</span><span class="p">)</span>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Przemysław Klęsk, Aleksandr Cariow.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

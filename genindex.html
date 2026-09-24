@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.4 documentation</title>
+  <title>Index &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=71272d9f"></script>
+        <script src="_static/documentation_options.js?v=d55fa986"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             qmatmul: Fast multiplication of quaternion-valued matrices
           </a>
               <div class="version">
-                1.0.4
+                1.0.5
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -87,9 +87,12 @@
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
@@ -109,17 +112,19 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.a44">a44() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.a44">a44() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.a44_lbar">a44_lbar() (in module qmatmul)</a>
+      <li><a href="qmatmul.html#qmatmul_cupy.a44_cupy">a44_cupy() (in module qmatmul_cupy)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.a44_lbar">a44_lbar() (in module qmatmul)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.a44_numba_cuda_job_float32">a44_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.a44_numba_cuda_job_float32">a44_numba_cuda_job_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.a44_numba_cuda_job_float64">a44_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.a44_numba_cuda_job_float64">a44_numba_cuda_job_float64() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.a44_ubar">a44_ubar() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.a44_ubar">a44_ubar() (in module qmatmul)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -127,13 +132,15 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.c4_to_c">c4_to_c() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.c4_to_c">c4_to_c() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.c4_to_c_numba_cuda_job_float32">c4_to_c_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul.html#qmatmul_cupy.c4_to_c_cupy">c4_to_c_cupy() (in module qmatmul_cupy)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.c4_to_c_numba_cuda_job_float64">c4_to_c_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.c4_to_c_numba_cuda_job_float32">c4_to_c_numba_cuda_job_float32() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.c4_to_c_numba_cuda_job_float64">c4_to_c_numba_cuda_job_float64() (in module qmatmul)</a>
 </li>
       <li><a href="utils.html#utils.cpu_and_system_props">cpu_and_system_props() (in module utils)</a>
 </li>
@@ -147,7 +154,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.dot">dot() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.dot">dot() (in module qmatmul)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -155,6 +162,22 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    example_cupy
+
+      <ul>
+        <li><a href="example_cupy.html#module-example_cupy">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    example_qcnn_forward_pass
+
+      <ul>
+        <li><a href="example_qcnn_forward_pass.html#module-example_qcnn_forward_pass">module</a>
+</li>
+      </ul></li>
       <li><a href="utils.html#utils.experiment_hash_str">experiment_hash_str() (in module utils)</a>
 </li>
   </ul></td>
@@ -166,10 +189,18 @@
       <li><a href="utils.html#utils.Logger.flush">flush() (utils.Logger method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="example_qcnn_forward_pass.html#example_qcnn_forward_pass.fold_quaternion">fold_quaternion() (in module example_qcnn_forward_pass)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="example_qcnn_forward_pass.html#example_qcnn_forward_pass.glorot_range">glorot_range() (in module example_qcnn_forward_pass)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utils.html#utils.gpu_props">gpu_props() (in module utils)</a>
 </li>
@@ -179,17 +210,21 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.had4">had4() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.had4">had4() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.had4_numba_cuda_job_float32">had4_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul.html#qmatmul_cupy.had4_cupy">had4_cupy() (in module qmatmul_cupy)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.had4_numba_cuda_job_float32">had4_numba_cuda_job_float32() (in module qmatmul)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.had4_numba_cuda_job_float64">had4_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.had4_numba_cuda_job_float64">had4_numba_cuda_job_float64() (in module qmatmul)</a>
 </li>
       <li><a href="utils.html#utils.hash_function">hash_function() (in module utils)</a>
 </li>
       <li><a href="utils.html#utils.hash_str">hash_str() (in module utils)</a>
+</li>
+      <li><a href="example_qcnn_forward_pass.html#example_qcnn_forward_pass.he_range">he_range() (in module example_qcnn_forward_pass)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -197,7 +232,7 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.i4_tilde">i4_tilde() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.i4_tilde">i4_tilde() (in module qmatmul)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -224,31 +259,62 @@
         <li><a href="main.html#module-main">module</a>
 </li>
       </ul></li>
-      <li><a href="qmatmul.html#qmatmul.matmul_numba_cuda_job_float32">matmul_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.matmul_numba_cuda_job_float32">matmul_numba_cuda_job_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.matmul_numba_cuda_job_float64">matmul_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.matmul_numba_cuda_job_float64">matmul_numba_cuda_job_float64() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.matmuldiag">matmuldiag() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.matmuldiag">matmuldiag() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.matmuldiag_numba_cuda_job_float32">matmuldiag_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul.html#qmatmul_cupy.matmuldiag_cupy">matmuldiag_cupy() (in module qmatmul_cupy)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.matmuldiag_numba_cuda_job_float32">matmuldiag_numba_cuda_job_float32() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.matmuldiag_numba_cuda_job_float64">matmuldiag_numba_cuda_job_float64() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.matsub_numba_cuda_job_float32">matsub_numba_cuda_job_float32() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.matsub_numba_cuda_job_float64">matsub_numba_cuda_job_float64() (in module qmatmul)</a>
+</li>
+      <li><a href="num_acc_experiment.html#num_acc_experiment.max_abs_error">max_abs_error() (in module num_acc_experiment)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.matmuldiag_numba_cuda_job_float64">matmuldiag_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="num_acc_experiment.html#num_acc_experiment.max_combined_error">max_combined_error() (in module num_acc_experiment)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.matsub_numba_cuda_job_float32">matsub_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="num_acc_experiment.html#num_acc_experiment.max_relative_error">max_relative_error() (in module num_acc_experiment)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.matsub_numba_cuda_job_float64">matsub_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="num_acc_experiment.html#num_acc_experiment.min_abs_ref">min_abs_ref() (in module num_acc_experiment)</a>
 </li>
       <li>
     module
 
       <ul>
+        <li><a href="example_cupy.html#module-example_cupy">example_cupy</a>
+</li>
+        <li><a href="example_qcnn_forward_pass.html#module-example_qcnn_forward_pass">example_qcnn_forward_pass</a>
+</li>
         <li><a href="main.html#module-main">main</a>
 </li>
-        <li><a href="qmatmul.html#module-qmatmul">qmatmul</a>
+        <li><a href="num_acc_experiment.html#module-num_acc_experiment">num_acc_experiment</a>
+</li>
+        <li><a href="qmatmul_cupy.html#module-qmatmul">qmatmul</a>
+</li>
+        <li><a href="qmatmul.html#module-qmatmul_cupy">qmatmul_cupy</a>
 </li>
         <li><a href="utils.html#module-utils">utils</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    num_acc_experiment
+
+      <ul>
+        <li><a href="num_acc_experiment.html#module-num_acc_experiment">module</a>
 </li>
       </ul></li>
   </ul></td>
@@ -257,13 +323,15 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.permute">permute() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.permute">permute() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul.html#qmatmul_cupy.permute_cupy">permute_cupy() (in module qmatmul_cupy)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.permute_numba_cuda_job_float32">permute_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.permute_numba_cuda_job_float32">permute_numba_cuda_job_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.permute_numba_cuda_job_float64">permute_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.permute_numba_cuda_job_float64">permute_numba_cuda_job_float64() (in module qmatmul)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -275,52 +343,77 @@
     qmatmul
 
       <ul>
-        <li><a href="qmatmul.html#module-qmatmul">module</a>
+        <li><a href="qmatmul_cupy.html#module-qmatmul">module</a>
 </li>
       </ul></li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_algo_numba_cuda_float32">qmatmul_algo_numba_cuda_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul.html#qmatmul_cupy.qmatmul_algo_cupy">qmatmul_algo_cupy() (in module qmatmul_cupy)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_algo_numba_cuda_float64">qmatmul_algo_numba_cuda_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_algo_numba_cuda_float32">qmatmul_algo_numba_cuda_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_algo_numpy_parallel">qmatmul_algo_numpy_parallel() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_algo_numba_cuda_float64">qmatmul_algo_numba_cuda_float64() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_algo_numpy_st">qmatmul_algo_numpy_st() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_algo_numpy_parallel">qmatmul_algo_numpy_parallel() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_algolike_numpy">qmatmul_algolike_numpy() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_algo_numpy_st">qmatmul_algo_numpy_st() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_direct_numba_cuda_float32">qmatmul_direct_numba_cuda_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_algolike_numpy">qmatmul_algolike_numpy() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_direct_numba_cuda_float64">qmatmul_direct_numba_cuda_float64() (in module qmatmul)</a>
+      <li>
+    qmatmul_cupy
+
+      <ul>
+        <li><a href="qmatmul.html#module-qmatmul_cupy">module</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_direct_numpy_parallel">qmatmul_direct_numpy_parallel() (in module qmatmul)</a>
+      </ul></li>
+      <li><a href="qmatmul.html#qmatmul_cupy.qmatmul_direct_cupy">qmatmul_direct_cupy() (in module qmatmul_cupy)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_direct_numpy_st">qmatmul_direct_numpy_st() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_direct_numba_cuda_float32">qmatmul_direct_numba_cuda_float32() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_direct_numba_cuda_float64">qmatmul_direct_numba_cuda_float64() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_direct_numpy_parallel">qmatmul_direct_numpy_parallel() (in module qmatmul)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32">qmatmul_naive_numba_parallel_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_direct_numpy_st">qmatmul_direct_numpy_st() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float32_job">qmatmul_naive_numba_parallel_float32_job() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_parallel_float32">qmatmul_naive_numba_parallel_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float64">qmatmul_naive_numba_parallel_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_parallel_float32_job">qmatmul_naive_numba_parallel_float32_job() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_parallel_float64_job">qmatmul_naive_numba_parallel_float64_job() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_parallel_float64">qmatmul_naive_numba_parallel_float64() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32">qmatmul_naive_numba_st_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_parallel_float64_job">qmatmul_naive_numba_parallel_float64_job() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float32_job">qmatmul_naive_numba_st_float32_job() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_st_float32">qmatmul_naive_numba_st_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float64">qmatmul_naive_numba_st_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_st_float32_job">qmatmul_naive_numba_st_float32_job() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatmul_naive_numba_st_float64_job">qmatmul_naive_numba_st_float64_job() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_st_float64">qmatmul_naive_numba_st_float64() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmatrand">qmatrand() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatmul_naive_numba_st_float64_job">qmatmul_naive_numba_st_float64_job() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmul_numba_float32">qmul_numba_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmatrand">qmatrand() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmul_numba_float64">qmul_numba_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmul_numba_float32">qmul_numba_float32() (in module qmatmul)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.qmul_numba_int32">qmul_numba_int32() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmul_numba_float64">qmul_numba_float64() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.qmul_numba_int32">qmul_numba_int32() (in module qmatmul)</a>
+</li>
+      <li><a href="example_qcnn_forward_pass.html#example_qcnn_forward_pass.qrelu">qrelu() (in module example_qcnn_forward_pass)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="num_acc_experiment.html#num_acc_experiment.relative_frobenius_error">relative_frobenius_error() (in module num_acc_experiment)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="num_acc_experiment.html#num_acc_experiment.rms_error">rms_error() (in module num_acc_experiment)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -330,19 +423,33 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utils.html#utils.speedups_plot">speedups_plot() (in module utils)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.stack">stack() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.stack">stack() (in module qmatmul)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="qmatmul.html#qmatmul.stack_numba_cuda_job_float32">stack_numba_cuda_job_float32() (in module qmatmul)</a>
+      <li><a href="qmatmul.html#qmatmul_cupy.stack_cupy">stack_cupy() (in module qmatmul_cupy)</a>
 </li>
-      <li><a href="qmatmul.html#qmatmul.stack_numba_cuda_job_float64">stack_numba_cuda_job_float64() (in module qmatmul)</a>
+      <li><a href="qmatmul_cupy.html#qmatmul.stack_numba_cuda_job_float32">stack_numba_cuda_job_float32() (in module qmatmul)</a>
+</li>
+      <li><a href="qmatmul_cupy.html#qmatmul.stack_numba_cuda_job_float64">stack_numba_cuda_job_float64() (in module qmatmul)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="example_qcnn_forward_pass.html#example_qcnn_forward_pass.timed_dot">timed_dot() (in module example_qcnn_forward_pass)</a>
 </li>
   </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="example_qcnn_forward_pass.html#example_qcnn_forward_pass.unfold_quaternion">unfold_quaternion() (in module example_qcnn_forward_pass)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     utils

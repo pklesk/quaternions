@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>num_acc_experiment module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.5 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=d55fa986"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="qmatmul_cupy module" href="qmatmul.html" />
+    <link rel="prev" title="main module" href="main.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            qmatmul: Fast multiplication of quaternion-valued matrices
+          </a>
+              <div class="version">
+                1.0.5
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">src</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="example_cupy.html">example_cupy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example_qcnn_forward_pass.html">example_qcnn_forward_pass module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">num_acc_experiment module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#link-to-project-repository">Link to project repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#num_acc_experiment.relative_frobenius_error"><code class="docutils literal notranslate"><span class="pre">relative_frobenius_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#num_acc_experiment.max_relative_error"><code class="docutils literal notranslate"><span class="pre">max_relative_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#num_acc_experiment.rms_error"><code class="docutils literal notranslate"><span class="pre">rms_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#num_acc_experiment.min_abs_ref"><code class="docutils literal notranslate"><span class="pre">min_abs_ref()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#num_acc_experiment.max_abs_error"><code class="docutils literal notranslate"><span class="pre">max_abs_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#num_acc_experiment.max_combined_error"><code class="docutils literal notranslate"><span class="pre">max_combined_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul.html">qmatmul_cupy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qmatmul_cupy.html">qmatmul module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qmatmul: Fast multiplication of quaternion-valued matrices</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">src</a></li>
+      <li class="breadcrumb-item active">num_acc_experiment module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/num_acc_experiment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-num_acc_experiment">
+<span id="num-acc-experiment-module"></span><h1>num_acc_experiment module<a class="headerlink" href="#module-num_acc_experiment" title="Link to this heading"></a></h1>
+<p>Numerical accuracy experiment for the qmatmul package.</p>
+<p>Measures the relative error of float32 computations against a float64 reference,
+for both the direct (definition-based) and algo (proposed fast algorithm)
+approaches, CUDA backend. A single deterministic run per problem size is used
+(no repetitions or warm-up, as this is an accuracy study, not a timing study).</p>
+<p>Primary metrics: relative_frobenius_error (global accuracy), and max_abs_error
+together with max_combined_error (worst-case accuracy; max_combined_error uses
+the same atol/rtol tolerance already used for the np.allclose correctness checks
+in main.py). max_relative_error, rms_error and min_abs_ref are auxiliary metrics
+characterizing the element-wise error distribution.</p>
+<section id="link-to-project-repository">
+<h2>Link to project repository<a class="headerlink" href="#link-to-project-repository" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/pklesk/quaternions">https://github.com/pklesk/quaternions</a></p>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="num_acc_experiment.relative_frobenius_error">
+<span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">relative_frobenius_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#relative_frobenius_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.relative_frobenius_error" title="Link to this definition"></a></dt>
+<dd><p>Relative error in Frobenius norm: ||C_approx - C_ref|| / ||C_ref||.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="num_acc_experiment.max_relative_error">
+<span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">max_relative_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#max_relative_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.max_relative_error" title="Link to this definition"></a></dt>
+<dd><p>Element-wise relative error: max_i <a href="#id1"><span class="problematic" id="id2">|approx_i - ref_i|</span></a> / (<a href="#id3"><span class="problematic" id="id4">|ref_i|</span></a> + eps).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="num_acc_experiment.rms_error">
+<span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">rms_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#rms_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.rms_error" title="Link to this definition"></a></dt>
+<dd><p>Root-mean-square absolute error: ||C_approx - C_ref||_F / sqrt(n).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="num_acc_experiment.min_abs_ref">
+<span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">min_abs_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#min_abs_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.min_abs_ref" title="Link to this definition"></a></dt>
+<dd><p>Smallest <a href="#id5"><span class="problematic" id="id6">|reference value|</span></a> present in this run.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="num_acc_experiment.max_abs_error">
+<span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">max_abs_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#max_abs_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.max_abs_error" title="Link to this definition"></a></dt>
+<dd><p>Maximum absolute error: max_i <a href="#id7"><span class="problematic" id="id8">|approx_i - ref_i|</span></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="num_acc_experiment.max_combined_error">
+<span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">max_combined_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#max_combined_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.max_combined_error" title="Link to this definition"></a></dt>
+<dd><p>Maximum elementwise error relative to the np.allclose tolerance boundary:
+max_i <a href="#id9"><span class="problematic" id="id10">|approx_i - ref_i|</span></a> / (atol + rtol * <a href="#id11"><span class="problematic" id="id12">|ref_i|</span></a>). A value &lt;= 1 means every
+element would pass np.allclose(rtol=rtol, atol=atol).</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="main.html" class="btn btn-neutral float-left" title="main module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="qmatmul.html" class="btn btn-neutral float-right" title="qmatmul_cupy module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Przemysław Klęsk, Aleksandr Cariow.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
