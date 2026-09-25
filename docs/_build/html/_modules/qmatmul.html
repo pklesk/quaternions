@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qmatmul &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.6 documentation</title>
+  <title>qmatmul &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=e2a723ec"></script>
+        <script src="../_static/documentation_options.js?v=46dfa7f5"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             qmatmul: Fast multiplication of quaternion-valued matrices
           </a>
               <div class="version">
-                1.0.6
+                1.0.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -227,7 +227,7 @@
 <span class="sd">`https://github.com/pklesk/quaternions &lt;https://github.com/pklesk/quaternions&gt;`_ </span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0.6&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;1.0.7&quot;</span>
 <span class="n">__author__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Przemysław Klęsk&quot;</span><span class="p">,</span> <span class="s2">&quot;Aleksandr Cariow&quot;</span><span class="p">]</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pklesk@zut.edu.pl&quot;</span><span class="p">,</span> <span class="s2">&quot;alexandr.tariov@zut.edu.pl&quot;</span><span class="p">]</span>
 
@@ -249,6 +249,18 @@
         <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;CUDA is not available in this environment (numba-cuda import failed); GPU-based approaches such as &#39;algo_numba_cuda&#39; cannot run.&quot;</span><span class="p">)</span>        
     <span class="n">cuda</span> <span class="o">=</span> <span class="n">_CudaStub</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="cuda_jit_safe">
+<a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.cuda_jit_safe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cuda_jit_safe</span><span class="p">(</span><span class="n">signature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Behaves like `cuda.jit(signature)` when CUDA is available; otherwise returns a no-op decorator, so that eagerly-typed </span>
+<span class="sd">    kernel definitions do not attempt compilation (and touch the driver) on machines without a GPU.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">CUDA_AVAILABLE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">func</span>
+    <span class="k">return</span> <span class="n">decorator</span>    </div>
+
     
 <span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">void</span><span class="p">,</span> <span class="n">float32</span><span class="p">,</span> <span class="n">float64</span><span class="p">,</span> <span class="n">int8</span><span class="p">,</span> <span class="n">int32</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numba.core.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">NumbaPerformanceWarning</span>
@@ -806,7 +818,7 @@
          
 <div class="viewcode-block" id="stack_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.stack_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">stack_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">E4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float64[:, :, :]`` of shape ``(R, S, 4)`` named ``E`` (matrix of quaternions), </span>
 <span class="sd">    prepares its stacked representation --- the two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4`` with slices of imaginary parts stored as blocks of additional rows, </span>
@@ -821,7 +833,7 @@
 
 <div class="viewcode-block" id="a44_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.a44_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_numba_cuda_job_float64</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">A44</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float64[:, :, :]`` of shape ``(M, N, 4)`` named ``A`` (matrix of quaternions), </span>
 <span class="sd">    prepares the two-dimensional transformation matrix ``float64[:, :]`` named ``A44`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts, </span>
@@ -837,7 +849,7 @@
         
 <div class="viewcode-block" id="matmul_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.matmul_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">matmul_numba_cuda_job_float64</span><span class="p">(</span><span class="n">A44</span><span class="p">,</span> <span class="n">B4</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, 4 * N)`` named ``A44`` (transformation matrix) and a two-dimensional device array ``float64[:, :]`` of shape ``(4 * N, P)`` named ``B4``,</span>
 <span class="sd">    computes their matrix-matrix product named ``C4`` being a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, P)``, using shared memory and tiling, </span>
@@ -871,7 +883,7 @@
          
 <div class="viewcode-block" id="c4_to_c_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.c4_to_c_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">c4_to_c_numba_cuda_job_float64</span><span class="p">(</span><span class="n">C4</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, P)`` named `C4` being a result of a matrix-matrix product, </span>
 <span class="sd">    prepares its unstacked version --- the three-dimensional device array ``float64[:, :, :]`` of shape ``(M, P, 4)`` named `C`,</span>
@@ -945,7 +957,7 @@
          
 <div class="viewcode-block" id="stack_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.stack_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">stack_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">E4</span><span class="p">):</span>    
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float32[:, :, :]`` of shape ``(R, S, 4)`` named ``E`` (matrix of quaternions), </span>
 <span class="sd">    prepares its stacked representation --- the two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4`` with slices of imaginary parts stored as blocks of additional rows, </span>
@@ -960,7 +972,7 @@
 
 <div class="viewcode-block" id="a44_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.a44_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">a44_numba_cuda_job_float32</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">A4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a three-dimensional device array ``float32[:, :, :]`` of shape ``(M, N, 4)`` named ``A`` (matrix of quaternions), </span>
 <span class="sd">    prepares the two-dimensional transformation matrix ``float32[:, :]`` named ``A44`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts, </span>
@@ -976,7 +988,7 @@
         
 <div class="viewcode-block" id="matmul_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.matmul_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">matmul_numba_cuda_job_float32</span><span class="p">(</span><span class="n">A44</span><span class="p">,</span> <span class="n">B4</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, 4 * N)`` named ``A44`` (transformation matrix) and a two-dimensional device array ``float32[:, :]`` of shape ``(4 * N, P)`` named ``B4``,</span>
 <span class="sd">    computes their matrix-matrix product named ``C4`` being a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, P)``, using shared memory and tiling, </span>
@@ -1010,7 +1022,7 @@
         
 <div class="viewcode-block" id="c4_to_c_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.c4_to_c_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">c4_to_c_numba_cuda_job_float32</span><span class="p">(</span><span class="n">C4</span><span class="p">,</span> <span class="n">C</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, P)`` named `C4` being a result of a matrix-matrix product, </span>
 <span class="sd">    prepares its unstacked version --- the three-dimensional device array ``float32[:, :, :]`` of shape ``(M, P, 4)`` named `C`,</span>
@@ -1133,7 +1145,7 @@
         
 <div class="viewcode-block" id="had4_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.had4_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">had4_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">H4E4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)``, </span>
 <span class="sd">    computes the Hadamard transform applied to it, resulting in a two-dimensional device array ``float64[:, :]`` named ``H4E4``, </span>
@@ -1162,7 +1174,7 @@
         
 <div class="viewcode-block" id="matmuldiag_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.matmuldiag_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">,</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">,</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">G4</span><span class="p">):</span> <span class="c1"># E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4`` and a two-dimensional device array ``float64[:, :]`` of shape ``(4 * S, T)`` named ``F4``,</span>
 <span class="sd">    computes their `diagonal` matrix-matrix product named ``G4`` (successive blocks being standard products of corresponding real and imaginary slices) </span>
@@ -1201,7 +1213,7 @@
 
 <div class="viewcode-block" id="permute_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.permute_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">int8</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">int8</span><span class="p">[:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">permute_numba_cuda_job_float64</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">E4_permuted</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4``,</span>
 <span class="sd">    prepares its block-wise permuted version named ``E4_permuted`` (of same shape and type) with order of blocks specified by the argument ``permutation`` given as ``int8[:]``, using shared memory and tiling,</span>
@@ -1229,7 +1241,7 @@
         
 <div class="viewcode-block" id="matsub_numba_cuda_job_float64">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.matsub_numba_cuda_job_float64">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float64</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">matsub_numba_cuda_job_float64</span><span class="p">(</span><span class="n">C4_left</span><span class="p">,</span> <span class="n">C4_right</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For two two-dimensional device arrays ``float64[:, :]`` named ``C4_left`` and ``C4_right``, of shape ``(4 * M, P)`` each,</span>
 <span class="sd">    computes their difference named ``C4`` (of same shape and type), using shared memory and tiling, </span>
@@ -1359,7 +1371,7 @@
 
 <div class="viewcode-block" id="had4_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.had4_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">had4_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">H4E4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)``, </span>
 <span class="sd">    computes the Hadamard transform applied to it, resulting in a two-dimensional device array ``float32[:, :]`` named ``H4E4``, </span>
@@ -1388,7 +1400,7 @@
 
 <div class="viewcode-block" id="matmuldiag_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.matmuldiag_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">,</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">,</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">matmuldiag_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">F4</span><span class="p">,</span> <span class="n">factor</span><span class="p">,</span> <span class="n">G4</span><span class="p">):</span> <span class="c1"># E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4`` and a two-dimensional device array ``float32[:, :]`` of shape ``(4 * S, T)`` named ``F4``,</span>
 <span class="sd">    computes their `diagonal` matrix-matrix product named ``G4`` (successive blocks being standard products of corresponding real and imaginary slices) </span>
@@ -1427,7 +1439,7 @@
 
 <div class="viewcode-block" id="permute_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.permute_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">int8</span><span class="p">[:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">int8</span><span class="p">[:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">permute_numba_cuda_job_float32</span><span class="p">(</span><span class="n">E4</span><span class="p">,</span> <span class="n">permutation</span><span class="p">,</span> <span class="n">E4_permuted</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4``,</span>
 <span class="sd">    prepares its block-wise permuted version named ``E4_permuted`` (of same shape and type) with order of blocks specified by the argument ``permutation`` given as ``int8[:]``, using shared memory and tiling,</span>
@@ -1455,7 +1467,7 @@
         
 <div class="viewcode-block" id="matsub_numba_cuda_job_float32">
 <a class="viewcode-back" href="../qmatmul_cupy.html#qmatmul.matsub_numba_cuda_job_float32">[docs]</a>
-<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
+<span class="nd">@cuda_jit_safe</span><span class="p">(</span><span class="n">void</span><span class="p">(</span><span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:],</span> <span class="n">float32</span><span class="p">[:,</span> <span class="p">:]))</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">matsub_numba_cuda_job_float32</span><span class="p">(</span><span class="n">C4_left</span><span class="p">,</span> <span class="n">C4_right</span><span class="p">,</span> <span class="n">C4</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;(`CUDA kernel for internal use`) For two two-dimensional device arrays ``float32[:, :]`` named ``C4_left`` and ``C4_right``, of shape ``(4 * M, P)`` each,</span>
 <span class="sd">    computes their difference named ``C4`` (of same shape and type), using shared memory and tiling, </span>

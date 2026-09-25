@@ -151,7 +151,7 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
 """
 
-__version__ = "1.0.6"
+__version__ = "1.0.7"
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 
@@ -173,6 +173,15 @@ except Exception:
         def __getattr__(self, name):
             raise RuntimeError("CUDA is not available in this environment (numba-cuda import failed); GPU-based approaches such as 'algo_numba_cuda' cannot run.")        
     cuda = _CudaStub()
+    
+def cuda_jit_safe(signature):
+    """Behaves like `cuda.jit(signature)` when CUDA is available; otherwise returns a no-op decorator, so that eagerly-typed 
+    kernel definitions do not attempt compilation (and touch the driver) on machines without a GPU."""
+    if CUDA_AVAILABLE:
+        return cuda.jit(signature)
+    def decorator(func):
+        return func
+    return decorator    
     
 from numba import void, float32, float64, int8, int32
 from numba.core.errors import NumbaPerformanceWarning
@@ -644,7 +653,7 @@ def qmatmul_direct_numba_cuda_float64(A, B, tile_size=DEFAULT_TILE_SIZE, verbose
         print(f"QMATMUL_DIRECT_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
     return C
          
-@cuda.jit(void(float64[:, :, :], float64[:, :]))
+@cuda_jit_safe(void(float64[:, :, :], float64[:, :]))
 def stack_numba_cuda_job_float64(E, E4):
     """(`CUDA kernel for internal use`) For a three-dimensional device array ``float64[:, :, :]`` of shape ``(R, S, 4)`` named ``E`` (matrix of quaternions), 
     prepares its stacked representation --- the two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4`` with slices of imaginary parts stored as blocks of additional rows, 
@@ -656,7 +665,7 @@ def stack_numba_cuda_job_float64(E, E4):
         r, s = i_rs // S, i_rs % S
         E4[i_im * R + r, s] = E[r, s, i_im]
 
-@cuda.jit(void(float64[:, :, :], float64[:, :]))
+@cuda_jit_safe(void(float64[:, :, :], float64[:, :]))
 def a44_numba_cuda_job_float64(A, A44):
     """(`CUDA kernel for internal use`) For a three-dimensional device array ``float64[:, :, :]`` of shape ``(M, N, 4)`` named ``A`` (matrix of quaternions), 
     prepares the two-dimensional transformation matrix ``float64[:, :]`` named ``A44`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts, 
@@ -669,7 +678,7 @@ def a44_numba_cuda_job_float64(A, A44):
         m, n = i_mn // N, i_mn % N
         A44[block_row * M + m, block_col * N + n] = const_a_blocks_signs[block_row, block_col] * A[m, n, const_a_blocks_parts[block_row, block_col]]
         
-@cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
+@cuda_jit_safe(void(float64[:, :], float64[:, :], float64[:, :]))
 def matmul_numba_cuda_job_float64(A44, B4, C4):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, 4 * N)`` named ``A44`` (transformation matrix) and a two-dimensional device array ``float64[:, :]`` of shape ``(4 * N, P)`` named ``B4``,
     computes their matrix-matrix product named ``C4`` being a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, P)``, using shared memory and tiling, 
@@ -700,7 +709,7 @@ def matmul_numba_cuda_job_float64(A44, B4, C4):
     if row < M4 and col < P:
         C4[row, col] = tmp
          
-@cuda.jit(void(float64[:, :], float64[:, :, :]))
+@cuda_jit_safe(void(float64[:, :], float64[:, :, :]))
 def c4_to_c_numba_cuda_job_float64(C4, C):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * M, P)`` named `C4` being a result of a matrix-matrix product, 
     prepares its unstacked version --- the three-dimensional device array ``float64[:, :, :]`` of shape ``(M, P, 4)`` named `C`,
@@ -768,7 +777,7 @@ def qmatmul_direct_numba_cuda_float32(A, B, tile_size=DEFAULT_TILE_SIZE, verbose
         print(f"QMATMUL_DIRECT_NUMBA_CUDA_FLOAT32 DONE. [time: {t2 - t1} s]")
     return C
          
-@cuda.jit(void(float32[:, :, :], float32[:, :]))
+@cuda_jit_safe(void(float32[:, :, :], float32[:, :]))
 def stack_numba_cuda_job_float32(E, E4):    
     """(`CUDA kernel for internal use`) For a three-dimensional device array ``float32[:, :, :]`` of shape ``(R, S, 4)`` named ``E`` (matrix of quaternions), 
     prepares its stacked representation --- the two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4`` with slices of imaginary parts stored as blocks of additional rows, 
@@ -780,7 +789,7 @@ def stack_numba_cuda_job_float32(E, E4):
         r, s = i_rs // S, i_rs % S
         E4[i_im * R + r, s] = E[r, s, i_im]                
 
-@cuda.jit(void(float32[:, :, :], float32[:, :]))
+@cuda_jit_safe(void(float32[:, :, :], float32[:, :]))
 def a44_numba_cuda_job_float32(A, A4):
     """(`CUDA kernel for internal use`) For a three-dimensional device array ``float32[:, :, :]`` of shape ``(M, N, 4)`` named ``A`` (matrix of quaternions), 
     prepares the two-dimensional transformation matrix ``float32[:, :]`` named ``A44`` of shape ``(4 * M, 4 * N)`` made of suitably permuted and signed blocks of real/imaginary parts, 
@@ -793,7 +802,7 @@ def a44_numba_cuda_job_float32(A, A4):
         m, n = i_mn // N, i_mn % N
         A4[block_row * M + m, block_col * N + n] = const_a_blocks_signs[block_row, block_col] * A[m, n, const_a_blocks_parts[block_row, block_col]]
         
-@cuda.jit(void(float32[:, :], float32[:, :], float32[:, :]))
+@cuda_jit_safe(void(float32[:, :], float32[:, :], float32[:, :]))
 def matmul_numba_cuda_job_float32(A44, B4, C4):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, 4 * N)`` named ``A44`` (transformation matrix) and a two-dimensional device array ``float32[:, :]`` of shape ``(4 * N, P)`` named ``B4``,
     computes their matrix-matrix product named ``C4`` being a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, P)``, using shared memory and tiling, 
@@ -824,7 +833,7 @@ def matmul_numba_cuda_job_float32(A44, B4, C4):
     if row < M4 and col < P:
         C4[row, col] = tmp
         
-@cuda.jit(void(float32[:, :], float32[:, :, :]))
+@cuda_jit_safe(void(float32[:, :], float32[:, :, :]))
 def c4_to_c_numba_cuda_job_float32(C4, C):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * M, P)`` named `C4` being a result of a matrix-matrix product, 
     prepares its unstacked version --- the three-dimensional device array ``float32[:, :, :]`` of shape ``(M, P, 4)`` named `C`,
@@ -941,7 +950,7 @@ def qmatmul_algo_numba_cuda_float64(A, B, tile_size=DEFAULT_TILE_SIZE, verbose=F
         print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT64 DONE. [time: {t2 - t1} s]")
     return C
         
-@cuda.jit(void(float64[:, :], float64[:, :]))
+@cuda_jit_safe(void(float64[:, :], float64[:, :]))
 def had4_numba_cuda_job_float64(E4, H4E4):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)``, 
     computes the Hadamard transform applied to it, resulting in a two-dimensional device array ``float64[:, :]`` named ``H4E4``, 
@@ -967,7 +976,7 @@ def had4_numba_cuda_job_float64(E4, H4E4):
         H4E4[row + R2, col] = s0 - s1
         H4E4[row + R3, col] = d0 - d1          
         
-@cuda.jit(void(float64[:, :], float64[:, :], float64, float64[:, :]))
+@cuda_jit_safe(void(float64[:, :], float64[:, :], float64, float64[:, :]))
 def matmuldiag_numba_cuda_job_float64(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4`` and a two-dimensional device array ``float64[:, :]`` of shape ``(4 * S, T)`` named ``F4``,
     computes their `diagonal` matrix-matrix product named ``G4`` (successive blocks being standard products of corresponding real and imaginary slices) 
@@ -1003,7 +1012,7 @@ def matmuldiag_numba_cuda_job_float64(E4, F4, factor, G4): # E4 shape: (R4 x S),
     if row < R and col < T:
         G4[row_bz_R, col] = factor * tmp        
 
-@cuda.jit(void(float64[:, :], int8[:], float64[:, :]))
+@cuda_jit_safe(void(float64[:, :], int8[:], float64[:, :]))
 def permute_numba_cuda_job_float64(E4, permutation, E4_permuted):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float64[:, :]`` of shape ``(4 * R, S)`` named ``E4``,
     prepares its block-wise permuted version named ``E4_permuted`` (of same shape and type) with order of blocks specified by the argument ``permutation`` given as ``int8[:]``, using shared memory and tiling,
@@ -1028,7 +1037,7 @@ def permute_numba_cuda_job_float64(E4, permutation, E4_permuted):
         E4_permuted[row + R2, col] = shared_E4[tx, ty, permutation[2]]
         E4_permuted[row + R3, col] = shared_E4[tx, ty, permutation[3]]
         
-@cuda.jit(void(float64[:, :], float64[:, :], float64[:, :]))
+@cuda_jit_safe(void(float64[:, :], float64[:, :], float64[:, :]))
 def matsub_numba_cuda_job_float64(C4_left, C4_right, C4):
     """(`CUDA kernel for internal use`) For two two-dimensional device arrays ``float64[:, :]`` named ``C4_left`` and ``C4_right``, of shape ``(4 * M, P)`` each,
     computes their difference named ``C4`` (of same shape and type), using shared memory and tiling, 
@@ -1152,7 +1161,7 @@ def qmatmul_algo_numba_cuda_float32(A, B, tile_size=DEFAULT_TILE_SIZE, verbose=F
         print(f"QMATMUL_ALGO_NUMBA_CUDA_FLOAT32 DONE. [time: {t2 - t1} s]")
     return C
 
-@cuda.jit(void(float32[:, :], float32[:, :]))
+@cuda_jit_safe(void(float32[:, :], float32[:, :]))
 def had4_numba_cuda_job_float32(E4, H4E4):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)``, 
     computes the Hadamard transform applied to it, resulting in a two-dimensional device array ``float32[:, :]`` named ``H4E4``, 
@@ -1178,7 +1187,7 @@ def had4_numba_cuda_job_float32(E4, H4E4):
         H4E4[row + R2, col] = s0 - s1
         H4E4[row + R3, col] = d0 - d1        
 
-@cuda.jit(void(float32[:, :], float32[:, :], float32, float32[:, :]))
+@cuda_jit_safe(void(float32[:, :], float32[:, :], float32, float32[:, :]))
 def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S), F4 shape: (S4 x T), G4 shape: (R4 x T)
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4`` and a two-dimensional device array ``float32[:, :]`` of shape ``(4 * S, T)`` named ``F4``,
     computes their `diagonal` matrix-matrix product named ``G4`` (successive blocks being standard products of corresponding real and imaginary slices) 
@@ -1214,7 +1223,7 @@ def matmuldiag_numba_cuda_job_float32(E4, F4, factor, G4): # E4 shape: (R4 x S),
     if row < R and col < T:
         G4[row_bz_R, col] = factor * tmp
 
-@cuda.jit(void(float32[:, :], int8[:], float32[:, :]))
+@cuda_jit_safe(void(float32[:, :], int8[:], float32[:, :]))
 def permute_numba_cuda_job_float32(E4, permutation, E4_permuted):
     """(`CUDA kernel for internal use`) For a two-dimensional device array ``float32[:, :]`` of shape ``(4 * R, S)`` named ``E4``,
     prepares its block-wise permuted version named ``E4_permuted`` (of same shape and type) with order of blocks specified by the argument ``permutation`` given as ``int8[:]``, using shared memory and tiling,
@@ -1239,7 +1248,7 @@ def permute_numba_cuda_job_float32(E4, permutation, E4_permuted):
         E4_permuted[row + R2, col] = shared_E4[tx, ty, permutation[2]]
         E4_permuted[row + R3, col] = shared_E4[tx, ty, permutation[3]]            
         
-@cuda.jit(void(float32[:, :], float32[:, :], float32[:, :]))
+@cuda_jit_safe(void(float32[:, :], float32[:, :], float32[:, :]))
 def matsub_numba_cuda_job_float32(C4_left, C4_right, C4):
     """(`CUDA kernel for internal use`) For two two-dimensional device arrays ``float32[:, :]`` named ``C4_left`` and ``C4_right``, of shape ``(4 * M, P)`` each,
     computes their difference named ``C4`` (of same shape and type), using shared memory and tiling, 
