@@ -1,4 +1,4 @@
-"""
+r"""
 Numerical accuracy experiment for the qmatmul package.
 
 Measures the relative error of float32 computations against a float64 reference,
@@ -47,34 +47,33 @@ SIZES = [
 LINE_SEPARATOR = 256 * "="
 
 def relative_frobenius_error(C_approx, C_ref_f64):
-    """Relative error in Frobenius norm: ||C_approx - C_ref|| / ||C_ref||."""
+    """Relative error in Frobenius norm."""
     diff = C_approx.astype(np.float64) - C_ref_f64
     return np.linalg.norm(diff) / np.linalg.norm(C_ref_f64)
 
 def max_relative_error(C_approx, C_ref_f64, eps=1e-15):
-    """Element-wise relative error: max_i |approx_i - ref_i| / (|ref_i| + eps)."""
+    """Element-wise relative error."""
     diff = np.abs(C_approx.astype(np.float64) - C_ref_f64)
     denom = np.abs(C_ref_f64) + eps
     return np.max(diff / denom)
 
 def rms_error(C_approx, C_ref_f64):
-    """Root-mean-square absolute error: ||C_approx - C_ref||_F / sqrt(n)."""
+    """Root-mean-square absolute error."""
     diff = C_approx.astype(np.float64) - C_ref_f64
     return np.sqrt(np.mean(diff ** 2))
 
 def min_abs_ref(C_ref_f64):
-    """Smallest |reference value| present in this run."""
+    """Smallest absolute reference value present in this run."""
     return np.min(np.abs(C_ref_f64))
 
 def max_abs_error(C_approx, C_ref_f64):
-    """Maximum absolute error: max_i |approx_i - ref_i|."""
+    """Maximum absolute error."""
     diff = np.abs(C_approx.astype(np.float64) - C_ref_f64)
     return np.max(diff)
 
 def max_combined_error(C_approx, C_ref_f64, atol=ATOL, rtol=RTOL):
-    """Maximum elementwise error relative to the np.allclose tolerance boundary:
-    max_i |approx_i - ref_i| / (atol + rtol * |ref_i|). A value <= 1 means every
-    element would pass np.allclose(rtol=rtol, atol=atol)."""
+    """Maximum elementwise error relative to the np.allclose tolerance boundary.
+    A value <= 1 means every element would pass np.allclose(rtol=rtol, atol=atol)."""
     diff = np.abs(C_approx.astype(np.float64) - C_ref_f64)
     denom = atol + rtol * np.abs(C_ref_f64)
     return np.max(diff / denom)

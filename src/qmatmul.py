@@ -151,7 +151,7 @@ Link to project repository
 `https://github.com/pklesk/quaternions <https://github.com/pklesk/quaternions>`_ 
 """
 
-__version__ = "1.0.5"
+__version__ = "1.0.6"
 __author__ = ["Przemysław Klęsk", "Aleksandr Cariow"]
 __email__ = ["pklesk@zut.edu.pl", "alexandr.tariov@zut.edu.pl"]
 

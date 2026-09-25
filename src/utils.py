@@ -1,4 +1,4 @@
-"""
+r"""
 Auxiliary module with simple utility and informative functions.
 
 Link to project repository

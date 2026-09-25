@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>num_acc_experiment &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.5 documentation</title>
+  <title>num_acc_experiment &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
 
@@ -14,7 +14,7 @@
   
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../_static/documentation_options.js?v=d55fa986"></script>
+        <script src="../_static/documentation_options.js?v=e2a723ec"></script>
         <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -34,7 +34,7 @@
             qmatmul: Fast multiplication of quaternion-valued matrices
           </a>
               <div class="version">
-                1.0.5
+                1.0.6
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -74,7 +74,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for num_acc_experiment</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Numerical accuracy experiment for the qmatmul package.</span>
 
 <span class="sd">Measures the relative error of float32 computations against a float64 reference,</span>
@@ -125,7 +125,7 @@
 <div class="viewcode-block" id="relative_frobenius_error">
 <a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.relative_frobenius_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">relative_frobenius_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Relative error in Frobenius norm: ||C_approx - C_ref|| / ||C_ref||.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Relative error in Frobenius norm.&quot;&quot;&quot;</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">)</span></div>
 
@@ -133,7 +133,7 @@
 <div class="viewcode-block" id="max_relative_error">
 <a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.max_relative_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">max_relative_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Element-wise relative error: max_i |approx_i - ref_i| / (|ref_i| + eps).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Element-wise relative error.&quot;&quot;&quot;</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span><span class="p">)</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">)</span> <span class="o">+</span> <span class="n">eps</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span></div>
@@ -142,7 +142,7 @@
 <div class="viewcode-block" id="rms_error">
 <a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.rms_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rms_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Root-mean-square absolute error: ||C_approx - C_ref||_F / sqrt(n).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Root-mean-square absolute error.&quot;&quot;&quot;</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span></div>
 
@@ -150,14 +150,14 @@
 <div class="viewcode-block" id="min_abs_ref">
 <a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.min_abs_ref">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">min_abs_ref</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smallest |reference value| present in this run.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smallest absolute reference value present in this run.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="max_abs_error">
 <a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.max_abs_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">max_abs_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum absolute error: max_i |approx_i - ref_i|.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum absolute error.&quot;&quot;&quot;</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span></div>
 
@@ -165,9 +165,8 @@
 <div class="viewcode-block" id="max_combined_error">
 <a class="viewcode-back" href="../num_acc_experiment.html#num_acc_experiment.max_combined_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">max_combined_error</span><span class="p">(</span><span class="n">C_approx</span><span class="p">,</span> <span class="n">C_ref_f64</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">ATOL</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">RTOL</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum elementwise error relative to the np.allclose tolerance boundary:</span>
-<span class="sd">    max_i |approx_i - ref_i| / (atol + rtol * |ref_i|). A value &lt;= 1 means every</span>
-<span class="sd">    element would pass np.allclose(rtol=rtol, atol=atol).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maximum elementwise error relative to the np.allclose tolerance boundary.</span>
+<span class="sd">    A value &lt;= 1 means every element would pass np.allclose(rtol=rtol, atol=atol).&quot;&quot;&quot;</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_approx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">C_ref_f64</span><span class="p">)</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">atol</span> <span class="o">+</span> <span class="n">rtol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">C_ref_f64</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">diff</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span></div>

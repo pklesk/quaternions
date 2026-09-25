@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>num_acc_experiment module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.5 documentation</title>
+  <title>num_acc_experiment module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.6 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=d55fa986"></script>
+        <script src="_static/documentation_options.js?v=e2a723ec"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -37,7 +37,7 @@
             qmatmul: Fast multiplication of quaternion-valued matrices
           </a>
               <div class="version">
-                1.0.5
+                1.0.6
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -114,39 +114,38 @@ characterizing the element-wise error distribution.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="num_acc_experiment.relative_frobenius_error">
 <span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">relative_frobenius_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#relative_frobenius_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.relative_frobenius_error" title="Link to this definition"></a></dt>
-<dd><p>Relative error in Frobenius norm: ||C_approx - C_ref|| / ||C_ref||.</p>
+<dd><p>Relative error in Frobenius norm.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="num_acc_experiment.max_relative_error">
 <span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">max_relative_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#max_relative_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.max_relative_error" title="Link to this definition"></a></dt>
-<dd><p>Element-wise relative error: max_i <a href="#id1"><span class="problematic" id="id2">|approx_i - ref_i|</span></a> / (<a href="#id3"><span class="problematic" id="id4">|ref_i|</span></a> + eps).</p>
+<dd><p>Element-wise relative error.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="num_acc_experiment.rms_error">
 <span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">rms_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#rms_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.rms_error" title="Link to this definition"></a></dt>
-<dd><p>Root-mean-square absolute error: ||C_approx - C_ref||_F / sqrt(n).</p>
+<dd><p>Root-mean-square absolute error.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="num_acc_experiment.min_abs_ref">
 <span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">min_abs_ref</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#min_abs_ref"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.min_abs_ref" title="Link to this definition"></a></dt>
-<dd><p>Smallest <a href="#id5"><span class="problematic" id="id6">|reference value|</span></a> present in this run.</p>
+<dd><p>Smallest absolute reference value present in this run.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="num_acc_experiment.max_abs_error">
 <span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">max_abs_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#max_abs_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.max_abs_error" title="Link to this definition"></a></dt>
-<dd><p>Maximum absolute error: max_i <a href="#id7"><span class="problematic" id="id8">|approx_i - ref_i|</span></a>.</p>
+<dd><p>Maximum absolute error.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="num_acc_experiment.max_combined_error">
 <span class="sig-prename descclassname"><span class="pre">num_acc_experiment.</span></span><span class="sig-name descname"><span class="pre">max_combined_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C_approx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_ref_f64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rtol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/num_acc_experiment.html#max_combined_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#num_acc_experiment.max_combined_error" title="Link to this definition"></a></dt>
-<dd><p>Maximum elementwise error relative to the np.allclose tolerance boundary:
-max_i <a href="#id9"><span class="problematic" id="id10">|approx_i - ref_i|</span></a> / (atol + rtol * <a href="#id11"><span class="problematic" id="id12">|ref_i|</span></a>). A value &lt;= 1 means every
-element would pass np.allclose(rtol=rtol, atol=atol).</p>
+<dd><p>Maximum elementwise error relative to the np.allclose tolerance boundary.
+A value &lt;= 1 means every element would pass np.allclose(rtol=rtol, atol=atol).</p>
 </dd></dl>
 
 </section>

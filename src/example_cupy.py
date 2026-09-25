@@ -1,4 +1,4 @@
-"""
+r"""
 Module for timing comparison of qmatmul's CUDA-based backends: 
 direct vs. proposed-algorithm, each via numba-cuda and via CuPy (cuBLAS-backed). Runs a
 single fixed-size quaternion matrix-matrix product (configurable via the module-level

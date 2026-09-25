@@ -1,4 +1,4 @@
-"""
+r"""
 Standalone script for QCNN forward-pass application example: a small 
 quaternion-valued CNN (2 convolutional layers + flatten + dense layer), applied to a
 batch of synthetic ("dummy") RGB-D images. Both the direct and proposed-algorithm

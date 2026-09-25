@@ -331,3 +331,4 @@ src/__pycache__
 *.egg-info/
 *.pyc
 
+dist/
