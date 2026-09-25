@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>qmatmul module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.6 documentation</title>
+  <title>qmatmul module &mdash; qmatmul: Fast multiplication of quaternion-valued matrices 1.0.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -15,7 +15,7 @@
   
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=e2a723ec"></script>
+        <script src="_static/documentation_options.js?v=46dfa7f5"></script>
         <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -38,7 +38,7 @@
             qmatmul: Fast multiplication of quaternion-valued matrices
           </a>
               <div class="version">
-                1.0.6
+                1.0.7
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -61,6 +61,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#usage-example-2-large-arguments">Usage example 2 (large arguments)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#link-to-project-repository">Link to project repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#qmatmul.cuda_jit_safe"><code class="docutils literal notranslate"><span class="pre">cuda_jit_safe()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.qmatrand"><code class="docutils literal notranslate"><span class="pre">qmatrand()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#qmatmul.stack"><code class="docutils literal notranslate"><span class="pre">stack()</span></code></a></li>
@@ -280,6 +281,13 @@ suitable usage of tiling and shared memory, and few host-device memory transfers
 <h2>Link to project repository<a class="headerlink" href="#link-to-project-repository" title="Link to this heading"></a></h2>
 <p><a class="reference external" href="https://github.com/pklesk/quaternions">https://github.com/pklesk/quaternions</a></p>
 </section>
+<dl class="py function">
+<dt class="sig sig-object py" id="qmatmul.cuda_jit_safe">
+<span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">cuda_jit_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signature</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#cuda_jit_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.cuda_jit_safe" title="Link to this definition"></a></dt>
+<dd><p>Behaves like <cite>cuda.jit(signature)</cite> when CUDA is available; otherwise returns a no-op decorator, so that eagerly-typed 
+kernel definitions do not attempt compilation (and touch the driver) on machines without a GPU.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="qmatmul.dot">
 <span class="sig-prename descclassname"><span class="pre">qmatmul.</span></span><span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approach</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'algo_numba_cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'verbose':</span> <span class="pre">False}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/qmatmul.html#dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qmatmul.dot" title="Link to this definition"></a></dt>
